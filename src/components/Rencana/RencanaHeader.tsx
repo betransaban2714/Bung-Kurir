@@ -152,7 +152,7 @@ export function RencanaHeader({ rencanaList, activeRencana, onSelect, onCreate, 
             </div>
 
             <p className="text-[9px] text-center text-muted-foreground font-medium italic leading-relaxed px-4">
-              "Aplikasi ini dibuat khusus untuk mempermudah operasional kurir di wilayah Indonesia Timur. Terus semangat antar paket dolo Bung! 🔥"
+              "Aplikasi ini dibuat khusus untuk mempermudah operasional kurir di wilayah Indonesia Timur. Terus semangat antar paket-nya Bung! 🔥"
             </p>
           </div>
         </DialogContent>
