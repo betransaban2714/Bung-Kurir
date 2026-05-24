@@ -65,7 +65,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
       maxZoom: 20
     }).addTo(map);
 
-    // Layer Label (Jalan, Toko, POI) - SUPAYA ADA NAMA TEMPAT
+    // Layer Label (Jalan, Toko, POI)
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
@@ -99,7 +99,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     buyerGroup.clearLayers();
     const bounds: L.LatLngTuple[] = [];
 
-    // Tampilkan CUMA SATU Titik Biru (Gunakan Lokasi Start)
+    // Tampilkan CUMA SATU Titik Biru
     const initialPos = rencana.startLocation;
     if (initialPos) {
       const { latitude, longitude } = initialPos;
@@ -234,7 +234,6 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
               window.open(`https://wa.me/${buyer.waNumber.replace(/[^0-9]/g, '')}`, '_blank');
             });
 
-            // Logika Klik SELESAI -> Muncul Form Input
             const preBtn = document.getElementById(`pre-done-btn-${buyer.id}`);
             const inputArea = document.getElementById(`confirm-input-area-${buyer.id}`);
             const doneBtn = document.getElementById(`done-btn-${buyer.id}`);
@@ -277,7 +276,8 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
             userMarkerRef.current.addTo(mapRef.current!);
           }
         }
-        mapRef.current!.flyTo([latitude, longitude], 18, { duration: 1.5 });
+        // Animasi dipercepat dari 1.5 ke 0.5 detik
+        mapRef.current!.flyTo([latitude, longitude], 18, { duration: 0.5 });
         setLocating(false);
       },
       () => setLocating(false),
