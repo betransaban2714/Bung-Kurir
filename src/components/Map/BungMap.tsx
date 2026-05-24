@@ -21,15 +21,23 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
       zoomControl: false,
     }).setView([-2.5489, 118.0149], 5);
 
-    // Menggunakan ESRI World Imagery untuk tampilan Satelit
+    // 1. Layer Dasar: Satelit (ESRI World Imagery)
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EBP, and the GIS User Community'
     }).addTo(mapRef.current);
 
-    // Overlay Label (Jalan & Nama Tempat) supaya tetap terbaca di mode satelit
-    L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; Stamen Design',
-      opacity: 0.7
+    // 2. Overlay: Jalan-jalan (ESRI World Transportation)
+    // Ini yang kasih garis jalan di atas satelit
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Esri, HERE, Garmin, © OpenStreetMap contributors',
+      opacity: 0.8
+    }).addTo(mapRef.current);
+
+    // 3. Overlay: Nama Tempat & Batas Wilayah (ESRI World Boundaries and Places)
+    // Ini yang kasih teks nama kota, kelurahan, dan tempat penting
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Esri, HERE, Garmin, © OpenStreetMap contributors',
+      opacity: 0.9
     }).addTo(mapRef.current);
 
     L.control.zoom({ position: 'bottomright' }).addTo(mapRef.current);
