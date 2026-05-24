@@ -25,7 +25,12 @@ import { CreateRencanaDialog } from '@/components/Rencana/CreateRencanaDialog';
 
 const BungMap = dynamic(() => import('@/components/Map/BungMap'), { 
   ssr: false,
-  loading: () => <div className="w-full h-full bg-secondary/50 animate-pulse flex items-center justify-center text-muted-foreground">SABAR DOLO, MAPS LAGI MASUK... 🌍</div>
+  loading: () => (
+    <div className="w-full h-full bg-secondary/20 animate-pulse flex flex-col items-center justify-center text-muted-foreground gap-4">
+      <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      <p className="font-black italic tracking-widest text-xs uppercase">SABAR DOLO, MAPS LAGI MASUK... 🌍</p>
+    </div>
+  )
 });
 
 export default function Home() {
@@ -47,9 +52,9 @@ export default function Home() {
   if (!isHydrated) return null;
 
   return (
-    <div className="relative h-[100dvh] w-full flex flex-col overflow-hidden bg-background">
+    <div className="relative h-[100dvh] w-full flex flex-col overflow-hidden bg-background p-2 md:p-4">
       {/* HEADER */}
-      <header className="z-20 p-4 pb-3 glass-dark border-b border-white/5 shrink-0">
+      <header className="z-20 p-4 pb-4 glass-dark rounded-3xl border border-white/5 shrink-0 mb-2">
         <div className="max-w-4xl mx-auto">
           <RencanaHeader 
             rencanaList={rencanaList}
@@ -62,50 +67,55 @@ export default function Home() {
       </header>
 
       {/* MAP AREA */}
-      <main className="flex-1 relative z-10 overflow-hidden bg-black">
+      <main className="flex-1 relative z-10 overflow-hidden rounded-[2rem] border border-white/5 bg-black/50 shadow-2xl">
         {activeRencana ? (
-          <div className="w-full h-full">
-            <BungMap 
-              rencana={activeRencana} 
-              onUpdateStatus={(bid, status, paid) => updateBuyerStatus(activeRencana.id, bid, status, paid)}
-            />
-            
-            <div className="absolute top-4 right-4 flex flex-col gap-3 z-30">
-              <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-                <SheetTrigger asChild>
-                  <Button size="icon" className="w-14 h-14 rounded-2xl glass-dark shadow-2xl glow-blue active:scale-95 transition-all">
-                    <Menu className="w-7 h-7" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="right" className="p-0 glass border-none w-[320px]">
-                  <SheetHeader className="sr-only">
-                    <SheetTitle>Daftar Antaran</SheetTitle>
-                    <SheetDescription>Daftar paket yang harus diantar hari ini.</SheetDescription>
-                  </SheetHeader>
-                  <BuyerList 
-                    buyers={activeRencana.buyers} 
-                    onDelete={(id) => deleteBuyer(activeRencana.id, id)}
-                  />
-                </SheetContent>
-              </Sheet>
+          <div className="w-full h-full p-1">
+             <div className="w-full h-full rounded-[1.8rem] overflow-hidden border border-white/5 relative bg-black">
+                <BungMap 
+                  rencana={activeRencana} 
+                  onUpdateStatus={(bid, status, paid) => updateBuyerStatus(activeRencana.id, bid, status, paid)}
+                />
+                
+                <div className="absolute top-4 right-4 flex flex-col gap-3 z-30">
+                  <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+                    <SheetTrigger asChild>
+                      <Button size="icon" className="w-14 h-14 rounded-2xl glass-dark shadow-2xl glow-blue active:scale-95 transition-all">
+                        <Menu className="w-7 h-7" />
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="right" className="p-0 glass border-none w-[85vw] sm:w-[350px]">
+                      <SheetHeader className="sr-only">
+                        <SheetTitle>Daftar Antaran</SheetTitle>
+                        <SheetDescription>Daftar paket yang harus diantar hari ini.</SheetDescription>
+                      </SheetHeader>
+                      <BuyerList 
+                        buyers={activeRencana.buyers} 
+                        onDelete={(id) => deleteBuyer(activeRencana.id, id)}
+                      />
+                    </SheetContent>
+                  </Sheet>
 
-              <Button 
-                size="icon" 
-                className={`w-14 h-14 rounded-2xl glass-dark shadow-2xl transition-all active:scale-95 ${showSummary ? 'bg-accent text-white scale-110' : 'glow-orange'}`}
-                onClick={() => setShowSummary(!showSummary)}
-              >
-                <LayoutDashboard className="w-7 h-7" />
-              </Button>
-            </div>
+                  <Button 
+                    size="icon" 
+                    className={`w-14 h-14 rounded-2xl glass-dark shadow-2xl transition-all active:scale-95 ${showSummary ? 'bg-accent text-white scale-110' : 'glow-orange'}`}
+                    onClick={() => setShowSummary(!showSummary)}
+                  >
+                    <LayoutDashboard className="w-7 h-7" />
+                  </Button>
+                </div>
+             </div>
           </div>
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center space-y-6">
-            <div className="p-8 bg-primary/10 rounded-full glow-blue">
-               <Package className="w-20 h-20 text-primary animate-bounce" />
+          <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center space-y-8 bg-black/20">
+            <div className="relative">
+              <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full scale-150 animate-pulse"></div>
+              <div className="relative p-10 bg-primary/10 rounded-full glow-blue">
+                 <Package className="w-24 h-24 text-primary animate-bounce" />
+              </div>
             </div>
-            <div>
-              <h2 className="text-3xl font-black mb-2 italic tracking-tighter uppercase">Bung'Kurir 📦</h2>
-              <p className="text-muted-foreground text-sm max-w-xs mx-auto">
+            <div className="space-y-3">
+              <h2 className="text-4xl font-black italic tracking-tighter uppercase text-white drop-shadow-2xl">Bung'Kurir 📦</h2>
+              <p className="text-muted-foreground text-sm max-w-xs mx-auto font-medium">
                 Halo Bung! Belum ada rencana antaran? 
                 Buat satu dolo baru gas keliling kota! 🔥
               </p>
@@ -115,7 +125,7 @@ export default function Home() {
               trigger={
                 <Button 
                   size="lg" 
-                  className="px-10 h-16 text-xl font-black bg-primary glow-blue rounded-2xl"
+                  className="px-12 h-16 text-xl font-black bg-primary hover:bg-primary/90 glow-blue rounded-2xl transition-all active:scale-95"
                 >
                   GAS BUAT RENCANA!
                 </Button>
@@ -127,10 +137,10 @@ export default function Home() {
 
       {/* FOOTER */}
       {activeRencana && (
-        <footer className="z-20 p-4 pt-3 max-w-4xl mx-auto w-full shrink-0 glass-dark border-t border-white/5">
+        <footer className="z-20 p-4 pt-4 max-w-4xl mx-auto w-full shrink-0 mt-2 glass-dark border border-white/5 rounded-3xl">
           <div className="space-y-4">
             {showSummary && (
-              <div className="animate-in slide-in-from-bottom-8 duration-300">
+              <div className="animate-in slide-in-from-bottom-8 duration-500 cubic-bezier(0.16, 1, 0.3, 1)">
                  <Summary rencana={activeRencana} />
               </div>
             )}
@@ -145,7 +155,7 @@ export default function Home() {
         </footer>
       )}
 
-      <div className="fixed bottom-0.5 left-4 text-[8px] font-black text-white/30 uppercase tracking-[0.2em] pointer-events-none z-50">
+      <div className="fixed bottom-1 left-1/2 -translate-x-1/2 text-[8px] font-black text-white/20 uppercase tracking-[0.3em] pointer-events-none z-50 whitespace-nowrap">
         ALAT TEMPUR KURIR INDONESIA TIMUR 🔥
       </div>
     </div>

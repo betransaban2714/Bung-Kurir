@@ -19,15 +19,15 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
   const userMarkerRef = useRef<L.Marker | null>(null);
   const [locating, setLocating] = useState(false);
 
-  // Ikon Titik Biru Menyala (Cuma Satu)
+  // Ikon Titik Biru Menyala
   const createUserIcon = () => L.divIcon({
     className: 'user-marker',
     html: `
       <div class="user-marker-pulse"></div>
       <div class="user-marker-dot"></div>
     `,
-    iconSize: [32, 32],
-    iconAnchor: [16, 16],
+    iconSize: [40, 40],
+    iconAnchor: [20, 20],
   });
 
   const fetchRoute = async (start: [number, number], end: [number, number]) => {
@@ -55,21 +55,21 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     const map = L.map(containerRef.current, {
       zoomControl: false,
       maxZoom: 20,
+      attributionControl: false,
     }).setView([-2.5489, 118.0149], 5);
 
     mapRef.current = map;
 
     // Layer Satelit
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      attribution: 'Tiles &copy; Esri',
       maxZoom: 20
     }).addTo(map);
 
-    // Layer Label (Jalan, Toko, POI)
+    // Layer Label yang lebih kuat & kontras
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
-      zIndex: 500
+      zIndex: 1000
     }).addTo(map);
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
@@ -99,14 +99,14 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     buyerGroup.clearLayers();
     const bounds: L.LatLngTuple[] = [];
 
-    // Tampilkan CUMA SATU Titik Biru
+    // Tampilkan CUMA SATU Titik Biru yang menyala
     const initialPos = rencana.startLocation;
     if (initialPos) {
       const { latitude, longitude } = initialPos;
       if (!userMarkerRef.current) {
         userMarkerRef.current = L.marker([latitude, longitude], { 
           icon: createUserIcon(),
-          zIndexOffset: 1000 
+          zIndexOffset: 2000 
         }).addTo(map);
       } else {
         userMarkerRef.current.setLatLng([latitude, longitude]);
@@ -120,85 +120,89 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     rencana.buyers.forEach((buyer) => {
       const isDone = buyer.status === 'DONE' || buyer.status === 'TIP';
       const color = isDone ? '#22c55e' : '#ef4444';
-      const glowColor = isDone ? 'rgba(34, 197, 94, 0.6)' : 'rgba(239, 68, 68, 0.6)';
+      const glowColor = isDone ? 'rgba(34, 197, 94, 0.8)' : 'rgba(239, 68, 68, 0.8)';
       
       const icon = L.divIcon({
         className: 'custom-marker',
-        html: `<div style="background-color: ${color}; width: 22px; height: 22px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 15px ${glowColor};"></div>`,
-        iconSize: [22, 22],
-        iconAnchor: [11, 11],
+        html: `<div style="background-color: ${color}; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 20px ${glowColor};"></div>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
       });
 
       L.marker([buyer.latitude, buyer.longitude], { icon })
         .addTo(buyerGroup)
         .bindPopup(() => {
           const div = document.createElement('div');
-          div.className = 'p-4 min-w-[280px] space-y-3';
+          div.className = 'p-5 min-w-[290px] space-y-4';
           div.innerHTML = `
             <div class="space-y-1">
-              <h3 class="font-bold text-lg flex items-center gap-2">
-                <span class="text-primary">👤</span> ${buyer.name}
+              <h3 class="font-black text-xl flex items-center gap-2 text-white">
+                <span class="text-primary text-sm">👤</span> ${buyer.name}
               </h3>
-              <p class="text-[11px] leading-tight text-muted-foreground">${buyer.address}</p>
+              <p class="text-[12px] leading-tight text-muted-foreground italic">${buyer.address}</p>
             </div>
-            <div id="route-info-${buyer.id}" class="hidden py-1 px-3 bg-white/10 rounded-lg border border-white/20 flex items-center gap-2">
-               <span class="text-[10px] font-black text-white uppercase">Rute:</span>
-               <span id="dist-${buyer.id}" class="text-[10px] font-bold text-white">...</span>
-               <span class="text-[10px] opacity-30 text-white">|</span>
-               <span id="time-${buyer.id}" class="text-[10px] font-bold text-white">...</span>
+            <div id="route-info-${buyer.id}" class="hidden py-2 px-4 bg-white/10 rounded-2xl border border-white/20 flex items-center justify-around">
+               <div class="text-center">
+                 <p class="text-[9px] font-black text-white/50 uppercase">Jarak</p>
+                 <span id="dist-${buyer.id}" class="text-sm font-black text-white">...</span>
+               </div>
+               <div class="h-6 w-px bg-white/10"></div>
+               <div class="text-center">
+                 <p class="text-[9px] font-black text-white/50 uppercase">Waktu</p>
+                 <span id="time-${buyer.id}" class="text-sm font-black text-white">...</span>
+               </div>
             </div>
-            <div class="grid grid-cols-2 gap-2 py-2 border-y border-white/10">
-              <div>
+            <div class="grid grid-cols-2 gap-3 py-3 border-y border-white/10">
+              <div class="bg-white/5 p-2 rounded-xl text-center">
                 <p class="text-[9px] text-muted-foreground uppercase font-black">Paket</p>
-                <p class="text-xs font-bold">📦 ${buyer.packetType}</p>
+                <p class="text-xs font-black text-primary">📦 ${buyer.packetType}</p>
               </div>
-              <div>
+              <div class="bg-white/5 p-2 rounded-xl text-center">
                 <p class="text-[9px] text-muted-foreground uppercase font-black">Bayar</p>
-                <p class="text-xs font-bold">💰 ${buyer.paymentMethod}</p>
+                <p class="text-xs font-black text-accent">💰 ${buyer.paymentMethod}</p>
               </div>
             </div>
-            <div class="flex justify-between items-center py-1">
-               <span class="text-xs text-muted-foreground">Harga Paket:</span>
-               <span class="font-black text-primary">Rp${buyer.price.toLocaleString()}</span>
+            <div class="flex justify-between items-center px-1">
+               <span class="text-xs font-bold text-muted-foreground">Harga Paket:</span>
+               <span class="font-black text-xl text-primary">Rp${buyer.price.toLocaleString()}</span>
             </div>
             
             ${buyer.status === 'PENDING' ? `
               <div id="action-area-${buyer.id}" class="space-y-2 pt-1">
-                <button id="pre-done-btn-${buyer.id}" class="w-full bg-primary text-white py-4 rounded-xl font-black text-lg shadow-xl active:scale-95 transition-all glow-blue">
+                <button id="pre-done-btn-${buyer.id}" class="w-full bg-primary text-white h-14 rounded-2xl font-black text-lg shadow-xl active:scale-95 transition-all glow-blue">
                   ✅ SELESAI
                 </button>
-                <div id="confirm-input-area-${buyer.id}" class="hidden space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
-                  <p class="text-[10px] font-black text-accent uppercase">Uang yang Diterima:</p>
+                <div id="confirm-input-area-${buyer.id}" class="hidden space-y-3 animate-in fade-in slide-in-from-top-2 duration-300 bg-white/5 p-3 rounded-2xl border border-white/10">
+                  <p class="text-[10px] font-black text-accent uppercase text-center">Berapa Bung terima uang?</p>
                   <input 
                     type="number" 
                     id="paid-input-${buyer.id}" 
-                    class="w-full h-12 bg-secondary/50 border border-white/10 rounded-xl px-4 text-lg font-black text-white focus:ring-1 focus:ring-accent outline-none"
+                    class="w-full h-12 bg-black/50 border border-white/20 rounded-xl px-4 text-center text-xl font-black text-white focus:ring-2 focus:ring-accent outline-none"
                     value="${buyer.price}"
                   />
-                  <button id="done-btn-${buyer.id}" class="w-full bg-accent text-white py-4 rounded-xl font-black text-lg shadow-xl active:scale-95 transition-all glow-orange">
+                  <button id="done-btn-${buyer.id}" class="w-full bg-accent text-white h-14 rounded-2xl font-black text-lg shadow-xl active:scale-95 transition-all glow-orange">
                     KONFIRMASI ✅
                   </button>
                 </div>
               </div>
             ` : `
-              <div class="bg-green-400/10 border border-green-400/20 rounded-lg p-3 text-center">
-                <p class="text-[10px] font-black text-green-400 uppercase tracking-widest">ANTARAN BERHASIL 🔥</p>
-                <p class="text-[9px] text-muted-foreground">Diterima: Rp${(buyer.paidAmount || buyer.price).toLocaleString()}</p>
+              <div class="bg-green-500/20 border border-green-500/30 rounded-2xl p-4 text-center">
+                <p class="text-[11px] font-black text-green-400 uppercase tracking-widest mb-1">ANTARAN BERHASIL 🔥</p>
+                <p class="text-lg font-black text-white">Rp${(buyer.paidAmount || buyer.price).toLocaleString()}</p>
               </div>
             `}
 
-            <div class="grid grid-cols-2 gap-2 pt-2">
-              <button id="nav-btn-${buyer.id}" class="flex items-center justify-center gap-2 bg-white/10 text-white py-3 rounded-xl font-bold text-xs hover:bg-white/20 transition-all">
-                📍 Maps
+            <div class="grid grid-cols-2 gap-3 pt-2">
+              <button id="nav-btn-${buyer.id}" class="flex items-center justify-center gap-2 bg-white/10 text-white h-12 rounded-xl font-black text-xs hover:bg-white/20 transition-all border border-white/5">
+                📍 MAPS
               </button>
-              <button id="chat-btn-${buyer.id}" class="flex items-center justify-center gap-2 bg-green-600/20 text-green-400 py-3 rounded-xl font-bold text-xs hover:bg-green-600/30 transition-all">
+              <button id="chat-btn-${buyer.id}" class="flex items-center justify-center gap-2 bg-green-500/20 text-green-400 h-12 rounded-xl font-black text-xs hover:bg-green-500/30 transition-all border border-green-500/10">
                 💬 WA
               </button>
             </div>
           `;
 
           setTimeout(async () => {
-            // Animasi Rute Putih
             if (userMarkerRef.current) {
               const start = userMarkerRef.current.getLatLng();
               const end = L.latLng(buyer.latitude, buyer.longitude);
@@ -208,10 +212,11 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
                 routeGroup.clearLayers();
                 L.polyline(routeData.coordinates as L.LatLngExpression[], {
                   color: 'white',
-                  weight: 6,
-                  opacity: 0.9,
+                  weight: 7,
+                  opacity: 0.95,
                   lineJoin: 'round',
-                  dashArray: '1, 12'
+                  lineCap: 'round',
+                  dashArray: '1, 15'
                 }).addTo(routeGroup);
 
                 const infoBox = document.getElementById(`route-info-${buyer.id}`);
@@ -221,12 +226,11 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
                 if (infoBox && distSpan && timeSpan) {
                   infoBox.classList.remove('hidden');
                   distSpan.innerText = `${(routeData.distance / 1000).toFixed(1)} KM`;
-                  timeSpan.innerText = `${Math.round(routeData.duration / 60)} Menit`;
+                  timeSpan.innerText = `${Math.round(routeData.duration / 60)} MIN`;
                 }
               }
             }
 
-            // Event Listeners
             document.getElementById(`nav-btn-${buyer.id}`)?.addEventListener('click', () => {
               window.open(`https://www.google.com/maps/dir/?api=1&destination=${buyer.latitude},${buyer.longitude}`, '_blank');
             });
@@ -254,13 +258,13 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
           }, 0);
 
           return div;
-        });
+        }, { maxWidth: 320, minWidth: 290, className: 'elegant-popup' });
 
       bounds.push([buyer.latitude, buyer.longitude]);
     });
 
     if (bounds.length > 0 && !map.getBounds().contains(L.latLngBounds(bounds))) {
-      map.fitBounds(L.latLngBounds(bounds), { padding: [60, 60], maxZoom: 18 });
+      map.fitBounds(L.latLngBounds(bounds), { padding: [80, 80], maxZoom: 18 });
     }
   }, [rencana, onUpdateStatus]);
 
@@ -276,7 +280,6 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
             userMarkerRef.current.addTo(mapRef.current!);
           }
         }
-        // Animasi dipercepat dari 1.5 ke 0.5 detik
         mapRef.current!.flyTo([latitude, longitude], 18, { duration: 0.5 });
         setLocating(false);
       },
@@ -288,13 +291,13 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
   return (
     <div className="w-full h-full relative group">
       <div ref={containerRef} className="w-full h-full z-0" />
-      <div className="absolute bottom-20 right-4 z-30 flex flex-col gap-2">
+      <div className="absolute bottom-6 right-6 z-30 flex flex-col gap-2">
         <Button
           onClick={handleLocateMe}
           disabled={locating}
-          className="w-14 h-14 rounded-full glass-dark glow-blue border-white/10 p-0 flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-2xl"
+          className="w-16 h-16 rounded-2xl glass-dark glow-blue border-white/10 p-0 flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-2xl"
         >
-          {locating ? <Loader2 className="w-7 h-7 animate-spin text-primary" /> : <LocateFixed className="w-7 h-7 text-primary" />}
+          {locating ? <Loader2 className="w-8 h-8 animate-spin text-primary" /> : <LocateFixed className="w-8 h-8 text-primary" />}
         </Button>
       </div>
     </div>
