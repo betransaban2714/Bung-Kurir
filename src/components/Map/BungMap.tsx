@@ -19,7 +19,6 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
   const userMarkerRef = useRef<L.Marker | null>(null);
   const [locating, setLocating] = useState(false);
 
-  // Ikon Titik Biru Menyala (Animasi)
   const createUserIcon = () => L.divIcon({
     className: 'user-marker',
     html: `
@@ -60,19 +59,16 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
     mapRef.current = map;
 
-    // Layer Satelit Premium
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 20
     }).addTo(map);
 
-    // Layer Label Kontras (Jalan & Toko)
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
       zIndex: 1000
     }).addTo(map);
 
-    // Zoom control di pojok kanan bawah
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
     buyerLayerGroupRef.current = L.layerGroup().addTo(map);
@@ -100,7 +96,6 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     buyerGroup.clearLayers();
     const bounds: L.LatLngTuple[] = [];
 
-    // Tampilkan Titik Biru Animasi (Lokasi Start/Live)
     const initialPos = rencana.startLocation;
     if (initialPos) {
       const { latitude, longitude } = initialPos;
@@ -134,7 +129,6 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
         .addTo(buyerGroup)
         .bindPopup(() => {
           const div = document.createElement('div');
-          // Popup Dark & Compact
           div.className = 'p-3 min-w-[250px] max-w-[80vw] space-y-3 bg-transparent text-white';
           div.innerHTML = `
             <div class="space-y-0.5">
@@ -208,7 +202,6 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
           `;
 
           setTimeout(async () => {
-            // Ambil rute otomatis (Garis Putih)
             if (userMarkerRef.current) {
               const start = userMarkerRef.current.getLatLng();
               const end = L.latLng(buyer.latitude, buyer.longitude);
@@ -288,11 +281,8 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
             userMarkerRef.current.addTo(mapRef.current!);
           }
         }
-        // FlyTo dipercepat menjadi 0.5 detik
         mapRef.current!.flyTo([latitude, longitude], 18, { duration: 0.5 });
-        
-        // Reset state locating cepat biar terasa responsif
-        setTimeout(() => setLocating(false), 500);
+        setTimeout(() => setLocating(false), 300);
       },
       () => setLocating(false),
       { enableHighAccuracy: true }
@@ -302,12 +292,11 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
   return (
     <div className="w-full h-full relative group">
       <div ref={containerRef} className="w-full h-full z-0" />
-      {/* Tombol Lokasi disamakan ukurannya dengan Zoom Control (h-11 w-11) */}
       <div className="absolute bottom-36 right-4 z-30 flex flex-col gap-2">
         <Button
           onClick={handleLocateMe}
           disabled={locating}
-          className="h-11 w-11 rounded-2xl bg-black/60 backdrop-blur-md border-white/10 p-0 flex items-center justify-center active:scale-75 transition-all duration-200 shadow-2xl"
+          className="h-11 w-11 rounded-2xl bg-black/60 backdrop-blur-md border-white/10 p-0 flex items-center justify-center active:scale-90 transition-all duration-100 shadow-2xl"
         >
           {locating ? <Loader2 className="w-5 h-5 animate-spin text-primary" /> : <LocateFixed className="w-5 h-5 text-primary" />}
         </Button>
