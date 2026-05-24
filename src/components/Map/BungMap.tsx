@@ -67,16 +67,17 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
     const bounds: L.LatLngTuple[] = [];
 
-    // Start Location Marker - Track it in markersRef to prevent duplication
+    // Start Location Marker - Pake Bendera supaya tra baku tukar deng titik lokasi live
     if (rencana.startLocation) {
        const startIcon = L.divIcon({
         className: 'start-marker',
-        html: `<div style="background-color: #3b82f6; width: 14px; height: 14px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 15px rgba(59, 130, 246, 0.9);"></div>`,
-        iconSize: [14, 14],
+        html: `<div style="font-size: 24px; filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));">🚩</div>`,
+        iconSize: [30, 30],
+        iconAnchor: [5, 25],
       });
       const startMarker = L.marker([rencana.startLocation.latitude, rencana.startLocation.longitude], { icon: startIcon })
         .addTo(mapRef.current)
-        .bindTooltip("Mulai Sini", { permanent: false });
+        .bindTooltip("Mulai Dari Sini", { permanent: false });
       
       markersRef.current['__start_location__'] = startMarker;
       bounds.push([rencana.startLocation.latitude, rencana.startLocation.longitude]);
@@ -84,8 +85,9 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
     // Buyer Markers
     rencana.buyers.forEach((buyer) => {
-      const color = (buyer.status === 'DONE' || buyer.status === 'TIP') ? '#22c55e' : '#ef4444';
-      const glowColor = (buyer.status === 'DONE' || buyer.status === 'TIP') ? 'rgba(34, 197, 94, 0.6)' : 'rgba(239, 68, 68, 0.6)';
+      const isDone = buyer.status === 'DONE' || buyer.status === 'TIP';
+      const color = isDone ? '#22c55e' : '#ef4444';
+      const glowColor = isDone ? 'rgba(34, 197, 94, 0.6)' : 'rgba(239, 68, 68, 0.6)';
       
       const icon = L.divIcon({
         className: 'custom-marker',
