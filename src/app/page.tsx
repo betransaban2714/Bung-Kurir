@@ -122,40 +122,49 @@ export default function Home() {
                 <p>Taru samua disini dulu, Baru Gass ba Antar!🔥</p>
               </div>
             </div>
-            <CreateRencanaDialog 
-              onCreate={createRencana}
-              trigger={
-                <Button 
-                  size="lg" 
-                  className="px-12 h-16 text-xl font-black bg-primary hover:bg-primary/90 glow-blue rounded-2xl transition-all active:scale-95"
-                >
-                  GAS BIKING RENCANA!
-                </Button>
-              }
-            />
+            <div className="flex flex-col gap-4 w-full max-w-xs">
+              <CreateRencanaDialog 
+                onCreate={createRencana}
+                trigger={
+                  <Button 
+                    size="lg" 
+                    className="w-full h-16 text-xl font-black bg-primary hover:bg-primary/90 glow-blue rounded-2xl transition-all active:scale-95"
+                  >
+                    GAS BIKING RENCANA!
+                  </Button>
+                }
+              />
+              <Button 
+                variant="ghost"
+                className="h-12 text-muted-foreground font-black text-xs tracking-widest uppercase hover:bg-white/5 rounded-xl"
+                onClick={() => setShowSummary(!showSummary)}
+              >
+                <LayoutDashboard className="w-4 h-4 mr-2" /> {showSummary ? "Tutup Laporan" : "Lihat Laporan Hari Ini"}
+              </Button>
+            </div>
           </div>
         )}
       </main>
 
-      {/* FOOTER */}
-      {activeRencana && (
-        <footer className="z-20 p-4 pt-4 max-w-4xl mx-auto w-full shrink-0 mt-2 glass-dark border border-white/5 rounded-3xl">
-          <div className="space-y-4">
-            {showSummary && (
-              <div className="animate-in slide-in-from-bottom-8 duration-500 cubic-bezier(0.16, 1, 0.3, 1)">
-                 <Summary rencana={activeRencana} />
-              </div>
-            )}
-            
+      {/* FOOTER / SUMMARY AREA */}
+      <footer className="z-20 p-4 pt-4 max-w-4xl mx-auto w-full shrink-0 mt-2 glass-dark border border-white/5 rounded-3xl">
+        <div className="space-y-4">
+          {showSummary && (
+            <div className="animate-in slide-in-from-bottom-8 duration-500 cubic-bezier(0.16, 1, 0.3, 1)">
+               <Summary rencanaList={rencanaList} />
+            </div>
+          )}
+          
+          {activeRencana && (
             <div className="flex gap-4">
               <AddBuyer 
                 onAdd={(data) => addBuyer(activeRencana.id, data)}
                 disabled={!activeRencana}
               />
             </div>
-          </div>
-        </footer>
-      )}
+          )}
+        </div>
+      </footer>
 
       {/* WATERMARK CENTER */}
       <div className="fixed bottom-1 left-1/2 -translate-x-1/2 text-[8px] font-black text-white/10 uppercase tracking-[0.3em] pointer-events-none z-50 whitespace-nowrap">
