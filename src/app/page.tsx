@@ -29,7 +29,7 @@ const BungMap = dynamic(() => import('@/components/Map/BungMap'), {
   loading: () => (
     <div className="w-full h-full bg-secondary/20 animate-pulse flex flex-col items-center justify-center text-muted-foreground gap-4">
       <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      <p className="font-black italic tracking-widest text-xs uppercase">SABAR DOLO, MAPS LAGI MASUK... 🌍</p>
+      <p className="font-black italic tracking-widest text-xs uppercase">SABAR EE BUNG, LOADING DULU...🌍</p>
     </div>
   )
 });
@@ -86,8 +86,8 @@ export default function Home() {
                     </SheetTrigger>
                     <SheetContent side="right" className="p-0 glass border-none w-[85vw] sm:w-[350px]">
                       <SheetHeader className="sr-only">
-                        <SheetTitle>Daftar Antaran</SheetTitle>
-                        <SheetDescription>Daftar paket yang harus diantar hari ini.</SheetDescription>
+                        <SheetTitle>Daftar Yang Mo Antar</SheetTitle>
+                        <SheetDescription>Daftar paket yang harus ngana antar hari ini.</SheetDescription>
                       </SheetHeader>
                       <BuyerList 
                         buyers={activeRencana.buyers} 
@@ -117,8 +117,8 @@ export default function Home() {
             <div className="space-y-3">
               <h2 className="text-4xl font-black italic tracking-tighter uppercase text-white drop-shadow-2xl">Bung'Kurir 📦</h2>
               <p className="text-muted-foreground text-sm max-w-xs mx-auto font-medium">
-                Halo Bung! Belum ada rencana antaran? 
-                Buat satu dolo baru gas keliling kota! 🔥
+                Halo Bung! Bolong ada rencana ba antar? 
+                Taru samua disini dulu, Baru Gass ba Antar!🔥
               </p>
             </div>
             <CreateRencanaDialog 
