@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import { Rencana, DeliveryStatus } from '@/types';
-import { LocateFixed, Loader2 } from 'lucide-react';
+import { LocateFixed, Loader2, Route } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface BungMapProps {
@@ -15,6 +15,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const buyerLayerGroupRef = useRef<L.LayerGroup | null>(null);
+  const routeLayerGroupRef = useRef<L.LayerGroup | null>(null);
   const userMarkerRef = useRef<L.Marker | null>(null);
   const [locating, setLocating] = useState(false);
 
@@ -28,6 +29,25 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     iconAnchor: [16, 16],
   });
 
+  const fetchRoute = async (start: [number, number], end: [number, number]) => {
+    try {
+      const response = await fetch(
+        `https://router.project-osrm.org/route/v1/driving/${start[1]},${start[0]};${end[1]},${end[0]}?overview=full&geometries=geojson`
+      );
+      const data = await response.json();
+      if (data.routes && data.routes.length > 0) {
+        return {
+          coordinates: data.routes[0].geometry.coordinates.map((c: any) => [c[1], c[0]]),
+          distance: data.routes[0].distance,
+          duration: data.routes[0].duration,
+        };
+      }
+    } catch (error) {
+      console.error('Gagal ambil rute:', error);
+    }
+    return null;
+  };
+
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
@@ -38,14 +58,11 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
     mapRef.current = map;
 
-    // 1. Layer Satelit (ESRI World Imagery)
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri',
       maxZoom: 20
     }).addTo(map);
 
-    // 2. Layer Label (Jalan, Toko, POI) - Hybrid Style (CartoDB Voyager Labels)
-    // Pane 'markerPane' memastikan label muncul di atas tile satelit tapi di bawah marker
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
@@ -55,6 +72,12 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
     buyerLayerGroupRef.current = L.layerGroup().addTo(map);
+    routeLayerGroupRef.current = L.layerGroup().addTo(map);
+
+    // Clear route on popup close
+    map.on('popupclose', () => {
+      routeLayerGroupRef.current?.clearLayers();
+    });
 
     return () => {
       if (mapRef.current) {
@@ -68,17 +91,15 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
   useEffect(() => {
     const map = mapRef.current;
     const buyerGroup = buyerLayerGroupRef.current;
-    if (!map || !buyerGroup) return;
+    const routeGroup = routeLayerGroupRef.current;
+    if (!map || !buyerGroup || !routeGroup) return;
 
-    // Bersihkan marker buyer lama
     buyerGroup.clearLayers();
     const bounds: L.LatLngTuple[] = [];
 
-    // Lokasi User (Titik Biru Tunggal)
     const initialPos = rencana.startLocation;
     if (initialPos) {
       const { latitude, longitude } = initialPos;
-      
       if (!userMarkerRef.current) {
         userMarkerRef.current = L.marker([latitude, longitude], { 
           icon: createUserIcon(),
@@ -93,7 +114,6 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
       bounds.push([latitude, longitude]);
     }
 
-    // Lokasi Buyer
     rencana.buyers.forEach((buyer) => {
       const isDone = buyer.status === 'DONE' || buyer.status === 'TIP';
       const color = isDone ? '#22c55e' : '#ef4444';
@@ -106,7 +126,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
         iconAnchor: [11, 11],
       });
 
-      L.marker([buyer.latitude, buyer.longitude], { icon })
+      const marker = L.marker([buyer.latitude, buyer.longitude], { icon })
         .addTo(buyerGroup)
         .bindPopup(() => {
           const div = document.createElement('div');
@@ -117,6 +137,12 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
                 <span class="text-primary">👤</span> ${buyer.name}
               </h3>
               <p class="text-[11px] leading-tight text-muted-foreground">${buyer.address}</p>
+            </div>
+            <div id="route-info-${buyer.id}" class="hidden py-1 px-3 bg-primary/10 rounded-lg border border-primary/20 flex items-center gap-2">
+               <span class="text-[10px] font-black text-primary uppercase">Rute:</span>
+               <span id="dist-${buyer.id}" class="text-[10px] font-bold">...</span>
+               <span class="text-[10px] opacity-30">|</span>
+               <span id="time-${buyer.id}" class="text-[10px] font-bold">...</span>
             </div>
             <div class="grid grid-cols-2 gap-2 py-2 border-y border-white/10">
               <div>
@@ -147,7 +173,35 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
             ` : '<p class="w-full mt-2 text-center text-[10px] font-black text-green-400 py-3 uppercase tracking-widest bg-green-400/10 border border-green-400/20 rounded-lg">ANTARAN BERHASIL 🔥</p>'}
           `;
 
-          setTimeout(() => {
+          // Handle routing when popup opens
+          setTimeout(async () => {
+            if (userMarkerRef.current) {
+              const start = userMarkerRef.current.getLatLng();
+              const end = L.latLng(buyer.latitude, buyer.longitude);
+              const routeData = await fetchRoute([start.lat, start.lng], [end.lat, end.lng]);
+              
+              if (routeData) {
+                routeGroup.clearLayers();
+                L.polyline(routeData.coordinates as L.LatLngExpression[], {
+                  color: 'hsl(var(--primary))',
+                  weight: 6,
+                  opacity: 0.8,
+                  lineJoin: 'round',
+                  dashArray: '1, 10'
+                }).addTo(routeGroup);
+
+                const infoBox = document.getElementById(`route-info-${buyer.id}`);
+                const distSpan = document.getElementById(`dist-${buyer.id}`);
+                const timeSpan = document.getElementById(`time-${buyer.id}`);
+                
+                if (infoBox && distSpan && timeSpan) {
+                  infoBox.classList.remove('hidden');
+                  distSpan.innerText = `${(routeData.distance / 1000).toFixed(1)} KM`;
+                  timeSpan.innerText = `${Math.round(routeData.duration / 60)} Menit`;
+                }
+              }
+            }
+
             document.getElementById(`nav-btn-${buyer.id}`)?.addEventListener('click', () => {
               window.open(`https://www.google.com/maps/dir/?api=1&destination=${buyer.latitude},${buyer.longitude}`, '_blank');
             });
@@ -162,10 +216,11 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
           return div;
         });
+
       bounds.push([buyer.latitude, buyer.longitude]);
     });
 
-    if (bounds.length > 0) {
+    if (bounds.length > 0 && !map.getBounds().contains(L.latLngBounds(bounds))) {
       map.fitBounds(L.latLngBounds(bounds), { padding: [60, 60], maxZoom: 18 });
     }
   }, [rencana, onUpdateStatus]);
@@ -193,7 +248,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
   return (
     <div className="w-full h-full relative group">
       <div ref={containerRef} className="w-full h-full z-0" />
-      <div className="absolute bottom-20 right-4 z-30">
+      <div className="absolute bottom-20 right-4 z-30 flex flex-col gap-2">
         <Button
           onClick={handleLocateMe}
           disabled={locating}
