@@ -1,4 +1,3 @@
-
 'use client';
 
 import dynamic from 'next/dynamic';
@@ -28,7 +27,7 @@ import { CreateRencanaDialog } from '@/components/Rencana/CreateRencanaDialog';
 const BungMap = dynamic(() => import('@/components/Map/BungMap'), { 
   ssr: false,
   loading: () => (
-    <div className="w-full h-full bg-secondary/20 animate-pulse flex flex-col items-center justify-center text-muted-foreground gap-4">
+    <div className="w-full h-full bg-black/40 animate-pulse flex flex-col items-center justify-center text-muted-foreground gap-4">
       <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       <p className="font-black italic tracking-widest text-xs uppercase">SABAR EE BUNG, LOADING DULU...🌍</p>
     </div>
@@ -72,7 +71,7 @@ export default function Home() {
   if (!isHydrated) return null;
 
   return (
-    <div className="relative h-[100dvh] w-full flex flex-col overflow-hidden bg-background p-2 md:p-4">
+    <div className="relative h-[100dvh] w-full flex flex-col overflow-hidden bg-[#050505] p-2 md:p-4">
       {/* HEADER */}
       <header className="z-20 p-4 pb-4 glass-dark rounded-3xl border border-white/5 shrink-0 mb-2">
         <div className="max-w-4xl mx-auto">
@@ -101,7 +100,7 @@ export default function Home() {
                     {/* PANDUAN DAFTAR BUYER */}
                     {onboardingStep === 1 && (
                       <div className="absolute right-full mr-4 top-1/2 -translate-y-1/2 whitespace-nowrap animate-in fade-in slide-in-from-right-4 duration-500">
-                        <div className="bg-primary text-white font-black text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 border border-white/20 animate-bounce">
+                        <div className="glass-dark text-white font-black text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 border border-white/10">
                           Pantau daftar Buyer di sini 👉
                         </div>
                       </div>
@@ -129,7 +128,7 @@ export default function Home() {
                     {/* PANDUAN INFO PENGANTARAN */}
                     {onboardingStep === 2 && (
                       <div className="absolute right-full mr-4 top-1/2 -translate-y-1/2 whitespace-nowrap animate-in fade-in slide-in-from-right-4 duration-500">
-                        <div className="bg-accent text-white font-black text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 border border-white/20 animate-bounce">
+                        <div className="glass-dark text-white font-black text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 border border-white/10">
                           Pantau pengantaran hari ini disini 👉
                         </div>
                       </div>
@@ -146,7 +145,7 @@ export default function Home() {
              </div>
           </div>
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center space-y-8 bg-black/20">
+          <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center space-y-8 bg-black/40">
             <div className="relative">
               <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full scale-150 animate-pulse"></div>
               <div className="relative p-10 bg-primary/10 rounded-full glow-blue">
@@ -176,7 +175,7 @@ export default function Home() {
                 {/* PANDUAN INFO PENGANTARAN (SAAT BELUM ADA RENCANA) */}
                 {onboardingStep === 2 && (
                   <div className="absolute right-full mr-4 top-1/2 -translate-y-1/2 whitespace-nowrap animate-in fade-in slide-in-from-right-4 duration-500 z-50">
-                    <div className="bg-accent text-white font-black text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 border border-white/20 animate-bounce">
+                    <div className="glass-dark text-white font-black text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 border border-white/10">
                       Pantau pengantaran hari ini disini 👉
                     </div>
                   </div>
