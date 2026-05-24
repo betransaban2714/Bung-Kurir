@@ -23,7 +23,6 @@ import {
 } from '@/components/ui/sheet';
 import { CreateRencanaDialog } from '@/components/Rencana/CreateRencanaDialog';
 
-// Dynamic import for Leaflet to avoid SSR issues
 const BungMap = dynamic(() => import('@/components/Map/BungMap'), { 
   ssr: false,
   loading: () => <div className="w-full h-full bg-secondary/50 animate-pulse flex items-center justify-center text-muted-foreground">SABAR DOLO, MAPS LAGI MASUK... 🌍</div>
@@ -49,7 +48,7 @@ export default function Home() {
 
   return (
     <div className="relative h-[100dvh] w-full flex flex-col overflow-hidden bg-background">
-      {/* HEADER SECTION - FIXED COMPACT */}
+      {/* HEADER */}
       <header className="z-20 p-4 pb-3 glass-dark border-b border-white/5 shrink-0">
         <div className="max-w-4xl mx-auto">
           <RencanaHeader 
@@ -62,7 +61,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* MAIN CONTENT AREA - MAP TAKES ALL SPACE */}
+      {/* MAP AREA */}
       <main className="flex-1 relative z-10 overflow-hidden bg-black">
         {activeRencana ? (
           <div className="w-full h-full">
@@ -71,7 +70,6 @@ export default function Home() {
               onUpdateStatus={(bid, status, paid) => updateBuyerStatus(activeRencana.id, bid, status, paid)}
             />
             
-            {/* FLOATING ACTION BUTTONS */}
             <div className="absolute top-4 right-4 flex flex-col gap-3 z-30">
               <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
                 <SheetTrigger asChild>
@@ -106,7 +104,7 @@ export default function Home() {
                <Package className="w-20 h-20 text-primary animate-bounce" />
             </div>
             <div>
-              <h2 className="text-3xl font-black mb-2 italic tracking-tighter">BUNG'KURIR📦</h2>
+              <h2 className="text-3xl font-black mb-2 italic tracking-tighter uppercase">Bung'Kurir 📦</h2>
               <p className="text-muted-foreground text-sm max-w-xs mx-auto">
                 Halo Bung! Belum ada rencana antaran? 
                 Buat satu dolo baru gas keliling kota! 🔥
@@ -127,7 +125,7 @@ export default function Home() {
         )}
       </main>
 
-      {/* FOOTER SECTION - DYNAMIC CONTROLS */}
+      {/* FOOTER */}
       {activeRencana && (
         <footer className="z-20 p-4 pt-3 max-w-4xl mx-auto w-full shrink-0 glass-dark border-t border-white/5">
           <div className="space-y-4">
@@ -147,7 +145,6 @@ export default function Home() {
         </footer>
       )}
 
-      {/* EASTERN INDONESIA VIBE BADGE */}
       <div className="fixed bottom-0.5 left-4 text-[8px] font-black text-white/30 uppercase tracking-[0.2em] pointer-events-none z-50">
         ALAT TEMPUR KURIR INDONESIA TIMUR 🔥
       </div>
