@@ -134,7 +134,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
         .addTo(buyerGroup)
         .bindPopup(() => {
           const div = document.createElement('div');
-          // Popup Dark & Compact sesuai request
+          // Popup Dark & Compact
           div.className = 'p-3 min-w-[250px] max-w-[80vw] space-y-3 bg-transparent text-white';
           div.innerHTML = `
             <div class="space-y-0.5">
@@ -208,7 +208,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
           `;
 
           setTimeout(async () => {
-            // Ambil rute rute otomatis (Garis Putih)
+            // Ambil rute otomatis (Garis Putih)
             if (userMarkerRef.current) {
               const start = userMarkerRef.current.getLatLng();
               const end = L.latLng(buyer.latitude, buyer.longitude);
@@ -243,7 +243,6 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
             
             document.getElementById(`chat-btn-${buyer.id}`)?.addEventListener('click', () => {
               const phone = buyer.waNumber.replace(/[^0-9]/g, '');
-              // Protokol whatsapp:// memicu App Chooser di Android agar user bisa pilih WA Biasa atau Business
               window.location.href = `whatsapp://send?phone=${phone}`;
             });
 
@@ -289,9 +288,11 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
             userMarkerRef.current.addTo(mapRef.current!);
           }
         }
-        // Sat-set zoom (0.5 detik)
+        // FlyTo dipercepat menjadi 0.5 detik
         mapRef.current!.flyTo([latitude, longitude], 18, { duration: 0.5 });
-        setLocating(false);
+        
+        // Reset state locating cepat biar terasa responsif
+        setTimeout(() => setLocating(false), 500);
       },
       () => setLocating(false),
       { enableHighAccuracy: true }
@@ -301,13 +302,14 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
   return (
     <div className="w-full h-full relative group">
       <div ref={containerRef} className="w-full h-full z-0" />
-      <div className="absolute bottom-36 right-6 z-30 flex flex-col gap-2">
+      {/* Tombol Lokasi disamakan ukurannya dengan Zoom Control (h-11 w-11) */}
+      <div className="absolute bottom-36 right-4 z-30 flex flex-col gap-2">
         <Button
           onClick={handleLocateMe}
           disabled={locating}
-          className="w-16 h-16 rounded-2xl glass-dark glow-blue border-white/10 p-0 flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-2xl"
+          className="h-11 w-11 rounded-2xl bg-black/60 backdrop-blur-md border-white/10 p-0 flex items-center justify-center active:scale-75 transition-all duration-200 shadow-2xl"
         >
-          {locating ? <Loader2 className="w-8 h-8 animate-spin text-primary" /> : <LocateFixed className="w-8 h-8 text-primary" />}
+          {locating ? <Loader2 className="w-5 h-5 animate-spin text-primary" /> : <LocateFixed className="w-5 h-5 text-primary" />}
         </Button>
       </div>
     </div>

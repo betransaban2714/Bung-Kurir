@@ -161,9 +161,9 @@ export default function Home() {
         ALAT TEMPUR KURIR INDONESIA TIMUR 🔥
       </div>
 
-      {/* WATERMARK BETRAN - Extremely subtle transparency for a premium feel */}
-      <div className="fixed bottom-4 right-4 text-[10px] font-black text-white/20 flex items-center gap-1 pointer-events-none z-50 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/5">
-        <Copyright className="w-3 h-3 text-white/[0.08]" /> <span className="text-white/[0.08]">byBetranSaban</span>
+      {/* WATERMARK BETRAN - Polos tanpa background, 8% transparansi */}
+      <div className="fixed bottom-4 right-4 text-[10px] font-black flex items-center gap-1 pointer-events-none z-50">
+        <Copyright className="w-3 h-3 text-white/[0.08]" /> <span className="text-white/[0.08] uppercase tracking-wider">byBetranSaban</span>
       </div>
     </div>
   );
