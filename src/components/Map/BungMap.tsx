@@ -98,7 +98,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     buyerGroup.clearLayers();
     const bounds: L.LatLngTuple[] = [];
 
-    // Tampilkan titik biru (Lokasi Start/User)
+    // Tampilkan titik biru animasi (Lokasi Start/User)
     const initialPos = rencana.startLocation;
     if (initialPos) {
       const { latitude, longitude } = initialPos;
@@ -162,17 +162,22 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
             </div>
             
             ${buyer.status === 'PENDING' ? `
-              <div class="space-y-2 pt-1">
-                <p class="text-[10px] font-black text-accent uppercase">Uang yang Diterima:</p>
-                <input 
-                  type="number" 
-                  id="paid-input-${buyer.id}" 
-                  class="w-full h-12 bg-secondary/50 border border-white/10 rounded-xl px-4 text-lg font-black text-white focus:ring-1 focus:ring-accent outline-none"
-                  value="${buyer.price}"
-                />
-                <button id="done-btn-${buyer.id}" class="w-full bg-accent text-white py-4 rounded-xl font-black text-lg shadow-xl active:scale-95 transition-all glow-orange">
-                  ✅ SU ANTAR!
+              <div id="action-area-${buyer.id}" class="space-y-2 pt-1">
+                <button id="pre-done-btn-${buyer.id}" class="w-full bg-primary text-white py-4 rounded-xl font-black text-lg shadow-xl active:scale-95 transition-all glow-blue">
+                  ✅ SELESAI
                 </button>
+                <div id="confirm-input-area-${buyer.id}" class="hidden space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <p class="text-[10px] font-black text-accent uppercase">Uang yang Diterima:</p>
+                  <input 
+                    type="number" 
+                    id="paid-input-${buyer.id}" 
+                    class="w-full h-12 bg-secondary/50 border border-white/10 rounded-xl px-4 text-lg font-black text-white focus:ring-1 focus:ring-accent outline-none"
+                    value="${buyer.price}"
+                  />
+                  <button id="done-btn-${buyer.id}" class="w-full bg-accent text-white py-4 rounded-xl font-black text-lg shadow-xl active:scale-95 transition-all glow-orange">
+                    KONFIRMASI ✅
+                  </button>
+                </div>
               </div>
             ` : `
               <div class="bg-green-400/10 border border-green-400/20 rounded-lg p-3 text-center">
@@ -192,6 +197,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
           `;
 
           setTimeout(async () => {
+            // Animasi Rute Putih
             if (userMarkerRef.current) {
               const start = userMarkerRef.current.getLatLng();
               const end = L.latLng(buyer.latitude, buyer.longitude);
@@ -199,7 +205,6 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
               
               if (routeData) {
                 routeGroup.clearLayers();
-                // Rute Garis Putih
                 L.polyline(routeData.coordinates as L.LatLngExpression[], {
                   color: 'white',
                   weight: 6,
@@ -220,13 +225,26 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
               }
             }
 
+            // Event Listeners
             document.getElementById(`nav-btn-${buyer.id}`)?.addEventListener('click', () => {
               window.open(`https://www.google.com/maps/dir/?api=1&destination=${buyer.latitude},${buyer.longitude}`, '_blank');
             });
             document.getElementById(`chat-btn-${buyer.id}`)?.addEventListener('click', () => {
               window.open(`https://wa.me/${buyer.waNumber.replace(/[^0-9]/g, '')}`, '_blank');
             });
-            document.getElementById(`done-btn-${buyer.id}`)?.addEventListener('click', () => {
+
+            // Logika Klik SELESAI -> Muncul Form Input
+            const preBtn = document.getElementById(`pre-done-btn-${buyer.id}`);
+            const inputArea = document.getElementById(`confirm-input-area-${buyer.id}`);
+            const doneBtn = document.getElementById(`done-btn-${buyer.id}`);
+
+            preBtn?.addEventListener('click', () => {
+              preBtn.classList.add('hidden');
+              inputArea?.classList.remove('hidden');
+              document.getElementById(`paid-input-${buyer.id}`)?.focus();
+            });
+
+            doneBtn?.addEventListener('click', () => {
               const input = document.getElementById(`paid-input-${buyer.id}`) as HTMLInputElement;
               const paidAmount = parseFloat(input.value) || buyer.price;
               const status: DeliveryStatus = paidAmount > buyer.price ? 'TIP' : 'DONE';
