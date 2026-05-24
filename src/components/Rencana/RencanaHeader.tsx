@@ -27,7 +27,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Plus, ChevronDown, Trash2, CalendarDays, Info, ExternalLink, AlertTriangle } from 'lucide-react';
+import { Plus, ChevronDown, Trash2, CalendarDays, Info, ExternalLink, AlertTriangle, Copyright } from 'lucide-react';
 import { Rencana } from '@/types';
 import { CreateRencanaDialog } from './CreateRencanaDialog';
 
@@ -132,7 +132,7 @@ export function RencanaHeader({ rencanaList, activeRencana, onSelect, onCreate, 
         <Button 
           variant="ghost" 
           size="icon" 
-          className="h-10 w-10 rounded-2xl bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 active:scale-90 transition-all"
+          className="h-10 w-10 rounded-2xl bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 active:scale-90 transition-all shadow-xl"
           onClick={() => setIsInfoOpen(true)}
         >
           <Info className="w-5 h-5" />
@@ -150,43 +150,73 @@ export function RencanaHeader({ rencanaList, activeRencana, onSelect, onCreate, 
 
       {/* DIALOG KREDIT */}
       <Dialog open={isInfoOpen} onOpenChange={setIsInfoOpen}>
-        <DialogContent className="glass border-none shadow-2xl rounded-[2.5rem] w-[90vw] sm:max-w-[400px] p-8">
-          <DialogHeader className="space-y-4">
-            <div className="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mx-auto border-4 border-primary/30 animate-pulse">
-               <Info className="w-10 h-10 text-primary" />
-            </div>
-            <DialogTitle className="text-3xl font-black text-center text-white italic tracking-tighter uppercase">
-              Bung'Kurir 📦
-            </DialogTitle>
-            <DialogDescription className="sr-only">Informasi Pembuat Aplikasi</DialogDescription>
-          </DialogHeader>
-          
-          <div className="py-6 space-y-6">
-            <div className="text-center space-y-2">
-              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em]">Pembuat</p>
-              <h2 className="text-2xl font-black text-primary">Betran Saban</h2>
+        <DialogContent className="glass-dark border border-white/10 shadow-[0_0_50px_-12px_rgba(59,130,246,0.3)] rounded-[3rem] w-[92vw] sm:max-w-[420px] p-0 overflow-hidden">
+          <div className="relative p-8 space-y-8">
+            {/* Background Glow */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-primary/20 blur-[80px] -z-10 rounded-full" />
+            
+            <DialogHeader className="space-y-4">
+              <div className="w-24 h-24 bg-gradient-to-br from-primary/30 to-primary/5 rounded-[2rem] flex items-center justify-center mx-auto border border-white/10 shadow-2xl relative">
+                 <div className="absolute inset-0 bg-primary/10 rounded-[2rem] animate-pulse" />
+                 <span className="text-4xl">📦</span>
+              </div>
+              <div className="space-y-1">
+                <DialogTitle className="text-4xl font-black text-center text-white italic tracking-tighter uppercase leading-none">
+                  Bung'Kurir
+                </DialogTitle>
+                <p className="text-[10px] text-center font-black text-primary tracking-[0.4em] uppercase opacity-80">
+                  Alat Tempur Kurir Modern
+                </p>
+              </div>
+              <DialogDescription className="sr-only">Informasi Pembuat Aplikasi</DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-8">
+              <div className="text-center space-y-3">
+                <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                  <span className="h-px w-8 bg-white/10" />
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em]">Pembuat</p>
+                  <span className="h-px w-8 bg-white/10" />
+                </div>
+                <h2 className="text-3xl font-black text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+                  Betran Saban
+                </h2>
+              </div>
+
+              <div className="glass-dark p-6 rounded-[2.5rem] border border-white/10 space-y-6 shadow-2xl">
+                <div className="flex items-center justify-between px-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse shadow-[0_0_10px_rgba(74,222,128,0.5)]" />
+                    <span className="text-[11px] font-black text-muted-foreground uppercase tracking-widest">Status:</span>
+                  </div>
+                  <span className="text-[10px] font-black text-green-400 bg-green-400/10 px-4 py-1.5 rounded-full border border-green-400/20 shadow-inner">
+                    ONLINE 🔥
+                  </span>
+                </div>
+
+                <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent w-full" />
+                
+                <div className="space-y-4">
+                  <Button 
+                    className="w-full h-16 bg-[#25D366] hover:bg-[#22c35e] font-black text-white rounded-[1.8rem] gap-3 active:scale-95 transition-all shadow-2xl border-b-4 border-black/20"
+                    onClick={() => window.open('https://wa.me/6282196913604', '_blank')}
+                  >
+                    CONTACT ME <ExternalLink className="w-5 h-5" />
+                  </Button>
+                </div>
+              </div>
+
+              <div className="px-6">
+                <p className="text-[10px] text-center text-muted-foreground/60 font-medium italic leading-relaxed">
+                  "Aplikasi ini dibuat khusus untuk mempermudah operasional kurir di wilayah Indonesia Timur. Terus semangat antar paket-nya Bung! 🔥"
+                </p>
+              </div>
             </div>
 
-            <div className="bg-white/5 p-5 rounded-3xl border border-white/5 space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-muted-foreground uppercase">Status:</span>
-                <span className="text-[11px] font-black text-green-400 bg-green-400/10 px-3 py-1 rounded-full border border-green-400/20">ONLINE 🔥</span>
-              </div>
-              <div className="h-px bg-white/5 w-full" />
-              <div className="space-y-2">
-                <p className="text-[11px] font-bold text-muted-foreground uppercase">Hubungi Saya:</p>
-                <Button 
-                  className="w-full h-14 bg-green-500 hover:bg-green-600 font-black text-white rounded-2xl gap-2 active:scale-95 transition-all shadow-xl"
-                  onClick={() => window.open('https://wa.me/6282196913604', '_blank')}
-                >
-                  CONTACT ME <ExternalLink className="w-4 h-4" />
-                </Button>
-              </div>
+            <div className="pt-4 flex items-center justify-center gap-2 opacity-30">
+              <Copyright className="w-3 h-3" />
+              <span className="text-[9px] font-black uppercase tracking-widest">2024 byBetranSaban</span>
             </div>
-
-            <p className="text-[9px] text-center text-muted-foreground font-medium italic leading-relaxed px-4">
-              "Aplikasi ini dibuat khusus untuk mempermudah operasional kurir di wilayah Indonesia Timur. Terus semangat antar paket-nya Bung! 🔥"
-            </p>
           </div>
         </DialogContent>
       </Dialog>

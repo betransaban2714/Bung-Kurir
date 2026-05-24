@@ -90,7 +90,7 @@ export function CreateRencanaDialog({ onCreate, trigger, open: controlledOpen, o
           <div className="p-4 bg-primary/10 rounded-2xl border border-primary/20 flex gap-3 items-start">
             <MapPin className="text-primary w-6 h-6 shrink-0" />
             <p className="text-[11px] text-muted-foreground leading-snug font-medium">
-              Bung'Kurir akan otomatis ambil lokasi ko sekarang sebagai titik start pengantaran. Pastikan GPS nyala e! 🔥
+              Bung'Kurir akan otomatis ambil ko pu lokasi sekarang sebagai titik start pengantaran. Pastikan GPS nyala e! 🔥
             </p>
           </div>
         </div>
