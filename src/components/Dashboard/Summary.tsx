@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Rencana, Buyer } from '@/types';
@@ -81,7 +80,6 @@ export function Summary({ rencanaList }: SummaryProps) {
     content += `byBetranSaban\n`;
 
     const element = document.createElement("a");
-    // Menggunakan UTF-8 untuk mencegah karakter aneh
     const file = new Blob([content], { type: 'text/plain;charset=utf-8' });
     element.href = URL.createObjectURL(file);
     element.download = fileName;

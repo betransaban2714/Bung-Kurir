@@ -1,4 +1,3 @@
-
 'use client';
 
 import dynamic from 'next/dynamic';
@@ -56,7 +55,6 @@ export default function Home() {
 
   useEffect(() => {
     if (isHydrated) {
-      // Mulai panduan setelah hidrasi selesai
       const step1Timer = setTimeout(() => setOnboardingStep(1), 1000);
       const step2Timer = setTimeout(() => setOnboardingStep(2), 5000);
       const endTimer = setTimeout(() => setOnboardingStep(3), 9000);
