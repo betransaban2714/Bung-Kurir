@@ -17,7 +17,14 @@ import {
   Settings 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { 
+  Sheet, 
+  SheetContent, 
+  SheetTrigger,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription
+} from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 // Dynamic import for Leaflet to avoid SSR issues
@@ -102,6 +109,10 @@ export default function Home() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="p-0 glass border-none w-[320px]">
+                <SheetHeader className="sr-only">
+                  <SheetTitle>Daftar Antaran</SheetTitle>
+                  <SheetDescription>Daftar paket yang harus diantar hari ini dalam plane aktif.</SheetDescription>
+                </SheetHeader>
                 <BuyerList 
                   buyers={activePlane.buyers} 
                   onDelete={(id) => deleteBuyer(activePlane.id, id)}
