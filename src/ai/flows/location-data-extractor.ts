@@ -13,17 +13,17 @@ import {z} from 'genkit';
 const LocationDataExtractorInputSchema = z.object({
   locationInput: z.string().describe(
     `The location information provided by the user. This can be:
-    - Raw latitude and longitude coordinates (e.g., "-6.175, 106.827")
-    - A descriptive address string
-    - A Google Maps URL`
+    - Raw decimal coordinates (e.g., "-0.6980957, 127.4651223")
+    - DMS (Degrees, Minutes, Seconds) coordinates (e.g., "0° 41′ 53.14452″ N, 127° 27′ 54.44028″ E")
+    - A descriptive address or Google Maps URL`
   ),
 });
 export type LocationDataExtractorInput = z.infer<typeof LocationDataExtractorInputSchema>;
 
 const LocationDataExtractorOutputSchema = z.object({
-  latitude: z.number().describe('The extracted latitude coordinate.'),
-  longitude: z.number().describe('The extracted longitude coordinate.'),
-  parsedAddress: z.string().optional().describe('The parsed address string, if one was identifiable or inferred from the input.'),
+  latitude: z.number().describe('The extracted latitude coordinate in decimal format.'),
+  longitude: z.number().describe('The extracted longitude coordinate in decimal format.'),
+  parsedAddress: z.string().optional().describe('A formatted string representing the coordinate or address.'),
 });
 export type LocationDataExtractorOutput = z.infer<typeof LocationDataExtractorOutputSchema>;
 
@@ -31,13 +31,21 @@ const extractLocationPrompt = ai.definePrompt({
   name: 'extractLocationPrompt',
   input: {schema: LocationDataExtractorInputSchema},
   output: {schema: LocationDataExtractorOutputSchema},
-  prompt: `You are an expert location data parser specializing in Indonesian geography. Your primary task is to extract precise latitude and longitude coordinates.
+  prompt: `You are an expert geographical data parser. Your primary mission is to extract decimal latitude and longitude from the user's input.
 
 CRITICAL INSTRUCTIONS:
-1. COORDINATE PRIORITY: If raw numbers are present, prioritize them as (Latitude, Longitude). In Indonesia, Latitude is typically between -11 and 6, and Longitude is between 94 and 142.
-2. RAW EXTRACTION: Look for pairs of numbers separated by commas or spaces.
-3. ERROR PREVENTION: Ensure Latitude is NOT swapped with Longitude. Latitude is first in a pair of (Lat, Lng).
-4. FALLBACK: If only a place name is provided, use your knowledge of Indonesian geography (Papua, Maluku, Sulawesi, NTT) to provide the center coordinates for that place.
+1. COORDINATE FORMATS:
+   - DECIMAL: If the input is like "-0.6980957, 127.4651223", extract them directly.
+   - DMS: If the input is like "0° 41′ 53.14452″ N, 127° 27′ 54.44028″ E", convert it to decimal format. 
+     (Formula: Degrees + Minutes/60 + Seconds/3600. South (S) and West (W) should be negative).
+   - URL: If it's a Google Maps link, look for the @lat,lng pattern.
+
+2. PRIORITY:
+   - Always prioritize raw coordinates (Decimal or DMS) over text addresses or URLs.
+   - Ensure Latitude is the first number and Longitude is the second.
+
+3. INDONESIA CONTEXT:
+   - Most coordinates will be within the Indonesia region (Latitude: -11 to 6, Longitude: 94 to 142).
 
 Strictly return the response in JSON format according to the provided schema.
 
@@ -47,7 +55,7 @@ locationInput: {{{locationInput}}}`
 export async function extractLocationData(input: LocationDataExtractorInput): Promise<LocationDataExtractorOutput> {
   const {output} = await extractLocationPrompt(input);
   if (!output) {
-    throw new Error('Gagal mengekstrak data lokasi.');
+    throw new Error('Gagal mengekstrak data lokasi. Pastikan format koordinat benar.');
   }
   return output;
 }
