@@ -19,7 +19,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
   const userMarkerRef = useRef<L.Marker | null>(null);
   const [locating, setLocating] = useState(false);
 
-  // Ikon Titik Biru Menyala (Satu-satunya yang animasi)
+  // Ikon Titik Biru Menyala (Animasi)
   const createUserIcon = () => L.divIcon({
     className: 'user-marker',
     html: `
@@ -65,7 +65,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
       maxZoom: 20
     }).addTo(map);
 
-    // Layer Label yang kontras agar nama jalan terlihat jelas
+    // Layer Label Kontras (Jalan & Toko)
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
@@ -134,25 +134,25 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
         .addTo(buyerGroup)
         .bindPopup(() => {
           const div = document.createElement('div');
-          // Padding dikurangi (p-4), spasi dikurangi (space-y-3)
-          div.className = 'p-4 min-w-[260px] max-w-[85vw] space-y-3 bg-transparent text-white';
+          // Popup Dark & Compact sesuai request
+          div.className = 'p-3 min-w-[250px] max-w-[80vw] space-y-3 bg-transparent text-white';
           div.innerHTML = `
             <div class="space-y-0.5">
-              <h3 class="font-black text-lg flex items-center gap-2">
+              <h3 class="font-black text-base flex items-center gap-2">
                 <span class="text-primary text-xs">👤</span> ${buyer.name}
               </h3>
-              <p class="text-[11px] leading-tight text-white/70 italic line-clamp-2">${buyer.address}</p>
+              <p class="text-[10px] leading-tight text-white/70 italic line-clamp-2">${buyer.address}</p>
             </div>
             
             <div id="route-info-${buyer.id}" class="hidden py-1.5 px-3 bg-white/10 rounded-xl border border-white/10 flex items-center justify-around">
                <div class="text-center">
                  <p class="text-[8px] font-black text-white/40 uppercase">Jarak</p>
-                 <span id="dist-${buyer.id}" class="text-xs font-black">...</span>
+                 <span id="dist-${buyer.id}" class="text-[11px] font-black">...</span>
                </div>
                <div class="h-4 w-px bg-white/10"></div>
                <div class="text-center">
                  <p class="text-[8px] font-black text-white/40 uppercase">Waktu</p>
-                 <span id="time-${buyer.id}" class="text-xs font-black">...</span>
+                 <span id="time-${buyer.id}" class="text-[11px] font-black">...</span>
                </div>
             </div>
 
@@ -169,45 +169,46 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
             <div class="flex justify-between items-center px-1">
                <span class="text-[10px] font-bold text-white/50">Harga:</span>
-               <span class="font-black text-lg text-primary">Rp${buyer.price.toLocaleString()}</span>
+               <span class="font-black text-base text-primary">Rp${buyer.price.toLocaleString()}</span>
             </div>
             
             ${buyer.status === 'PENDING' ? `
               <div id="action-area-${buyer.id}" class="space-y-2">
-                <button id="pre-done-btn-${buyer.id}" class="w-full bg-primary text-white h-12 rounded-xl font-black text-base shadow-lg active:scale-95 transition-all glow-blue">
+                <button id="pre-done-btn-${buyer.id}" class="w-full bg-primary text-white h-11 rounded-xl font-black text-sm shadow-lg active:scale-95 transition-all glow-blue">
                   ✅ SELESAI
                 </button>
-                <div id="confirm-input-area-${buyer.id}" class="hidden space-y-2 animate-in fade-in slide-in-from-top-1 duration-200 bg-black/40 p-2.5 rounded-xl border border-white/5">
+                <div id="confirm-input-area-${buyer.id}" class="hidden space-y-2 animate-in fade-in slide-in-from-top-1 duration-200 bg-black/40 p-2 rounded-xl border border-white/5">
                   <p class="text-[8px] font-black text-accent uppercase text-center">Uang yang Diterima:</p>
                   <input 
                     type="number" 
                     id="paid-input-${buyer.id}" 
-                    class="w-full h-10 bg-black/60 border border-white/10 rounded-lg px-3 text-center text-lg font-black text-white focus:ring-1 focus:ring-accent outline-none"
+                    class="w-full h-9 bg-black/60 border border-white/10 rounded-lg px-2 text-center text-base font-black text-white focus:ring-1 focus:ring-accent outline-none"
                     value="${buyer.price}"
                   />
-                  <button id="done-btn-${buyer.id}" class="w-full bg-accent text-white h-11 rounded-lg font-black text-base shadow-lg active:scale-95 transition-all glow-orange">
+                  <button id="done-btn-${buyer.id}" class="w-full bg-accent text-white h-10 rounded-lg font-black text-sm shadow-lg active:scale-95 transition-all glow-orange">
                     KONFIRMASI ✅
                   </button>
                 </div>
               </div>
             ` : `
-              <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-3 text-center">
-                <p class="text-[9px] font-black text-green-400 uppercase tracking-widest">BERHASIL 🔥</p>
-                <p class="text-base font-black">Rp${(buyer.paidAmount || buyer.price).toLocaleString()}</p>
+              <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-2 text-center">
+                <p class="text-[8px] font-black text-green-400 uppercase tracking-widest">BERHASIL 🔥</p>
+                <p class="text-sm font-black">Rp${(buyer.paidAmount || buyer.price).toLocaleString()}</p>
               </div>
             `}
 
             <div class="grid grid-cols-2 gap-2">
-              <button id="nav-btn-${buyer.id}" class="flex items-center justify-center gap-1.5 bg-white/5 text-white h-10 rounded-lg font-black text-[10px] hover:bg-white/10 transition-all border border-white/5">
+              <button id="nav-btn-${buyer.id}" class="flex items-center justify-center gap-1.5 bg-white/5 text-white h-9 rounded-lg font-black text-[9px] hover:bg-white/10 transition-all border border-white/5">
                 📍 MAPS
               </button>
-              <button id="chat-btn-${buyer.id}" class="flex items-center justify-center gap-1.5 bg-green-500/10 text-green-400 h-10 rounded-lg font-black text-[10px] hover:bg-green-500/20 transition-all border border-green-500/10">
+              <button id="chat-btn-${buyer.id}" class="flex items-center justify-center gap-1.5 bg-green-500/10 text-green-400 h-9 rounded-lg font-black text-[9px] hover:bg-green-500/20 transition-all border border-green-500/10">
                 💬 WA
               </button>
             </div>
           `;
 
           setTimeout(async () => {
+            // Ambil rute rute otomatis (Garis Putih)
             if (userMarkerRef.current) {
               const start = userMarkerRef.current.getLatLng();
               const end = L.latLng(buyer.latitude, buyer.longitude);
@@ -218,10 +219,10 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
                 L.polyline(routeData.coordinates as L.LatLngExpression[], {
                   color: 'white',
                   weight: 5,
-                  opacity: 0.8,
+                  opacity: 0.9,
                   lineJoin: 'round',
                   lineCap: 'round',
-                  dashArray: '1, 10'
+                  dashArray: '1, 8'
                 }).addTo(routeGroup);
 
                 const infoBox = document.getElementById(`route-info-${buyer.id}`);
@@ -239,8 +240,11 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
             document.getElementById(`nav-btn-${buyer.id}`)?.addEventListener('click', () => {
               window.open(`https://www.google.com/maps/dir/?api=1&destination=${buyer.latitude},${buyer.longitude}`, '_blank');
             });
+            
             document.getElementById(`chat-btn-${buyer.id}`)?.addEventListener('click', () => {
-              window.open(`https://wa.me/${buyer.waNumber.replace(/[^0-9]/g, '')}`, '_blank');
+              const phone = buyer.waNumber.replace(/[^0-9]/g, '');
+              // Protokol whatsapp:// memicu App Chooser di Android agar user bisa pilih WA Biasa atau Business
+              window.location.href = `whatsapp://send?phone=${phone}`;
             });
 
             const preBtn = document.getElementById(`pre-done-btn-${buyer.id}`);
@@ -263,13 +267,13 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
           }, 50);
 
           return div;
-        }, { maxWidth: 300, minWidth: 260, className: 'elegant-popup' });
+        }, { maxWidth: 280, minWidth: 240, className: 'elegant-popup' });
 
       bounds.push([buyer.latitude, buyer.longitude]);
     });
 
     if (bounds.length > 0 && !map.getBounds().contains(L.latLngBounds(bounds))) {
-      map.fitBounds(L.latLngBounds(bounds), { padding: [80, 80], maxZoom: 18 });
+      map.fitBounds(L.latLngBounds(bounds), { padding: [60, 60], maxZoom: 18 });
     }
   }, [rencana, onUpdateStatus]);
 
@@ -285,6 +289,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
             userMarkerRef.current.addTo(mapRef.current!);
           }
         }
+        // Sat-set zoom (0.5 detik)
         mapRef.current!.flyTo([latitude, longitude], 18, { duration: 0.5 });
         setLocating(false);
       },
