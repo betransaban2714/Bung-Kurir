@@ -106,13 +106,14 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     buyerGroup.clearLayers();
     const bounds: L.LatLngTuple[] = [];
 
+    // UPDATE ATAU TAMBAH USER MARKER (BIRU MENYALA)
     const initialPos = rencana.startLocation;
     if (initialPos) {
       const { latitude, longitude } = initialPos;
       if (!userMarkerRef.current) {
         userMarkerRef.current = L.marker([latitude, longitude], { 
           icon: createUserIcon(),
-          zIndexOffset: 2000 
+          zIndexOffset: 3000 
         }).addTo(map);
       } else {
         userMarkerRef.current.setLatLng([latitude, longitude]);
@@ -293,6 +294,11 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
           if (!mapRef.current?.hasLayer(userMarkerRef.current)) {
             userMarkerRef.current.addTo(mapRef.current!);
           }
+        } else {
+          userMarkerRef.current = L.marker([latitude, longitude], { 
+            icon: createUserIcon(),
+            zIndexOffset: 3000 
+          }).addTo(mapRef.current!);
         }
         mapRef.current!.flyTo([latitude, longitude], 18, { duration: 0.5 });
         setTimeout(() => setLocating(false), 200);

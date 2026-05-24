@@ -73,32 +73,33 @@
     z-index: 1000 !important;
   }
 
+  /* USER MARKER (BIRU MENYALA) */
   .user-marker {
     display: flex !important;
     align-items: center;
     justify-content: center;
-    z-index: 600 !important;
+    z-index: 3000 !important;
   }
 
   .user-marker-dot {
-    background-color: #3b82f6;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    border: 3px solid white;
-    box-shadow: 0 0 15px rgba(59, 130, 246, 1);
-    position: relative;
-    z-index: 10;
+    background-color: #3b82f6 !important;
+    width: 16px !important;
+    height: 16px !important;
+    border-radius: 50% !important;
+    border: 3px solid white !important;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 1) !important;
+    position: relative !important;
+    z-index: 10 !important;
   }
 
   .user-marker-pulse {
-    position: absolute;
-    width: 40px;
-    height: 40px;
-    background-color: rgba(59, 130, 246, 0.3);
-    border-radius: 50%;
-    animation: ping-large 2s cubic-bezier(0, 0, 0.2, 1) infinite;
-    z-index: 5;
+    position: absolute !important;
+    width: 40px !important;
+    height: 40px !important;
+    background-color: rgba(59, 130, 246, 0.4) !important;
+    border-radius: 50% !important;
+    animation: ping-large 2s cubic-bezier(0, 0, 0.2, 1) infinite !important;
+    z-index: 5 !important;
   }
 }
 
