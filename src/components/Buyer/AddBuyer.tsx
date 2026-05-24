@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -69,11 +70,9 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
       let address: string = formData.locationInput;
 
       if (formData.manualCoords) {
-        // Gunakan koordinat manual jika ada
         latitude = formData.manualCoords.lat;
         longitude = formData.manualCoords.lng;
       } else {
-        // Jika tidak ada koordinat manual, baru panggil AI
         const location = await extractLocationData({ locationInput: formData.locationInput });
         latitude = location.latitude;
         longitude = location.longitude;
@@ -246,14 +245,11 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
         </DialogContent>
       </Dialog>
 
-      {/* Map Picker Overlay */}
       <Dialog open={showPicker} onOpenChange={setShowPicker}>
         <DialogContent className="max-w-[95vw] w-[95vw] h-[80dvh] p-0 glass border-none overflow-hidden flex flex-col z-[200]">
-          <DialogHeader className="p-4 bg-background/50 border-b border-white/5 flex flex-row justify-between items-center shrink-0">
-            <div>
-              <DialogTitle className="font-black text-lg">PILIH LOKASI ANTAR 📍</DialogTitle>
-              <p className="text-[10px] text-muted-foreground uppercase font-bold">Klik di peta untuk pasang penanda</p>
-            </div>
+          <DialogHeader className="p-4 bg-background/50 border-b border-white/5 shrink-0">
+            <DialogTitle className="font-black text-lg">PILIH LOKASI ANTAR 📍</DialogTitle>
+            <p className="text-[10px] text-muted-foreground uppercase font-bold">Klik di peta untuk pasang penanda</p>
           </DialogHeader>
           <div className="flex-1 relative">
             <MapPicker onSelect={handleManualLocation} />
