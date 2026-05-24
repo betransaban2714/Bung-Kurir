@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Rencana } from '@/types';
@@ -38,7 +39,7 @@ export function Summary({ rencana }: SummaryProps) {
           <div className="p-2 bg-primary/20 rounded-xl">
             <Package className="text-primary w-5 h-5" />
           </div>
-          <h3 className="font-bold text-lg">Status Antaran</h3>
+          <h3 className="font-bold text-lg">Info Pengantaran</h3>
         </div>
         <div className="grid grid-cols-3 gap-2 text-center">
           <div className="bg-white/5 rounded-xl py-2">
@@ -61,7 +62,7 @@ export function Summary({ rencana }: SummaryProps) {
           <div className="p-2 bg-accent/20 rounded-xl">
             <Wallet className="text-accent w-5 h-5" />
           </div>
-          <h3 className="font-bold text-lg">Laporan Uang</h3>
+          <h3 className="font-bold text-lg">Info Doi</h3>
         </div>
         <div className="space-y-3">
           <div className="flex justify-between items-center bg-white/5 p-2 rounded-lg">
@@ -69,13 +70,13 @@ export function Summary({ rencana }: SummaryProps) {
             <span className="font-black text-sm">{formatCurrency(totalCodExpected)}</span>
           </div>
           <div className="flex justify-between items-center bg-green-400/10 p-2 rounded-lg">
-            <span className="text-[11px] font-bold text-green-400 uppercase">Uang Masuk:</span>
+            <span className="text-[11px] font-bold text-green-400 uppercase">Doi Maso:</span>
             <span className="font-black text-sm text-green-400">{formatCurrency(totalReceived)}</span>
           </div>
           
           <div className="flex justify-between items-center pt-2 border-t border-white/5">
             <span className="text-[11px] font-black text-accent flex items-center gap-1 uppercase">
-              <TrendingUp className="w-3 h-3" /> Uang Lebih:
+              <TrendingUp className="w-3 h-3" /> Doi Ta Lebe:
             </span>
             <span className="font-black text-lg text-accent">
               {tips > 0 ? formatCurrency(tips) : 'Rp0'}

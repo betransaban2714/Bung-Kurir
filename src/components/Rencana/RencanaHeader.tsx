@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -129,7 +130,7 @@ export function RencanaHeader({ rencanaList, activeRencana, onSelect, onCreate, 
           
           <div className="py-6 space-y-6">
             <div className="text-center space-y-2">
-              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em]">Developer / Pembuat</p>
+              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em]">Pembuat</p>
               <h2 className="text-2xl font-black text-primary">Betran Saban</h2>
             </div>
 
@@ -145,7 +146,7 @@ export function RencanaHeader({ rencanaList, activeRencana, onSelect, onCreate, 
                   className="w-full h-14 bg-green-500 hover:bg-green-600 font-black text-white rounded-2xl gap-2 active:scale-95 transition-all shadow-xl"
                   onClick={() => window.open('https://wa.me/6282196913604', '_blank')}
                 >
-                  WHATSAPP <ExternalLink className="w-4 h-4" />
+                  CONTACT ME <ExternalLink className="w-4 h-4" />
                 </Button>
               </div>
             </div>

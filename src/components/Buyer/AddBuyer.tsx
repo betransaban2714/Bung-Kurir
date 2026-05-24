@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -22,7 +23,7 @@ import dynamic from 'next/dynamic';
 
 const MapPicker = dynamic(() => import('@/components/Map/MapPicker'), { 
   ssr: false,
-  loading: () => <div className="h-[400px] w-full bg-secondary/20 animate-pulse flex items-center justify-center font-black italic text-xs uppercase text-muted-foreground">SABAR, MAPS LAGI LOADING... 🌍</div>
+  loading: () => <div className="h-[400px] w-full bg-secondary/20 animate-pulse flex items-center justify-center font-black italic text-xs uppercase text-muted-foreground">SABAR, MAPS ADA LOADING... 🌍</div>
 });
 
 interface AddBuyerProps {
@@ -120,13 +121,13 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
             <Plus className="w-8 h-8" /> TAMBAH BUYER
           </Button>
         </DialogTrigger>
-        <DialogContent className="glass w-[92vw] sm:max-w-[450px] rounded-[2.5rem] border-none shadow-2xl p-6 md:p-8 overflow-y-auto max-h-[90dvh]">
+        <DialogContent className="glass w-[92vw] mx-auto sm:max-w-[450px] rounded-[2.5rem] border-none shadow-2xl p-6 md:p-8 overflow-y-auto max-h-[90dvh]">
           <DialogHeader className="space-y-1">
             <DialogTitle className="text-3xl font-black flex items-center gap-2 text-white">
               <MapPin className="text-primary w-8 h-8" /> MO ANTAR KA MANA?
             </DialogTitle>
             <DialogDescription className="text-muted-foreground font-medium italic text-sm">
-              Isi data buyer deng lokasi antaran yang jelas e.
+              Isi data buyer deng lokasi yang jelas e.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-6 pt-4">
@@ -239,7 +240,7 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
                   </>
                 ) : (
                   <>
-                    GAS ANTAR! <Send className="ml-2 w-7 h-7" />
+                    GAS TAMBAH! <Send className="ml-2 w-7 h-7" />
                   </>
                 )}
               </Button>

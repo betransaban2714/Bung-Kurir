@@ -87,7 +87,7 @@ export default function Home() {
                     </SheetTrigger>
                     <SheetContent side="right" className="p-0 glass border-none w-[85vw] sm:w-[350px]">
                       <SheetHeader className="sr-only">
-                        <SheetTitle>Daftar Yang Mo Antar</SheetTitle>
+                        <SheetTitle>Daftar Buyer</SheetTitle>
                         <SheetDescription>Daftar paket yang harus ngana antar hari ini.</SheetDescription>
                       </SheetHeader>
                       <BuyerList 
@@ -117,10 +117,10 @@ export default function Home() {
             </div>
             <div className="space-y-3">
               <h2 className="text-4xl font-black italic tracking-tighter uppercase text-white drop-shadow-2xl">Bung'Kurir 📦</h2>
-              <p className="text-muted-foreground text-sm max-w-xs mx-auto font-medium">
-                Halo Bung! Bolong ada rencana ba antar? 
-                Taru samua disini dulu, Baru Gass ba Antar!🔥
-              </p>
+              <div className="text-muted-foreground text-sm max-w-xs mx-auto font-medium space-y-1">
+                <p>Halo Bung! Bolong ada rencana ba antar?</p>
+                <p>Taru samua disini dulu, Baru Gass ba Antar!🔥</p>
+              </div>
             </div>
             <CreateRencanaDialog 
               onCreate={createRencana}
@@ -129,7 +129,7 @@ export default function Home() {
                   size="lg" 
                   className="px-12 h-16 text-xl font-black bg-primary hover:bg-primary/90 glow-blue rounded-2xl transition-all active:scale-95"
                 >
-                  GAS BUAT RENCANA!
+                  GAS BIKING RENCANA!
                 </Button>
               }
             />

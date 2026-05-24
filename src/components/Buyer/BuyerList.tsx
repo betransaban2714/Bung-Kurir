@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Buyer } from '@/types';
@@ -17,8 +18,8 @@ export function BuyerList({ buyers, onDelete }: BuyerListProps) {
       <div className="h-full flex flex-col items-center justify-center p-8 text-center space-y-4 opacity-50">
         <Clock className="w-12 h-12 text-muted-foreground" />
         <div>
-          <h3 className="font-bold text-lg text-white">BELUM ADA ANTARAN</h3>
-          <p className="text-xs text-muted-foreground">Klik tombol "Tambah Buyer" di bawah buat gas paket dolo.</p>
+          <h3 className="font-bold text-lg text-white">BELUM ADA BUYER</h3>
+          <p className="text-xs text-muted-foreground">Klik tombol "Tambah Buyer" di bawah buat tambah Buyer.</p>
         </div>
       </div>
     );
@@ -28,8 +29,8 @@ export function BuyerList({ buyers, onDelete }: BuyerListProps) {
     <div className="h-full flex flex-col bg-background/50">
       <div className="px-6 py-5 flex items-center justify-between border-b border-white/5 glass-dark">
         <div>
-          <h2 className="font-black text-sm uppercase tracking-widest text-muted-foreground">Daftar Antaran</h2>
-          <p className="text-[10px] text-primary font-bold">Total {buyers.length} Paket Hari Ini</p>
+          <h2 className="font-black text-sm uppercase tracking-widest text-muted-foreground">Daftar Buyer</h2>
+          <p className="text-[10px] text-primary font-bold">Total {buyers.length} Buyer Hari Ini</p>
         </div>
         <span className="bg-primary/20 text-primary text-[10px] font-black px-3 py-1 rounded-full border border-primary/20">
           AKTIF
@@ -74,7 +75,7 @@ export function BuyerList({ buyers, onDelete }: BuyerListProps) {
                   <div className="space-y-1">
                     <p className="font-black text-base text-primary">Rp{buyer.price.toLocaleString()}</p>
                     {buyer.status === 'TIP' && buyer.paidAmount && (
-                      <p className="text-[9px] font-black text-accent uppercase">Untung 🔥</p>
+                      <p className="text-[9px] font-black text-accent uppercase">Doi Ta Lebe 🔥</p>
                     )}
                   </div>
                   

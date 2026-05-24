@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -62,7 +63,6 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
         (pos) => {
           if (isMounted && mapRef.current) {
             try {
-              // Animasi dipercepat dari 1.5 ke 0.5 detik
               mapRef.current.flyTo([pos.coords.latitude, pos.coords.longitude], 16, { duration: 0.5 });
             } catch (err) {
               console.warn('Gagal flyTo:', err);

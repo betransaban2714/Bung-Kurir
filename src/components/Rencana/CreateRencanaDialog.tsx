@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -63,7 +64,7 @@ export function CreateRencanaDialog({ onCreate, trigger, open: controlledOpen, o
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-      <DialogContent className="glass w-[92vw] sm:max-w-[450px] rounded-[2.5rem] border-none shadow-2xl z-[100] p-6 md:p-8">
+      <DialogContent className="glass w-[92vw] mx-auto sm:max-w-[450px] rounded-[2.5rem] border-none shadow-2xl z-[100] p-6 md:p-8">
         <DialogHeader>
           <DialogTitle className="text-2xl font-black text-white italic">GAS RENCANA BARU! 📦</DialogTitle>
         </DialogHeader>

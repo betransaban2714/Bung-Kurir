@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -282,7 +283,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
           }
         }
         mapRef.current!.flyTo([latitude, longitude], 18, { duration: 0.5 });
-        setTimeout(() => setLocating(false), 300);
+        setTimeout(() => setLocating(false), 200);
       },
       () => setLocating(false),
       { enableHighAccuracy: true }
@@ -296,7 +297,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
         <Button
           onClick={handleLocateMe}
           disabled={locating}
-          className="h-11 w-11 rounded-2xl bg-black/60 backdrop-blur-md border-white/10 p-0 flex items-center justify-center active:scale-90 transition-all duration-100 shadow-2xl"
+          className="h-11 w-11 rounded-2xl bg-black/60 backdrop-blur-md border-white/10 p-0 flex items-center justify-center active:scale-90 transition-all duration-200 shadow-2xl"
         >
           {locating ? <Loader2 className="w-5 h-5 animate-spin text-primary" /> : <LocateFixed className="w-5 h-5 text-primary" />}
         </Button>
