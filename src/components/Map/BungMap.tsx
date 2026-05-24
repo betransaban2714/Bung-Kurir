@@ -61,22 +61,24 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
   useEffect(() => {
     if (!mapRef.current) return;
 
-    // Clear old markers
+    // Clear ALL old markers including start marker
     Object.values(markersRef.current).forEach(m => m.remove());
     markersRef.current = {};
 
     const bounds: L.LatLngTuple[] = [];
 
-    // Start Location Marker
+    // Start Location Marker - Track it in markersRef to prevent duplication
     if (rencana.startLocation) {
        const startIcon = L.divIcon({
         className: 'start-marker',
         html: `<div style="background-color: #3b82f6; width: 14px; height: 14px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 15px rgba(59, 130, 246, 0.9);"></div>`,
         iconSize: [14, 14],
       });
-      L.marker([rencana.startLocation.latitude, rencana.startLocation.longitude], { icon: startIcon })
+      const startMarker = L.marker([rencana.startLocation.latitude, rencana.startLocation.longitude], { icon: startIcon })
         .addTo(mapRef.current)
         .bindTooltip("Mulai Sini", { permanent: false });
+      
+      markersRef.current['__start_location__'] = startMarker;
       bounds.push([rencana.startLocation.latitude, rencana.startLocation.longitude]);
     }
 
