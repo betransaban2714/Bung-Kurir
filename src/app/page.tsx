@@ -162,7 +162,7 @@ export default function Home() {
       </div>
 
       {/* WATERMARK BETRAN */}
-      <div className="fixed bottom-4 right-4 text-[10px] font-black text-white/70 flex items-center gap-1 pointer-events-none z-50 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/5">
+      <div className="fixed bottom-4 right-4 text-[10px] font-black text-white/40 flex items-center gap-1 pointer-events-none z-50 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/5">
         <Copyright className="w-3 h-3" /> byBetranSaban
       </div>
     </div>
