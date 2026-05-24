@@ -144,7 +144,7 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
               <Label htmlFor="name" className="text-muted-foreground font-black uppercase tracking-widest text-[10px]">Nama Buyer</Label>
               <Input
                 id="name"
-                placeholder="Contoh: Mama Ina"
+                placeholder="Tulis Nama Penerima"
                 className="bg-secondary/40 h-14 text-lg font-black rounded-2xl border-white/5 focus:ring-primary"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -166,13 +166,13 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
               </div>
               <Input
                 id="location"
-                placeholder="Paste link maps atau pilih manual..."
+                placeholder="Paste koordinat atau pilih manual..."
                 className={`bg-secondary/40 h-14 text-xs rounded-2xl border-white/5 transition-all ${formData.manualCoords ? 'border-primary/50 ring-2 ring-primary/20 bg-primary/5' : ''}`}
                 value={formData.locationInput}
                 onChange={(e) => setFormData({ ...formData, locationInput: e.target.value, manualCoords: null })}
               />
               <p className="text-[10px] text-muted-foreground italic px-1">
-                {formData.manualCoords ? '🔥 Lokasi manual su aktif!' : "Bung'Kurir su pintar baca link maps otomatis 🔥"}
+                {formData.manualCoords ? '🔥 Lokasi manual su aktif!' : "Pace bisa masukan koordinat desimal atau DMS 🔥"}
               </p>
             </div>
 
@@ -181,6 +181,8 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
                 <Label htmlFor="wa" className="text-muted-foreground font-black uppercase tracking-widest text-[10px]">Nomor WA</Label>
                 <Input
                   id="wa"
+                  type="tel"
+                  inputMode="tel"
                   placeholder="0812..."
                   className="bg-secondary/40 h-14 text-lg font-black rounded-2xl border-white/5"
                   value={formData.waNumber}
@@ -192,6 +194,7 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
                 <Input
                   id="price"
                   type="text"
+                  inputMode="numeric"
                   placeholder="150.000"
                   className="bg-secondary/40 h-14 text-lg font-black rounded-2xl border-white/5"
                   value={formatPrice(formData.price)}
