@@ -28,6 +28,19 @@ const LocationDataExtractorOutputSchema = z.object({
 });
 export type LocationDataExtractorOutput = z.infer<typeof LocationDataExtractorOutputSchema>;
 
+/**
+ * Helper to resolve short URLs like maps.app.goo.gl to get the final coordinates.
+ */
+async function resolveUrl(url: string): Promise<string> {
+  try {
+    const response = await fetch(url, { method: 'HEAD', redirect: 'follow' });
+    return response.url;
+  } catch (error) {
+    console.error('Gagal resolve URL:', error);
+    return url;
+  }
+}
+
 const extractLocationPrompt = ai.definePrompt({
   name: 'extractLocationPrompt',
   input: {schema: LocationDataExtractorInputSchema},
@@ -35,12 +48,13 @@ const extractLocationPrompt = ai.definePrompt({
   prompt: `You are an expert location data parser specializing in Indonesian geography. Your task is to extract precise latitude and longitude coordinates.
 
 CRITICAL INSTRUCTIONS:
-1. INDONESIA CONTEXT: This app is for "Bung'Kurir" in Eastern Indonesia (Papua, Maluku, Sulawesi, NTT). If the input is an address without a country, ALWAYS prioritize locations within Indonesia.
+1. INDONESIA CONTEXT: This app is for "Bung'Kurir" in Eastern Indonesia (Papua, Maluku, Sulawesi, NTT). Always prioritize Indonesian coordinates.
 2. URL PARSING:
-   - For Google Maps URLs, look for the pattern "@latitude,longitude" (e.g., @-6.175,106.827). These are the most accurate.
-   - For links without explicit coordinates (short links like maps.app.goo.gl), infer the location from the place name or descriptive text provided.
-3. RAW COORDINATES: If the user provides raw numbers, ensure you don't swap Latitude and Longitude. Latitude is usually between -11 and 6 for Indonesia, and Longitude is between 95 and 141.
-4. ERROR PREVENTION: Never return 0,0 or coordinates in America/Europe unless explicitly specified. If you are unsure, provide the most likely coordinates for that name in Indonesia.
+   - For Google Maps URLs, look for the pattern "@latitude,longitude" (e.g., @-6.175,106.827) or "!3d[lat]!4d[lng]". These are the most accurate.
+   - If the URL contains coordinates, extract them directly.
+3. RAW COORDINATES: If the user provides raw numbers, Latitude (Indonesia) is usually between -11 and 6, and Longitude is between 94 and 142.
+4. COORDINATE FORMAT: Ensure Latitude is NOT swapped with Longitude. Latitude is first in a pair of (Lat, Lng).
+5. ERROR PREVENTION: If the input contains a place name but no clear coordinates, use your knowledge of Indonesian geography to provide a highly probable center for that place.
 
 Strictly return the response in JSON format according to the provided schema.
 
@@ -54,13 +68,22 @@ const extractLocationDataFlow = ai.defineFlow(
     outputSchema: LocationDataExtractorOutputSchema,
   },
   async (input) => {
-    const {output} = await extractLocationPrompt(input);
+    let finalInput = input.locationInput;
+
+    // Check if input contains a short Google Maps URL and try to resolve it
+    const urlMatch = input.locationInput.match(/https?:\/\/(maps\.app\.goo\.gl|goo\.gl\/maps)\/\S+/);
+    if (urlMatch) {
+      const resolved = await resolveUrl(urlMatch[0]);
+      finalInput = input.locationInput.replace(urlMatch[0], resolved);
+    }
+
+    const {output} = await extractLocationPrompt({ locationInput: finalInput });
     if (!output) {
       throw new Error('Gagal mengekstrak data lokasi.');
     }
     
     // Basic validation for Indonesia coordinates roughly
-    const isWithinIndo = output.latitude >= -12 && output.latitude <= 7 && 
+    const isWithinIndo = output.latitude >= -12 && output.latitude <= 8 && 
                          output.longitude >= 94 && output.longitude <= 142;
     
     if (!isWithinIndo) {
