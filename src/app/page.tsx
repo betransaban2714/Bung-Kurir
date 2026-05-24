@@ -2,7 +2,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useKurirStore } from '@/store/useKurirStore';
 import { RencanaHeader } from '@/components/Rencana/RencanaHeader';
 import { Summary } from '@/components/Dashboard/Summary';
@@ -50,6 +50,24 @@ export default function Home() {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
+  
+  // ONBOARDING STATE
+  const [onboardingStep, setOnboardingStep] = useState(0); // 0: idle, 1: buyer list, 2: summary, 3: finished
+
+  useEffect(() => {
+    if (isHydrated) {
+      // Mulai panduan setelah hidrasi selesai
+      const step1Timer = setTimeout(() => setOnboardingStep(1), 1000);
+      const step2Timer = setTimeout(() => setOnboardingStep(2), 5000);
+      const endTimer = setTimeout(() => setOnboardingStep(3), 9000);
+
+      return () => {
+        clearTimeout(step1Timer);
+        clearTimeout(step2Timer);
+        clearTimeout(endTimer);
+      };
+    }
+  }, [isHydrated]);
 
   if (!isHydrated) return null;
 
@@ -79,31 +97,51 @@ export default function Home() {
                 />
                 
                 <div className="absolute top-4 right-4 flex flex-col gap-3 z-30">
-                  <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-                    <SheetTrigger asChild>
-                      <Button size="icon" className="w-14 h-14 rounded-2xl glass-dark shadow-2xl glow-blue active:scale-95 transition-all">
-                        <Menu className="w-7 h-7" />
-                      </Button>
-                    </SheetTrigger>
-                    <SheetContent side="right" className="p-0 glass border-none w-[85vw] sm:w-[350px]">
-                      <SheetHeader className="sr-only">
-                        <SheetTitle>Daftar Buyer</SheetTitle>
-                        <SheetDescription>Daftar paket yang harus ngana antar hari ini.</SheetDescription>
-                      </SheetHeader>
-                      <BuyerList 
-                        buyers={activeRencana.buyers} 
-                        onDelete={(id) => deleteBuyer(activeRencana.id, id)}
-                      />
-                    </SheetContent>
-                  </Sheet>
+                  <div className="relative">
+                    {/* PANDUAN DAFTAR BUYER */}
+                    {onboardingStep === 1 && (
+                      <div className="absolute right-full mr-4 top-1/2 -translate-y-1/2 whitespace-nowrap animate-in fade-in slide-in-from-right-4 duration-500">
+                        <div className="bg-primary text-white font-black text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 border border-white/20 animate-bounce">
+                          Pantau daftar Buyer di sini 👉
+                        </div>
+                      </div>
+                    )}
+                    <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+                      <SheetTrigger asChild>
+                        <Button size="icon" className="w-14 h-14 rounded-2xl glass-dark shadow-2xl glow-blue active:scale-95 transition-all">
+                          <Menu className="w-7 h-7" />
+                        </Button>
+                      </SheetTrigger>
+                      <SheetContent side="right" className="p-0 glass border-none w-[85vw] sm:w-[350px]">
+                        <SheetHeader className="sr-only">
+                          <SheetTitle>Daftar Buyer</SheetTitle>
+                          <SheetDescription>Daftar paket yang harus ngana antar hari ini.</SheetDescription>
+                        </SheetHeader>
+                        <BuyerList 
+                          buyers={activeRencana.buyers} 
+                          onDelete={(id) => deleteBuyer(activeRencana.id, id)}
+                        />
+                      </SheetContent>
+                    </Sheet>
+                  </div>
 
-                  <Button 
-                    size="icon" 
-                    className={`w-14 h-14 rounded-2xl glass-dark shadow-2xl transition-all active:scale-95 ${showSummary ? 'bg-accent text-white scale-110' : 'glow-orange'}`}
-                    onClick={() => setShowSummary(!showSummary)}
-                  >
-                    <LayoutDashboard className="w-7 h-7" />
-                  </Button>
+                  <div className="relative">
+                    {/* PANDUAN INFO PENGANTARAN */}
+                    {onboardingStep === 2 && (
+                      <div className="absolute right-full mr-4 top-1/2 -translate-y-1/2 whitespace-nowrap animate-in fade-in slide-in-from-right-4 duration-500">
+                        <div className="bg-accent text-white font-black text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 border border-white/20 animate-bounce">
+                          Pantau pengantaran hari ini disini 👉
+                        </div>
+                      </div>
+                    )}
+                    <Button 
+                      size="icon" 
+                      className={`w-14 h-14 rounded-2xl glass-dark shadow-2xl transition-all active:scale-95 ${showSummary ? 'bg-accent text-white scale-110' : 'glow-orange'}`}
+                      onClick={() => setShowSummary(!showSummary)}
+                    >
+                      <LayoutDashboard className="w-7 h-7" />
+                    </Button>
+                  </div>
                 </div>
              </div>
           </div>
@@ -134,13 +172,23 @@ export default function Home() {
                   </Button>
                 }
               />
-              <Button 
-                variant="ghost"
-                className="h-12 text-muted-foreground font-black text-xs tracking-widest uppercase hover:bg-white/5 rounded-xl"
-                onClick={() => setShowSummary(!showSummary)}
-              >
-                <LayoutDashboard className="w-4 h-4 mr-2" /> {showSummary ? "Tutup Laporan" : "Lihat Laporan Hari Ini"}
-              </Button>
+              <div className="relative">
+                {/* PANDUAN INFO PENGANTARAN (SAAT BELUM ADA RENCANA) */}
+                {onboardingStep === 2 && (
+                  <div className="absolute right-full mr-4 top-1/2 -translate-y-1/2 whitespace-nowrap animate-in fade-in slide-in-from-right-4 duration-500 z-50">
+                    <div className="bg-accent text-white font-black text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 border border-white/20 animate-bounce">
+                      Pantau pengantaran hari ini disini 👉
+                    </div>
+                  </div>
+                )}
+                <Button 
+                  variant="ghost"
+                  className={`h-12 w-full text-muted-foreground font-black text-xs tracking-widest uppercase hover:bg-white/5 rounded-xl ${onboardingStep === 2 ? 'bg-white/5 ring-1 ring-accent/30' : ''}`}
+                  onClick={() => setShowSummary(!showSummary)}
+                >
+                  <LayoutDashboard className="w-4 h-4 mr-2" /> {showSummary ? "Tutup Laporan" : "Lihat Laporan Hari Ini"}
+                </Button>
+              </div>
             </div>
           </div>
         )}
@@ -173,7 +221,7 @@ export default function Home() {
 
       {/* WATERMARK BETRAN - Polos, Transparansi 18% */}
       <div className="fixed bottom-4 right-4 text-[10px] font-medium flex items-center gap-1 pointer-events-none z-50">
-        <Copyright className="w-3 h-3 text-white/[0.18]" /> <span className="text-white/[0.18] tracking-wider">byBetranSaban</span>
+        <Copyright className="w-3 h-3 text-white/[0.18]" /> <span className="text-white/[0.18] tracking-wider font-normal">byBetranSaban</span>
       </div>
     </div>
   );
