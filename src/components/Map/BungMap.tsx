@@ -18,6 +18,16 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
   const userMarkerRef = useRef<L.Marker | null>(null);
   const [locating, setLocating] = useState(false);
 
+  // Helper to create the Blue Animated User Icon
+  const createUserIcon = () => L.divIcon({
+    className: 'user-marker',
+    html: `<div class="relative flex items-center justify-center">
+            <div class="absolute w-8 h-8 bg-blue-500/30 rounded-full animate-ping"></div>
+            <div style="background-color: #3b82f6; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(59, 130, 246, 1);"></div>
+          </div>`,
+    iconSize: [16, 16],
+  });
+
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
@@ -61,26 +71,27 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
   useEffect(() => {
     if (!mapRef.current) return;
 
-    // Clear ALL old markers including start marker
+    // Clear old buyer markers
     Object.values(markersRef.current).forEach(m => m.remove());
     markersRef.current = {};
 
     const bounds: L.LatLngTuple[] = [];
 
-    // Start Location Marker - Pake Bendera supaya tra baku tukar deng titik lokasi live
+    // USER LOCATION MARKER - Handle it specifically
     if (rencana.startLocation) {
-       const startIcon = L.divIcon({
-        className: 'start-marker',
-        html: `<div style="font-size: 24px; filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));">🚩</div>`,
-        iconSize: [30, 30],
-        iconAnchor: [5, 25],
-      });
-      const startMarker = L.marker([rencana.startLocation.latitude, rencana.startLocation.longitude], { icon: startIcon })
-        .addTo(mapRef.current)
-        .bindTooltip("Mulai Dari Sini", { permanent: false });
+      const { latitude, longitude } = rencana.startLocation;
       
-      markersRef.current['__start_location__'] = startMarker;
-      bounds.push([rencana.startLocation.latitude, rencana.startLocation.longitude]);
+      if (!userMarkerRef.current) {
+        // Create it if it doesn't exist
+        userMarkerRef.current = L.marker([latitude, longitude], { icon: createUserIcon() })
+          .addTo(mapRef.current)
+          .bindTooltip("Saya Ada Sini", { direction: 'top' });
+      } else {
+        // If it exists, but we are resetting/loading a new rencana, 
+        // we might want to move it to the start location if it's the first time
+        // But usually, we just let it be where it was if the user has moved.
+      }
+      bounds.push([latitude, longitude]);
     }
 
     // Buyer Markers
@@ -175,20 +186,13 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
       (pos) => {
         const { latitude, longitude } = pos.coords;
         
-        if (userMarkerRef.current) userMarkerRef.current.remove();
-        
-        const userIcon = L.divIcon({
-          className: 'user-marker',
-          html: `<div class="relative flex items-center justify-center">
-                  <div class="absolute w-8 h-8 bg-blue-500/30 rounded-full animate-ping"></div>
-                  <div style="background-color: #3b82f6; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(59, 130, 246, 1);"></div>
-                </div>`,
-          iconSize: [16, 16],
-        });
-
-        userMarkerRef.current = L.marker([latitude, longitude], { icon: userIcon })
-          .addTo(mapRef.current!)
-          .bindTooltip("Saya Ada Sini", { direction: 'top' });
+        if (!userMarkerRef.current) {
+          userMarkerRef.current = L.marker([latitude, longitude], { icon: createUserIcon() })
+            .addTo(mapRef.current!)
+            .bindTooltip("Saya Ada Sini", { direction: 'top' });
+        } else {
+          userMarkerRef.current.setLatLng([latitude, longitude]);
+        }
 
         mapRef.current!.flyTo([latitude, longitude], 18, { duration: 1.5 });
         setLocating(false);
