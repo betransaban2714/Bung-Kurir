@@ -22,7 +22,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     }).setView([-2.5489, 118.0149], 5);
 
     // Menggunakan ESRI World Imagery untuk tampilan Satelit
-    const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EBP, and the GIS User Community'
     }).addTo(mapRef.current);
 
@@ -102,18 +102,10 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
                <span class="text-xs text-muted-foreground">Harga:</span>
                <span class="font-black text-primary">Rp${buyer.price.toLocaleString()}</span>
             </div>
-            ${buyer.paymentMethod === 'COD' && buyer.status === 'PENDING' ? `
-              <div class="space-y-2">
-                <p class="text-[10px] font-bold uppercase text-muted-foreground">Buyer bayar berapa?</p>
-                <input type="number" id="paid-input-${buyer.id}" value="${buyer.price}" class="w-full bg-secondary border border-border rounded-xl px-3 py-3 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary" />
-              </div>
-            ` : ''}
             ${buyer.status !== 'PENDING' ? `
               <div class="bg-muted/30 p-2 rounded-xl text-xs space-y-1 border border-white/5">
+                <div class="flex justify-between"><span>Status:</span> <span class="font-bold text-green-400">SELESAI</span></div>
                 <div class="flex justify-between"><span>Diterima:</span> <span class="font-bold">Rp${(buyer.paidAmount || buyer.price).toLocaleString()}</span></div>
-                ${(buyer.paidAmount || 0) > buyer.price ? `
-                  <div class="flex justify-between text-accent font-black uppercase"><span>Uang Lebih:</span> <span>Rp${((buyer.paidAmount || 0) - buyer.price).toLocaleString()} 🔥</span></div>
-                ` : ''}
               </div>
             ` : ''}
             <div class="grid grid-cols-1 gap-2 pt-2">
@@ -137,7 +129,6 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
             const navBtn = document.getElementById(`nav-btn-${buyer.id}`);
             const chatBtn = document.getElementById(`chat-btn-${buyer.id}`);
             const doneBtn = document.getElementById(`done-btn-${buyer.id}`);
-            const paidInput = document.getElementById(`paid-input-${buyer.id}`) as HTMLInputElement;
 
             navBtn?.addEventListener('click', () => {
               window.open(`https://www.google.com/maps/dir/?api=1&destination=${buyer.latitude},${buyer.longitude}`, '_blank');
@@ -148,9 +139,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
             });
 
             doneBtn?.addEventListener('click', () => {
-              const paidAmount = paidInput ? parseFloat(paidInput.value) : buyer.price;
-              const status: DeliveryStatus = isNaN(paidAmount) || paidAmount <= buyer.price ? 'DONE' : 'TIP';
-              onUpdateStatus(buyer.id, status, isNaN(paidAmount) ? buyer.price : paidAmount);
+              onUpdateStatus(buyer.id, 'DONE', buyer.price);
               mapRef.current?.closePopup();
             });
           }, 0);
