@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -19,10 +18,8 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
-    // Flag untuk memantau apakah komponen masih aktif (mounted)
     let isMounted = true;
 
-    // Inisialisasi Map
     const map = L.map(containerRef.current, {
       zoomControl: false,
       maxZoom: 20,
@@ -30,13 +27,11 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
 
     mapRef.current = map;
 
-    // Layer Satelit (ESRI)
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 20,
       attribution: 'Tiles &copy; Esri'
     }).addTo(map);
 
-    // Layer Label (Jalan, Toko, POI) - Hybrid Style agar mirip Google Maps
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
@@ -45,7 +40,6 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    // Event Klik di Map untuk menentukan titik antaran secara manual
     map.on('click', (e) => {
       const { lat, lng } = e.latlng;
       setSelectedCoords({ lat, lng });
@@ -63,22 +57,18 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
       }
     });
 
-    // Coba ambil lokasi user sekarang sebagai titik awal picker
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          // FIX: Pastikan komponen masih terpasang sebelum menjalankan flyTo
           if (isMounted && mapRef.current) {
             try {
               mapRef.current.flyTo([pos.coords.latitude, pos.coords.longitude], 16, { duration: 1.5 });
             } catch (err) {
-              console.warn('Gagal mengarahkan peta ke lokasi user:', err);
+              console.warn('Gagal flyTo:', err);
             }
           }
         },
-        (err) => {
-          console.warn('Geolocation error:', err);
-        },
+        null,
         { enableHighAccuracy: true, timeout: 5000 }
       );
     }
@@ -97,7 +87,6 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
     <div className="w-full h-full relative">
       <div ref={containerRef} className="w-full h-full z-0 bg-black" />
       
-      {/* Overlay Instruksi */}
       {!selectedCoords && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10 text-center space-y-2">
           <div className="bg-black/60 backdrop-blur-md px-6 py-4 rounded-3xl border border-white/10 shadow-2xl">
@@ -107,7 +96,6 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
         </div>
       )}
 
-      {/* Button Konfirmasi Lokasi */}
       {selectedCoords && (
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 w-[85%]">
           <Button 

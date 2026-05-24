@@ -19,6 +19,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
   const userMarkerRef = useRef<L.Marker | null>(null);
   const [locating, setLocating] = useState(false);
 
+  // Ikon Titik Biru Menyala (Cuma Satu)
   const createUserIcon = () => L.divIcon({
     className: 'user-marker',
     html: `
@@ -64,7 +65,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
       maxZoom: 20
     }).addTo(map);
 
-    // Layer Label (Jalan & Nama Tempat)
+    // Layer Label (Jalan, Toko, POI) - SUPAYA ADA NAMA TEMPAT
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
@@ -98,7 +99,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     buyerGroup.clearLayers();
     const bounds: L.LatLngTuple[] = [];
 
-    // Tampilkan titik biru animasi (Lokasi Start/User)
+    // Tampilkan CUMA SATU Titik Biru (Gunakan Lokasi Start)
     const initialPos = rencana.startLocation;
     if (initialPos) {
       const { latitude, longitude } = initialPos;
