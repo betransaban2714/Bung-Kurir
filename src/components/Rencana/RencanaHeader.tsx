@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -21,6 +22,8 @@ interface RencanaHeaderProps {
 }
 
 export function RencanaHeader({ rencanaList, activeRencana, onSelect, onCreate, onDelete }: RencanaHeaderProps) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   return (
     <div className="flex items-center justify-between gap-4">
       <div className="flex-1">
@@ -36,7 +39,7 @@ export function RencanaHeader({ rencanaList, activeRencana, onSelect, onCreate, 
               </h1>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="glass w-56 p-2">
+          <DropdownMenuContent className="glass w-64 p-2">
             {rencanaList.length === 0 && (
               <p className="text-xs text-muted-foreground p-3 text-center italic">Belum ada rencana, buat dolo!</p>
             )}
@@ -46,13 +49,14 @@ export function RencanaHeader({ rencanaList, activeRencana, onSelect, onCreate, 
                   className="flex-1 cursor-pointer font-bold h-10 px-3"
                   onClick={() => onSelect(r.id)}
                 >
-                  {r.name}
+                  <span className="truncate">{r.name}</span>
                 </DropdownMenuItem>
                 <Button 
                   size="icon" 
                   variant="ghost" 
-                  className="h-8 w-8 text-muted-foreground hover:text-red-400"
+                  className="h-8 w-8 text-muted-foreground hover:text-red-400 shrink-0"
                   onClick={(e) => {
+                    e.preventDefault();
                     e.stopPropagation();
                     onDelete(r.id);
                   }}
@@ -62,17 +66,15 @@ export function RencanaHeader({ rencanaList, activeRencana, onSelect, onCreate, 
               </div>
             ))}
             <DropdownMenuSeparator className="bg-white/5" />
-            <CreateRencanaDialog 
-              onCreate={onCreate}
-              trigger={
-                <DropdownMenuItem 
-                  className="cursor-pointer font-bold h-10 px-3 text-accent focus:text-accent"
-                  onSelect={(e) => e.preventDefault()}
-                >
-                  <Plus className="w-4 h-4 mr-2" /> BUAT RENCANA BARU
-                </DropdownMenuItem>
-              }
-            />
+            <DropdownMenuItem 
+              className="cursor-pointer font-bold h-10 px-3 text-accent focus:text-accent focus:bg-accent/10"
+              onSelect={(e) => {
+                e.preventDefault();
+                setIsDialogOpen(true);
+              }}
+            >
+              <Plus className="w-4 h-4 mr-2" /> BUAT RENCANA BARU
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -83,6 +85,16 @@ export function RencanaHeader({ rencanaList, activeRencana, onSelect, onCreate, 
           {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
         </span>
       </div>
+
+      {/* Dialog dipindah ke luar DropdownContent supaya tidak ada konflik Focus */}
+      <CreateRencanaDialog 
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        onCreate={(name, loc) => {
+          onCreate(name, loc);
+          setIsDialogOpen(false);
+        }}
+      />
     </div>
   );
 }

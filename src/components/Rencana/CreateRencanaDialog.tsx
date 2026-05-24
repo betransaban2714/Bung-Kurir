@@ -16,12 +16,17 @@ import { MapPin, Loader2 } from 'lucide-react';
 interface CreateRencanaDialogProps {
   onCreate: (name: string, location?: any) => void;
   trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function CreateRencanaDialog({ onCreate, trigger }: CreateRencanaDialogProps) {
+export function CreateRencanaDialog({ onCreate, trigger, open: controlledOpen, onOpenChange }: CreateRencanaDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
   const [newName, setNewName] = useState('');
-  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = onOpenChange !== undefined ? onOpenChange : setInternalOpen;
 
   const handleCreate = () => {
     if (!newName.trim()) return;
@@ -57,38 +62,37 @@ export function CreateRencanaDialog({ onCreate, trigger }: CreateRencanaDialogPr
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger}
-      </DialogTrigger>
-      <DialogContent className="glass border-none">
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+      <DialogContent className="glass border-none shadow-2xl z-[100]">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-black">GAS RENCANA BARU! 📦</DialogTitle>
+          <DialogTitle className="text-2xl font-black text-white">GAS RENCANA BARU! 📦</DialogTitle>
         </DialogHeader>
         <div className="py-4 space-y-4">
           <div className="space-y-2">
-            <label className="text-xs font-bold text-muted-foreground">KASI NAMA RENCANA</label>
+            <label className="text-xs font-bold text-muted-foreground uppercase">KASI NAMA RENCANA</label>
             <Input 
-              placeholder="Contoh: Gas Pagi, Keliling Kota Dolo..." 
-              className="h-12 text-lg font-bold bg-secondary/50"
+              placeholder="Contoh: Gas Pagi, Keliling Kota..." 
+              className="h-14 text-lg font-bold bg-secondary/50 border-white/5 focus:ring-primary"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+              autoFocus
             />
           </div>
-          <div className="p-3 bg-primary/10 rounded-xl border border-primary/20 flex gap-3 items-start">
-            <MapPin className="text-primary w-5 h-5 shrink-0" />
-            <p className="text-xs text-muted-foreground leading-tight">
-              Bung'Kurir akan otomatis ambil lokasi ko sekarang sebagai titik start pengantaran. Mantap toh? 🔥
+          <div className="p-4 bg-primary/10 rounded-2xl border border-primary/20 flex gap-3 items-start">
+            <MapPin className="text-primary w-6 h-6 shrink-0" />
+            <p className="text-[11px] text-muted-foreground leading-snug">
+              Bung'Kurir akan otomatis ambil lokasi ko sekarang sebagai titik start pengantaran. Pastikan GPS nyala e! 🔥
             </p>
           </div>
         </div>
         <DialogFooter>
           <Button 
             onClick={handleCreate} 
-            disabled={loading}
-            className="w-full h-12 text-lg font-black bg-primary"
+            disabled={loading || !newName.trim()}
+            className="w-full h-14 text-xl font-black bg-primary glow-blue active:scale-95 transition-all"
           >
-            {loading ? <Loader2 className="animate-spin" /> : "BUAT SEKARANG!"}
+            {loading ? <Loader2 className="animate-spin mr-2" /> : "BUAT SEKARANG!"}
           </Button>
         </DialogFooter>
       </DialogContent>
