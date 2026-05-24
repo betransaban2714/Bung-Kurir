@@ -50,7 +50,7 @@
 }
 
 .glass-dark {
-  @apply bg-black/40 backdrop-blur-xl border border-white/5 shadow-xl;
+  @apply bg-black/80 backdrop-blur-xl border border-white/5 shadow-xl;
 }
 
 .glow-blue {
@@ -70,7 +70,7 @@
 }
 
 .leaflet-popup-content-wrapper {
-  @apply glass text-foreground rounded-[2rem] p-0 overflow-hidden shadow-2xl !important;
+  @apply bg-black/90 backdrop-blur-2xl text-foreground rounded-[2rem] p-0 overflow-hidden shadow-2xl !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
@@ -80,7 +80,7 @@
 }
 
 .leaflet-popup-tip {
-  @apply bg-card/90 backdrop-blur-md border border-white/10 !important;
+  @apply bg-black/90 backdrop-blur-md border border-white/10 !important;
 }
 
 .leaflet-control-zoom {

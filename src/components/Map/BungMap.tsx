@@ -125,82 +125,83 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
       
       const icon = L.divIcon({
         className: 'custom-marker',
-        html: `<div style="background-color: ${color}; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 20px ${glowColor};"></div>`,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12],
+        html: `<div style="background-color: ${color}; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 15px ${glowColor};"></div>`,
+        iconSize: [20, 20],
+        iconAnchor: [10, 10],
       });
 
       L.marker([buyer.latitude, buyer.longitude], { icon })
         .addTo(buyerGroup)
         .bindPopup(() => {
           const div = document.createElement('div');
-          div.className = 'p-5 min-w-[280px] max-w-[90vw] space-y-4';
+          // Padding dikurangi (p-4), spasi dikurangi (space-y-3)
+          div.className = 'p-4 min-w-[260px] max-w-[85vw] space-y-3 bg-transparent text-white';
           div.innerHTML = `
-            <div class="space-y-1">
-              <h3 class="font-black text-xl flex items-center gap-2 text-white">
-                <span class="text-primary text-sm">👤</span> ${buyer.name}
+            <div class="space-y-0.5">
+              <h3 class="font-black text-lg flex items-center gap-2">
+                <span class="text-primary text-xs">👤</span> ${buyer.name}
               </h3>
-              <p class="text-[12px] leading-tight text-muted-foreground italic">${buyer.address}</p>
+              <p class="text-[11px] leading-tight text-white/70 italic line-clamp-2">${buyer.address}</p>
             </div>
             
-            <div id="route-info-${buyer.id}" class="hidden py-2 px-4 bg-white/10 rounded-2xl border border-white/20 flex items-center justify-around">
+            <div id="route-info-${buyer.id}" class="hidden py-1.5 px-3 bg-white/10 rounded-xl border border-white/10 flex items-center justify-around">
                <div class="text-center">
-                 <p class="text-[9px] font-black text-white/50 uppercase">Jarak</p>
-                 <span id="dist-${buyer.id}" class="text-sm font-black text-white">...</span>
+                 <p class="text-[8px] font-black text-white/40 uppercase">Jarak</p>
+                 <span id="dist-${buyer.id}" class="text-xs font-black">...</span>
                </div>
-               <div class="h-6 w-px bg-white/10"></div>
+               <div class="h-4 w-px bg-white/10"></div>
                <div class="text-center">
-                 <p class="text-[9px] font-black text-white/50 uppercase">Waktu</p>
-                 <span id="time-${buyer.id}" class="text-sm font-black text-white">...</span>
+                 <p class="text-[8px] font-black text-white/40 uppercase">Waktu</p>
+                 <span id="time-${buyer.id}" class="text-xs font-black">...</span>
                </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3 py-3 border-y border-white/10">
-              <div class="bg-white/5 p-2 rounded-xl text-center">
-                <p class="text-[9px] text-muted-foreground uppercase font-black">Paket</p>
-                <p class="text-xs font-black text-primary">📦 ${buyer.packetType}</p>
+            <div class="grid grid-cols-2 gap-2 py-2 border-y border-white/5">
+              <div class="bg-white/5 p-1.5 rounded-lg text-center">
+                <p class="text-[8px] text-white/40 uppercase font-black">Paket</p>
+                <p class="text-[10px] font-black text-primary">📦 ${buyer.packetType}</p>
               </div>
-              <div class="bg-white/5 p-2 rounded-xl text-center">
-                <p class="text-[9px] text-muted-foreground uppercase font-black">Bayar</p>
-                <p class="text-xs font-black text-accent">💰 ${buyer.paymentMethod}</p>
+              <div class="bg-white/5 p-1.5 rounded-lg text-center">
+                <p class="text-[8px] text-white/40 uppercase font-black">Bayar</p>
+                <p class="text-[10px] font-black text-accent">💰 ${buyer.paymentMethod}</p>
               </div>
             </div>
 
             <div class="flex justify-between items-center px-1">
-               <span class="text-xs font-bold text-muted-foreground">Harga:</span>
-               <span class="font-black text-xl text-primary">Rp${buyer.price.toLocaleString()}</span>
+               <span class="text-[10px] font-bold text-white/50">Harga:</span>
+               <span class="font-black text-lg text-primary">Rp${buyer.price.toLocaleString()}</span>
             </div>
             
             ${buyer.status === 'PENDING' ? `
-              <div id="action-area-${buyer.id}" class="space-y-2 pt-1">
-                <button id="pre-done-btn-${buyer.id}" class="w-full bg-primary text-white h-14 rounded-2xl font-black text-lg shadow-xl active:scale-95 transition-all glow-blue">
+              <div id="action-area-${buyer.id}" class="space-y-2">
+                <button id="pre-done-btn-${buyer.id}" class="w-full bg-primary text-white h-12 rounded-xl font-black text-base shadow-lg active:scale-95 transition-all glow-blue">
                   ✅ SELESAI
                 </button>
-                <div id="confirm-input-area-${buyer.id}" class="hidden space-y-3 animate-in fade-in slide-in-from-top-2 duration-300 bg-white/5 p-3 rounded-2xl border border-white/10">
-                  <p class="text-[10px] font-black text-accent uppercase text-center">Uang yang Diterima:</p>
+                <div id="confirm-input-area-${buyer.id}" class="hidden space-y-2 animate-in fade-in slide-in-from-top-1 duration-200 bg-black/40 p-2.5 rounded-xl border border-white/5">
+                  <p class="text-[8px] font-black text-accent uppercase text-center">Uang yang Diterima:</p>
                   <input 
                     type="number" 
                     id="paid-input-${buyer.id}" 
-                    class="w-full h-12 bg-black/50 border border-white/20 rounded-xl px-4 text-center text-xl font-black text-white focus:ring-2 focus:ring-accent outline-none"
+                    class="w-full h-10 bg-black/60 border border-white/10 rounded-lg px-3 text-center text-lg font-black text-white focus:ring-1 focus:ring-accent outline-none"
                     value="${buyer.price}"
                   />
-                  <button id="done-btn-${buyer.id}" class="w-full bg-accent text-white h-14 rounded-2xl font-black text-lg shadow-xl active:scale-95 transition-all glow-orange">
+                  <button id="done-btn-${buyer.id}" class="w-full bg-accent text-white h-11 rounded-lg font-black text-base shadow-lg active:scale-95 transition-all glow-orange">
                     KONFIRMASI ✅
                   </button>
                 </div>
               </div>
             ` : `
-              <div class="bg-green-500/20 border border-green-500/30 rounded-2xl p-4 text-center">
-                <p class="text-[11px] font-black text-green-400 uppercase tracking-widest mb-1">BERHASIL 🔥</p>
-                <p class="text-lg font-black text-white">Rp${(buyer.paidAmount || buyer.price).toLocaleString()}</p>
+              <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-3 text-center">
+                <p class="text-[9px] font-black text-green-400 uppercase tracking-widest">BERHASIL 🔥</p>
+                <p class="text-base font-black">Rp${(buyer.paidAmount || buyer.price).toLocaleString()}</p>
               </div>
             `}
 
-            <div class="grid grid-cols-2 gap-3 pt-2">
-              <button id="nav-btn-${buyer.id}" class="flex items-center justify-center gap-2 bg-white/10 text-white h-12 rounded-xl font-black text-xs hover:bg-white/20 transition-all border border-white/5">
+            <div class="grid grid-cols-2 gap-2">
+              <button id="nav-btn-${buyer.id}" class="flex items-center justify-center gap-1.5 bg-white/5 text-white h-10 rounded-lg font-black text-[10px] hover:bg-white/10 transition-all border border-white/5">
                 📍 MAPS
               </button>
-              <button id="chat-btn-${buyer.id}" class="flex items-center justify-center gap-2 bg-green-500/20 text-green-400 h-12 rounded-xl font-black text-xs hover:bg-green-500/30 transition-all border border-green-500/10">
+              <button id="chat-btn-${buyer.id}" class="flex items-center justify-center gap-1.5 bg-green-500/10 text-green-400 h-10 rounded-lg font-black text-[10px] hover:bg-green-500/20 transition-all border border-green-500/10">
                 💬 WA
               </button>
             </div>
@@ -216,11 +217,11 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
                 routeGroup.clearLayers();
                 L.polyline(routeData.coordinates as L.LatLngExpression[], {
                   color: 'white',
-                  weight: 6,
-                  opacity: 0.9,
+                  weight: 5,
+                  opacity: 0.8,
                   lineJoin: 'round',
                   lineCap: 'round',
-                  dashArray: '1, 12'
+                  dashArray: '1, 10'
                 }).addTo(routeGroup);
 
                 const infoBox = document.getElementById(`route-info-${buyer.id}`);
@@ -262,7 +263,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
           }, 50);
 
           return div;
-        }, { maxWidth: 320, minWidth: 280, className: 'elegant-popup' });
+        }, { maxWidth: 300, minWidth: 260, className: 'elegant-popup' });
 
       bounds.push([buyer.latitude, buyer.longitude]);
     });
@@ -295,7 +296,6 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
   return (
     <div className="w-full h-full relative group">
       <div ref={containerRef} className="w-full h-full z-0" />
-      {/* Tombol Lokasi diatur posisinya agar tidak bertindihan dengan Zoom */}
       <div className="absolute bottom-36 right-6 z-30 flex flex-col gap-2">
         <Button
           onClick={handleLocateMe}
