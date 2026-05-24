@@ -41,7 +41,7 @@
     height: 100dvh;
     max-height: 100dvh;
     width: 100vw;
-    position: fixed; /* Mencegah scroll browser yang tra perlu */
+    position: fixed;
   }
 }
 
@@ -68,7 +68,6 @@
   background: #000 !important;
 }
 
-/* Membuat label map lebih terbaca di atas satelit */
 .leaflet-tile-pane {
   filter: brightness(1.1) contrast(1.1);
 }
@@ -94,11 +93,45 @@
 }
 
 /* Custom Marker Styles */
-.custom-marker, .start-marker {
+.custom-marker {
   transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .custom-marker:hover {
   transform: scale(1.4);
   z-index: 1000 !important;
+}
+
+.user-marker {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-marker-dot {
+  background-color: #3b82f6;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid white;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 1);
+  position: relative;
+  z-index: 2;
+}
+
+.user-marker-pulse {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  background-color: rgba(59, 130, 246, 0.4);
+  border-radius: 50%;
+  animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+  z-index: 1;
+}
+
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
 }

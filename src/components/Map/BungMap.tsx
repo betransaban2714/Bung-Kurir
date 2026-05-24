@@ -20,11 +20,12 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
   const createUserIcon = () => L.divIcon({
     className: 'user-marker',
-    html: `<div class="relative flex items-center justify-center">
-            <div class="absolute w-8 h-8 bg-blue-500/30 rounded-full animate-ping"></div>
-            <div style="background-color: #3b82f6; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(59, 130, 246, 1);"></div>
-          </div>`,
-    iconSize: [16, 16],
+    html: `
+      <div class="user-marker-pulse"></div>
+      <div class="user-marker-dot"></div>
+    `,
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
   });
 
   useEffect(() => {
@@ -43,7 +44,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
       maxZoom: 20
     }).addTo(map);
 
-    // Layer Label (Nama Toko, Jalan, Gedung)
+    // Layer Label (Nama Toko, Jalan, POI) - CartoDB Voyager Labels
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
@@ -67,17 +68,27 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     const buyerGroup = buyerLayerGroupRef.current;
     if (!map || !buyerGroup) return;
 
+    // Bersihkan marker buyer lama
     buyerGroup.clearLayers();
     const bounds: L.LatLngTuple[] = [];
 
     // Lokasi User (Satu Titik Biru Saja)
-    if (rencana.startLocation) {
-      const { latitude, longitude } = rencana.startLocation;
+    // Gunakan lokasi start rencana sebagai posisi awal marker biru
+    const initialPos = rencana.startLocation;
+    if (initialPos) {
+      const { latitude, longitude } = initialPos;
+      
+      // Jika marker sudah ada di map, jangan buat baru, cukup update posisi
       if (!userMarkerRef.current) {
-        userMarkerRef.current = L.marker([latitude, longitude], { icon: createUserIcon() })
-          .addTo(map)
-          .bindTooltip("Lokasi Saya", { direction: 'top' });
+        userMarkerRef.current = L.marker([latitude, longitude], { 
+          icon: createUserIcon(),
+          zIndexOffset: 1000 
+        }).addTo(map);
       } else {
+        // Jika berganti rencana, pastikan marker masuk ke map yang aktif
+        if (!map.hasLayer(userMarkerRef.current)) {
+          userMarkerRef.current.addTo(map);
+        }
         userMarkerRef.current.setLatLng([latitude, longitude]);
       }
       bounds.push([latitude, longitude]);
@@ -96,7 +107,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
         iconAnchor: [11, 11],
       });
 
-      const marker = L.marker([buyer.latitude, buyer.longitude], { icon })
+      L.marker([buyer.latitude, buyer.longitude], { icon })
         .addTo(buyerGroup)
         .bindPopup(() => {
           const div = document.createElement('div');
