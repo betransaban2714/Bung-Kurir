@@ -71,30 +71,29 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
   useEffect(() => {
     if (!mapRef.current) return;
 
-    // Clear old buyer markers
+    // 1. CLEAR OLD BUYER MARKERS (BUT KEEP USER MARKER)
     Object.values(markersRef.current).forEach(m => m.remove());
     markersRef.current = {};
 
     const bounds: L.LatLngTuple[] = [];
 
-    // USER LOCATION MARKER - Handle it specifically
+    // 2. USER LOCATION MARKER - ALWAYS ONLY ONE
     if (rencana.startLocation) {
       const { latitude, longitude } = rencana.startLocation;
       
       if (!userMarkerRef.current) {
-        // Create it if it doesn't exist
         userMarkerRef.current = L.marker([latitude, longitude], { icon: createUserIcon() })
           .addTo(mapRef.current)
           .bindTooltip("Saya Ada Sini", { direction: 'top' });
       } else {
-        // If it exists, but we are resetting/loading a new rencana, 
-        // we might want to move it to the start location if it's the first time
-        // But usually, we just let it be where it was if the user has moved.
+        // Just move existing one if it's the first render of a new plan
+        // We don't want to force it to startLocation if the user has already clicked 'Locate Me'
+        // But for a fresh plan, it's good.
       }
       bounds.push([latitude, longitude]);
     }
 
-    // Buyer Markers
+    // 3. ADD BUYER MARKERS
     rencana.buyers.forEach((buyer) => {
       const isDone = buyer.status === 'DONE' || buyer.status === 'TIP';
       const color = isDone ? '#22c55e' : '#ef4444';
