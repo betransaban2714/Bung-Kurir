@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import { Rencana, DeliveryStatus } from '@/types';
-import { LocateFixed, Loader2, Route } from 'lucide-react';
+import { LocateFixed, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface BungMapProps {
@@ -58,11 +58,13 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
     mapRef.current = map;
 
+    // Layer Satelit
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri',
       maxZoom: 20
     }).addTo(map);
 
+    // Layer Label (Jalan & Nama Tempat)
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
@@ -74,7 +76,6 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     buyerLayerGroupRef.current = L.layerGroup().addTo(map);
     routeLayerGroupRef.current = L.layerGroup().addTo(map);
 
-    // Clear route on popup close
     map.on('popupclose', () => {
       routeLayerGroupRef.current?.clearLayers();
     });
@@ -97,6 +98,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     buyerGroup.clearLayers();
     const bounds: L.LatLngTuple[] = [];
 
+    // Tampilkan titik biru (Lokasi Start/User)
     const initialPos = rencana.startLocation;
     if (initialPos) {
       const { latitude, longitude } = initialPos;
@@ -126,11 +128,11 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
         iconAnchor: [11, 11],
       });
 
-      const marker = L.marker([buyer.latitude, buyer.longitude], { icon })
+      L.marker([buyer.latitude, buyer.longitude], { icon })
         .addTo(buyerGroup)
         .bindPopup(() => {
           const div = document.createElement('div');
-          div.className = 'p-4 min-w-[260px] space-y-3';
+          div.className = 'p-4 min-w-[280px] space-y-3';
           div.innerHTML = `
             <div class="space-y-1">
               <h3 class="font-bold text-lg flex items-center gap-2">
@@ -138,11 +140,11 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
               </h3>
               <p class="text-[11px] leading-tight text-muted-foreground">${buyer.address}</p>
             </div>
-            <div id="route-info-${buyer.id}" class="hidden py-1 px-3 bg-primary/10 rounded-lg border border-primary/20 flex items-center gap-2">
-               <span class="text-[10px] font-black text-primary uppercase">Rute:</span>
-               <span id="dist-${buyer.id}" class="text-[10px] font-bold">...</span>
-               <span class="text-[10px] opacity-30">|</span>
-               <span id="time-${buyer.id}" class="text-[10px] font-bold">...</span>
+            <div id="route-info-${buyer.id}" class="hidden py-1 px-3 bg-white/10 rounded-lg border border-white/20 flex items-center gap-2">
+               <span class="text-[10px] font-black text-white uppercase">Rute:</span>
+               <span id="dist-${buyer.id}" class="text-[10px] font-bold text-white">...</span>
+               <span class="text-[10px] opacity-30 text-white">|</span>
+               <span id="time-${buyer.id}" class="text-[10px] font-bold text-white">...</span>
             </div>
             <div class="grid grid-cols-2 gap-2 py-2 border-y border-white/10">
               <div>
@@ -155,25 +157,40 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
               </div>
             </div>
             <div class="flex justify-between items-center py-1">
-               <span class="text-xs text-muted-foreground">Harga:</span>
+               <span class="text-xs text-muted-foreground">Harga Paket:</span>
                <span class="font-black text-primary">Rp${buyer.price.toLocaleString()}</span>
             </div>
+            
+            ${buyer.status === 'PENDING' ? `
+              <div class="space-y-2 pt-1">
+                <p class="text-[10px] font-black text-accent uppercase">Uang yang Diterima:</p>
+                <input 
+                  type="number" 
+                  id="paid-input-${buyer.id}" 
+                  class="w-full h-12 bg-secondary/50 border border-white/10 rounded-xl px-4 text-lg font-black text-white focus:ring-1 focus:ring-accent outline-none"
+                  value="${buyer.price}"
+                />
+                <button id="done-btn-${buyer.id}" class="w-full bg-accent text-white py-4 rounded-xl font-black text-lg shadow-xl active:scale-95 transition-all glow-orange">
+                  ✅ SU ANTAR!
+                </button>
+              </div>
+            ` : `
+              <div class="bg-green-400/10 border border-green-400/20 rounded-lg p-3 text-center">
+                <p class="text-[10px] font-black text-green-400 uppercase tracking-widest">ANTARAN BERHASIL 🔥</p>
+                <p class="text-[9px] text-muted-foreground">Diterima: Rp${(buyer.paidAmount || buyer.price).toLocaleString()}</p>
+              </div>
+            `}
+
             <div class="grid grid-cols-2 gap-2 pt-2">
-              <button id="nav-btn-${buyer.id}" class="flex items-center justify-center gap-2 bg-primary text-white py-3 rounded-xl font-bold text-xs shadow-lg active:scale-95 transition-all">
-                📍 Navigasi
+              <button id="nav-btn-${buyer.id}" class="flex items-center justify-center gap-2 bg-white/10 text-white py-3 rounded-xl font-bold text-xs hover:bg-white/20 transition-all">
+                📍 Maps
               </button>
-              <button id="chat-btn-${buyer.id}" class="flex items-center justify-center gap-2 bg-green-600 text-white py-3 rounded-xl font-bold text-xs shadow-lg active:scale-95 transition-all">
+              <button id="chat-btn-${buyer.id}" class="flex items-center justify-center gap-2 bg-green-600/20 text-green-400 py-3 rounded-xl font-bold text-xs hover:bg-green-600/30 transition-all">
                 💬 WA
               </button>
             </div>
-            ${buyer.status === 'PENDING' ? `
-              <button id="done-btn-${buyer.id}" class="w-full mt-2 bg-accent text-white py-4 rounded-xl font-black text-lg shadow-xl active:scale-95 transition-all glow-orange">
-                ✅ SU ANTAR!
-              </button>
-            ` : '<p class="w-full mt-2 text-center text-[10px] font-black text-green-400 py-3 uppercase tracking-widest bg-green-400/10 border border-green-400/20 rounded-lg">ANTARAN BERHASIL 🔥</p>'}
           `;
 
-          // Handle routing when popup opens
           setTimeout(async () => {
             if (userMarkerRef.current) {
               const start = userMarkerRef.current.getLatLng();
@@ -182,12 +199,13 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
               
               if (routeData) {
                 routeGroup.clearLayers();
+                // Rute Garis Putih
                 L.polyline(routeData.coordinates as L.LatLngExpression[], {
-                  color: 'hsl(var(--primary))',
+                  color: 'white',
                   weight: 6,
-                  opacity: 0.8,
+                  opacity: 0.9,
                   lineJoin: 'round',
-                  dashArray: '1, 10'
+                  dashArray: '1, 12'
                 }).addTo(routeGroup);
 
                 const infoBox = document.getElementById(`route-info-${buyer.id}`);
@@ -209,7 +227,10 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
               window.open(`https://wa.me/${buyer.waNumber.replace(/[^0-9]/g, '')}`, '_blank');
             });
             document.getElementById(`done-btn-${buyer.id}`)?.addEventListener('click', () => {
-              onUpdateStatus(buyer.id, 'DONE', buyer.price);
+              const input = document.getElementById(`paid-input-${buyer.id}`) as HTMLInputElement;
+              const paidAmount = parseFloat(input.value) || buyer.price;
+              const status: DeliveryStatus = paidAmount > buyer.price ? 'TIP' : 'DONE';
+              onUpdateStatus(buyer.id, status, paidAmount);
               map.closePopup();
             });
           }, 0);
