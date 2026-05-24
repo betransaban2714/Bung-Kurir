@@ -63,16 +63,16 @@ export function CreateRencanaDialog({ onCreate, trigger, open: controlledOpen, o
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-      <DialogContent className="glass border-none shadow-2xl z-[100]">
+      <DialogContent className="glass w-[92vw] sm:max-w-[450px] rounded-[2.5rem] border-none shadow-2xl z-[100] p-6 md:p-8">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-black text-white">GAS RENCANA BARU! 📦</DialogTitle>
+          <DialogTitle className="text-2xl font-black text-white italic">GAS RENCANA BARU! 📦</DialogTitle>
         </DialogHeader>
         <div className="py-4 space-y-4">
           <div className="space-y-2">
-            <label className="text-xs font-bold text-muted-foreground uppercase">KASI NAMA RENCANA</label>
+            <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">KASI NAMA RENCANA</label>
             <Input 
               placeholder="Contoh: Gas Pagi, Keliling Kota..." 
-              className="h-14 text-lg font-bold bg-secondary/50 border-white/5 focus:ring-primary"
+              className="h-14 text-lg font-bold bg-secondary/50 border-white/5 focus:ring-primary rounded-2xl"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
@@ -81,18 +81,18 @@ export function CreateRencanaDialog({ onCreate, trigger, open: controlledOpen, o
           </div>
           <div className="p-4 bg-primary/10 rounded-2xl border border-primary/20 flex gap-3 items-start">
             <MapPin className="text-primary w-6 h-6 shrink-0" />
-            <p className="text-[11px] text-muted-foreground leading-snug">
+            <p className="text-[11px] text-muted-foreground leading-snug font-medium">
               Bung'Kurir akan otomatis ambil lokasi ko sekarang sebagai titik start pengantaran. Pastikan GPS nyala e! 🔥
             </p>
           </div>
         </div>
-        <DialogFooter>
+        <DialogFooter className="pt-2">
           <Button 
             onClick={handleCreate} 
             disabled={loading || !newName.trim()}
-            className="w-full h-14 text-xl font-black bg-primary glow-blue active:scale-95 transition-all"
+            className="w-full h-14 text-xl font-black bg-primary rounded-2xl glow-blue active:scale-95 transition-all"
           >
-            {loading ? <Loader2 className="animate-spin mr-2" /> : "BUAT SEKARANG!"}
+            {loading ? <Loader2 className="animate-spin mr-2 h-6 w-6" /> : "BUAT SEKARANG!"}
           </Button>
         </DialogFooter>
       </DialogContent>
