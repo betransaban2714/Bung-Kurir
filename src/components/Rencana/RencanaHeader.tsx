@@ -1,8 +1,6 @@
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,16 +8,9 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { Plus, ChevronDown, Trash2, CalendarDays, MapPin, Loader2 } from 'lucide-react';
+import { Plus, ChevronDown, Trash2, CalendarDays } from 'lucide-react';
 import { Rencana } from '@/types';
+import { CreateRencanaDialog } from './CreateRencanaDialog';
 
 interface RencanaHeaderProps {
   rencanaList: Rencana[];
@@ -30,44 +21,6 @@ interface RencanaHeaderProps {
 }
 
 export function RencanaHeader({ rencanaList, activeRencana, onSelect, onCreate, onDelete }: RencanaHeaderProps) {
-  const [newName, setNewName] = useState('');
-  const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  const handleCreate = () => {
-    if (!newName.trim()) return;
-    
-    setLoading(true);
-    
-    // Try to get current location
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          onCreate(newName, {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            address: "Lokasi Start Saya"
-          });
-          setNewName('');
-          setOpen(false);
-          setLoading(false);
-        },
-        () => {
-          // Fallback if geo fails
-          onCreate(newName);
-          setNewName('');
-          setOpen(false);
-          setLoading(false);
-        }
-      );
-    } else {
-      onCreate(newName);
-      setNewName('');
-      setOpen(false);
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="flex items-center justify-between gap-4">
       <div className="flex-1">
@@ -109,48 +62,17 @@ export function RencanaHeader({ rencanaList, activeRencana, onSelect, onCreate, 
               </div>
             ))}
             <DropdownMenuSeparator className="bg-white/5" />
-            <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger asChild>
+            <CreateRencanaDialog 
+              onCreate={onCreate}
+              trigger={
                 <DropdownMenuItem 
                   className="cursor-pointer font-bold h-10 px-3 text-accent focus:text-accent"
                   onSelect={(e) => e.preventDefault()}
                 >
                   <Plus className="w-4 h-4 mr-2" /> BUAT RENCANA BARU
                 </DropdownMenuItem>
-              </DialogTrigger>
-              <DialogContent className="glass border-none">
-                <DialogHeader>
-                  <DialogTitle className="text-2xl font-black">GAS RENCANA BARU! 📦</DialogTitle>
-                </DialogHeader>
-                <div className="py-4 space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-muted-foreground">KASI NAMA RENCANA</label>
-                    <Input 
-                      placeholder="Contoh: Gas Pagi, Keliling Kota Dolo..." 
-                      className="h-12 text-lg font-bold bg-secondary/50"
-                      value={newName}
-                      onChange={(e) => setNewName(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
-                    />
-                  </div>
-                  <div className="p-3 bg-primary/10 rounded-xl border border-primary/20 flex gap-3 items-start">
-                    <MapPin className="text-primary w-5 h-5 shrink-0" />
-                    <p className="text-xs text-muted-foreground leading-tight">
-                      Bung'Kurir akan otomatis ambil lokasi ko sekarang sebagai titik start pengantaran. Mantap toh? 🔥
-                    </p>
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button 
-                    onClick={handleCreate} 
-                    disabled={loading}
-                    className="w-full h-12 text-lg font-black bg-primary"
-                  >
-                    {loading ? <Loader2 className="animate-spin" /> : "BUAT SEKARANG!"}
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+              }
+            />
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

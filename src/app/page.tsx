@@ -21,6 +21,7 @@ import {
   SheetTitle,
   SheetDescription
 } from '@/components/ui/sheet';
+import { CreateRencanaDialog } from '@/components/Rencana/CreateRencanaDialog';
 
 // Dynamic import for Leaflet to avoid SSR issues
 const BungMap = dynamic(() => import('@/components/Map/BungMap'), { 
@@ -80,17 +81,17 @@ export default function Home() {
                 Buat rencana dolo baru gas keliling kota!
               </p>
             </div>
-            <Button 
-              size="lg" 
-              className="px-10 h-16 text-xl font-black bg-primary glow-blue rounded-2xl"
-              onClick={() => {
-                const names = ['Gas Pagi', 'Keliling Kota Dolo', 'Paket Hari Ini', 'Gas Sore'];
-                const randomName = names[Math.floor(Math.random() * names.length)];
-                createRencana(randomName);
-              }}
-            >
-              GAS BUAT RENCANA!
-            </Button>
+            <CreateRencanaDialog 
+              onCreate={createRencana}
+              trigger={
+                <Button 
+                  size="lg" 
+                  className="px-10 h-16 text-xl font-black bg-primary glow-blue rounded-2xl"
+                >
+                  GAS BUAT RENCANA!
+                </Button>
+              }
+            />
           </div>
         )}
 
