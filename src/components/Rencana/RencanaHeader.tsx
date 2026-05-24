@@ -187,14 +187,8 @@ export function RencanaHeader({ rencanaList, activeRencana, onSelect, onCreate, 
               </div>
 
               <div className="glass-dark p-6 rounded-[2.5rem] border border-white/10 space-y-6 shadow-2xl">
-                <div className="flex items-center justify-between px-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse shadow-[0_0_10px_rgba(74,222,128,0.5)]" />
-                    <span className="text-[11px] font-black text-muted-foreground uppercase tracking-widest">Status:</span>
-                  </div>
-                  <span className="text-[10px] font-black text-green-400 bg-green-400/10 px-4 py-1.5 rounded-full border border-green-400/20 shadow-inner">
-                    ONLINE 🔥
-                  </span>
+                <div className="flex items-center justify-center gap-2 px-2">
+                  <span className="text-[11px] font-black text-primary uppercase tracking-widest text-center">Apa fungsi App ini? 🤔</span>
                 </div>
 
                 <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent w-full" />
@@ -209,7 +203,7 @@ export function RencanaHeader({ rencanaList, activeRencana, onSelect, onCreate, 
 
             <div className="pt-4 flex items-center justify-center gap-2 opacity-30">
               <Copyright className="w-3 h-3" />
-              <span className="text-[9px] font-black uppercase tracking-widest">2024 byBetranSaban</span>
+              <span className="text-[9px] font-black uppercase tracking-widest">2024 BetranSaban</span>
             </div>
           </div>
         </DialogContent>
