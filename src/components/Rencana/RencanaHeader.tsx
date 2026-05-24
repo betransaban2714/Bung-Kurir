@@ -27,7 +27,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Plus, ChevronDown, Trash2, CalendarDays, Info, ExternalLink, AlertTriangle, Copyright } from 'lucide-react';
+import { Plus, ChevronDown, Trash2, CalendarDays, Info, AlertTriangle, Copyright } from 'lucide-react';
 import { Rencana } from '@/types';
 import { CreateRencanaDialog } from './CreateRencanaDialog';
 
@@ -161,7 +161,7 @@ export function RencanaHeader({ rencanaList, activeRencana, onSelect, onCreate, 
                  <span className="text-4xl">📦</span>
               </div>
               <div className="space-y-1">
-                <DialogTitle className="text-4xl font-black text-center text-white italic tracking-tighter uppercase leading-none">
+                <DialogTitle className="text-4xl font-black text-center text-white italic tracking-tighter uppercase leading-none text-glow">
                   Bung'Kurir
                 </DialogTitle>
                 <p className="text-[10px] text-center font-black text-primary tracking-[0.4em] uppercase opacity-80">
@@ -178,7 +178,10 @@ export function RencanaHeader({ rencanaList, activeRencana, onSelect, onCreate, 
                   <p className="text-[10px] font-black uppercase tracking-[0.3em]">Pembuat</p>
                   <span className="h-px w-8 bg-white/10" />
                 </div>
-                <h2 className="text-3xl font-black text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+                <h2 
+                  onClick={() => window.open('https://wa.me/6282196913604', '_blank')}
+                  className="text-3xl font-black text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)] cursor-pointer hover:text-primary transition-all active:scale-95"
+                >
                   Betran Saban
                 </h2>
               </div>
@@ -196,20 +199,11 @@ export function RencanaHeader({ rencanaList, activeRencana, onSelect, onCreate, 
 
                 <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent w-full" />
                 
-                <div className="space-y-4">
-                  <Button 
-                    className="w-full h-16 bg-[#25D366] hover:bg-[#22c35e] font-black text-white rounded-[1.8rem] gap-3 active:scale-95 transition-all shadow-2xl border-b-4 border-black/20"
-                    onClick={() => window.open('https://wa.me/6282196913604', '_blank')}
-                  >
-                    CONTACT ME <ExternalLink className="w-5 h-5" />
-                  </Button>
+                <div className="px-2">
+                  <p className="text-[10px] text-center text-muted-foreground/80 font-medium italic leading-relaxed">
+                    Aplikasi ini dibuat hanya untuk mempermudah rute pengantaran, agar Kurir dapat menentukan lokasi pengantaran mana yang harus dituju duluan agar tidak bolak balik keliling kota, dan juga memantau kinerja harian, karena keterbatasan layanan "Maps" rute pengantaran dapat dibuka melalui Google Maps
+                  </p>
                 </div>
-              </div>
-
-              <div className="px-6">
-                <p className="text-[10px] text-center text-muted-foreground/60 font-medium italic leading-relaxed">
-                  "Aplikasi ini dibuat khusus untuk mempermudah operasional kurir di wilayah Indonesia Timur. Terus semangat antar paket-nya Bung! 🔥"
-                </p>
               </div>
             </div>
 
