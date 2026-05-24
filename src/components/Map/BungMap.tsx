@@ -19,10 +19,17 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
     mapRef.current = L.map(containerRef.current, {
       zoomControl: false,
-    }).setView([-2.5489, 118.0149], 5); // Default to Indonesia center
+    }).setView([-2.5489, 118.0149], 5);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap &copy; CARTO',
+    // Menggunakan ESRI World Imagery untuk tampilan Satelit
+    const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EBP, and the GIS User Community'
+    }).addTo(mapRef.current);
+
+    // Overlay Label (Jalan & Nama Tempat) supaya tetap terbaca di mode satelit
+    L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; Stamen Design',
+      opacity: 0.7
     }).addTo(mapRef.current);
 
     L.control.zoom({ position: 'bottomright' }).addTo(mapRef.current);
@@ -48,12 +55,12 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     if (rencana.startLocation) {
        const startIcon = L.divIcon({
         className: 'start-marker',
-        html: `<div style="background-color: #3b82f6; width: 10px; height: 10px; border-radius: 50%; border: 2px solid white;"></div>`,
-        iconSize: [10, 10],
+        html: `<div style="background-color: #3b82f6; width: 12px; height: 12px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);"></div>`,
+        iconSize: [12, 12],
       });
       L.marker([rencana.startLocation.latitude, rencana.startLocation.longitude], { icon: startIcon })
         .addTo(mapRef.current)
-        .bindTooltip("Titik Start");
+        .bindTooltip("Mulai dari Sini", { permanent: false, direction: 'top' });
       bounds.push([rencana.startLocation.latitude, rencana.startLocation.longitude]);
     }
 
@@ -63,70 +70,69 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
       
       const icon = L.divIcon({
         className: 'custom-marker',
-        html: `<div style="background-color: ${color}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>`,
-        iconSize: [14, 14],
-        iconAnchor: [7, 7],
+        html: `<div style="background-color: ${color}; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>`,
+        iconSize: [16, 16],
+        iconAnchor: [8, 8],
       });
 
       const marker = L.marker([buyer.latitude, buyer.longitude], { icon })
         .addTo(mapRef.current!)
         .bindPopup(() => {
           const div = document.createElement('div');
-          div.className = 'p-4 min-w-[240px] space-y-3';
+          div.className = 'p-4 min-w-[260px] space-y-3';
           
           div.innerHTML = `
             <div class="space-y-1">
               <h3 class="font-bold text-lg flex items-center gap-2">
                 <span class="text-primary">👤</span> ${buyer.name}
               </h3>
-              <p class="text-xs text-muted-foreground">${buyer.address}</p>
+              <p class="text-[11px] leading-tight text-muted-foreground">${buyer.address}</p>
             </div>
             <div class="grid grid-cols-2 gap-2 py-2 border-y border-white/10">
               <div>
-                <p class="text-[10px] text-muted-foreground uppercase">Jenis</p>
-                <p class="text-sm font-semibold">📦 ${buyer.packetType}</p>
+                <p class="text-[9px] text-muted-foreground uppercase font-black">Paket</p>
+                <p class="text-xs font-bold">📦 ${buyer.packetType}</p>
               </div>
               <div>
-                <p class="text-[10px] text-muted-foreground uppercase">Bayar</p>
-                <p class="text-sm font-semibold">💰 ${buyer.paymentMethod}</p>
+                <p class="text-[9px] text-muted-foreground uppercase font-black">Bayar</p>
+                <p class="text-xs font-bold">💰 ${buyer.paymentMethod}</p>
               </div>
             </div>
             <div class="flex justify-between items-center py-1">
                <span class="text-xs text-muted-foreground">Harga:</span>
-               <span class="font-bold">Rp${buyer.price.toLocaleString()}</span>
+               <span class="font-black text-primary">Rp${buyer.price.toLocaleString()}</span>
             </div>
             ${buyer.paymentMethod === 'COD' && buyer.status === 'PENDING' ? `
               <div class="space-y-2">
-                <p class="text-xs font-medium">Buyer bayar berapa?</p>
-                <input type="number" id="paid-input-${buyer.id}" placeholder="Masukkan jumlah" class="w-full bg-secondary border border-border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary" />
+                <p class="text-[10px] font-bold uppercase text-muted-foreground">Buyer bayar berapa?</p>
+                <input type="number" id="paid-input-${buyer.id}" value="${buyer.price}" class="w-full bg-secondary border border-border rounded-xl px-3 py-3 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary" />
               </div>
             ` : ''}
             ${buyer.status !== 'PENDING' ? `
-              <div class="bg-muted/30 p-2 rounded-lg text-xs space-y-1">
-                <div class="flex justify-between"><span>Diterima:</span> <span>Rp${(buyer.paidAmount || buyer.price).toLocaleString()}</span></div>
+              <div class="bg-muted/30 p-2 rounded-xl text-xs space-y-1 border border-white/5">
+                <div class="flex justify-between"><span>Diterima:</span> <span class="font-bold">Rp${(buyer.paidAmount || buyer.price).toLocaleString()}</span></div>
                 ${(buyer.paidAmount || 0) > buyer.price ? `
-                  <div class="flex justify-between text-accent font-bold"><span>Uang Lebih:</span> <span>Rp${((buyer.paidAmount || 0) - buyer.price).toLocaleString()} 🔥</span></div>
+                  <div class="flex justify-between text-accent font-black uppercase"><span>Uang Lebih:</span> <span>Rp${((buyer.paidAmount || 0) - buyer.price).toLocaleString()} 🔥</span></div>
                 ` : ''}
               </div>
             ` : ''}
             <div class="grid grid-cols-1 gap-2 pt-2">
               <div class="grid grid-cols-2 gap-2">
-                <button id="nav-btn-${buyer.id}" class="flex items-center justify-center gap-2 bg-primary text-white py-3 rounded-xl font-bold text-sm shadow-lg active:scale-95 transition-all">
+                <button id="nav-btn-${buyer.id}" class="flex items-center justify-center gap-2 bg-primary text-white py-3 rounded-xl font-bold text-xs shadow-lg active:scale-95 transition-all">
                   📍 Buka Jalan
                 </button>
-                <button id="chat-btn-${buyer.id}" class="flex items-center justify-center gap-2 bg-green-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg active:scale-95 transition-all">
-                  💬 Chat
+                <button id="chat-btn-${buyer.id}" class="flex items-center justify-center gap-2 bg-green-600 text-white py-3 rounded-xl font-bold text-xs shadow-lg active:scale-95 transition-all">
+                  💬 Chat WA
                 </button>
               </div>
               ${buyer.status === 'PENDING' ? `
                 <button id="done-btn-${buyer.id}" class="flex items-center justify-center gap-2 bg-accent text-white py-4 rounded-xl font-black text-lg shadow-xl active:scale-95 transition-all glow-orange">
-                  ✅ Su Antar
+                  ✅ SU ANTAR!
                 </button>
-              ` : '<p class="text-center text-xs font-bold text-muted-foreground py-2">PAKET SU SELESAI 🔥</p>'}
+              ` : '<p class="text-center text-[10px] font-black text-muted-foreground py-2 uppercase tracking-widest bg-white/5 rounded-lg">ANTARAN SELESAI 🔥</p>'}
             </div>
           `;
 
-          // Event Listeners
           setTimeout(() => {
             const navBtn = document.getElementById(`nav-btn-${buyer.id}`);
             const chatBtn = document.getElementById(`chat-btn-${buyer.id}`);
@@ -157,7 +163,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     });
 
     if (bounds.length > 0) {
-      mapRef.current.fitBounds(L.latLngBounds(bounds), { padding: [50, 50] });
+      mapRef.current.fitBounds(L.latLngBounds(bounds), { padding: [40, 40] });
     }
   }, [rencana, onUpdateStatus]);
 

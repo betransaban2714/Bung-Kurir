@@ -48,10 +48,10 @@ export default function Home() {
   if (!isHydrated) return null;
 
   return (
-    <div className="relative h-screen w-full flex flex-col overflow-hidden">
-      {/* HEADER SECTION */}
-      <header className="z-20 p-4 pb-2 glass border-b border-white/5">
-        <div className="max-w-4xl mx-auto space-y-4">
+    <div className="relative h-[100dvh] w-full flex flex-col overflow-hidden bg-background">
+      {/* HEADER SECTION - COMPACT */}
+      <header className="z-20 p-4 pb-2 glass-dark border-b border-white/5 shrink-0">
+        <div className="max-w-4xl mx-auto">
           <RencanaHeader 
             rencanaList={rencanaList}
             activeRencana={activeRencana}
@@ -62,13 +62,44 @@ export default function Home() {
         </div>
       </header>
 
-      {/* MAP SECTION - FULL SCREEN BACKGROUND */}
-      <main className="flex-1 relative z-10">
+      {/* MAIN CONTENT AREA */}
+      <main className="flex-1 relative z-10 overflow-hidden">
         {activeRencana ? (
-          <BungMap 
-            rencana={activeRencana} 
-            onUpdateStatus={(bid, status, paid) => updateBuyerStatus(activeRencana.id, bid, status, paid)}
-          />
+          <div className="w-full h-full">
+            <BungMap 
+              rencana={activeRencana} 
+              onUpdateStatus={(bid, status, paid) => updateBuyerStatus(activeRencana.id, bid, status, paid)}
+            />
+            
+            {/* FLOATING ACTION BUTTONS - POSITIONED RELATIVE TO MAP */}
+            <div className="absolute top-4 right-4 flex flex-col gap-3 z-30">
+              <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+                <SheetTrigger asChild>
+                  <Button size="icon" className="w-14 h-14 rounded-2xl glass-dark shadow-2xl glow-blue active:scale-90 transition-all">
+                    <Menu className="w-7 h-7" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="p-0 glass border-none w-[320px]">
+                  <SheetHeader className="sr-only">
+                    <SheetTitle>Daftar Antaran</SheetTitle>
+                    <SheetDescription>Daftar paket yang harus diantar hari ini dalam rencana aktif.</SheetDescription>
+                  </SheetHeader>
+                  <BuyerList 
+                    buyers={activeRencana.buyers} 
+                    onDelete={(id) => deleteBuyer(activeRencana.id, id)}
+                  />
+                </SheetContent>
+              </Sheet>
+
+              <Button 
+                size="icon" 
+                className={`w-14 h-14 rounded-2xl glass-dark shadow-2xl transition-all active:scale-90 ${showSummary ? 'bg-accent text-white scale-110' : 'glow-orange'}`}
+                onClick={() => setShowSummary(!showSummary)}
+              >
+                <LayoutDashboard className="w-7 h-7" />
+              </Button>
+            </div>
+          </div>
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center space-y-6">
             <div className="p-8 bg-primary/10 rounded-full glow-blue">
@@ -94,45 +125,14 @@ export default function Home() {
             />
           </div>
         )}
-
-        {/* FLOATING ACTION BUTTONS */}
-        {activeRencana && (
-          <div className="absolute top-4 right-4 flex flex-col gap-3 z-30">
-            <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-              <SheetTrigger asChild>
-                <Button size="icon" className="w-14 h-14 rounded-2xl glass glow-blue">
-                  <Menu className="w-7 h-7" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="p-0 glass border-none w-[320px]">
-                <SheetHeader className="sr-only">
-                  <SheetTitle>Daftar Antaran</SheetTitle>
-                  <SheetDescription>Daftar paket yang harus diantar hari ini dalam rencana aktif.</SheetDescription>
-                </SheetHeader>
-                <BuyerList 
-                  buyers={activeRencana.buyers} 
-                  onDelete={(id) => deleteBuyer(activeRencana.id, id)}
-                />
-              </SheetContent>
-            </Sheet>
-
-            <Button 
-              size="icon" 
-              className={`w-14 h-14 rounded-2xl glass transition-all ${showSummary ? 'bg-accent text-white' : 'glow-orange'}`}
-              onClick={() => setShowSummary(!showSummary)}
-            >
-              <LayoutDashboard className="w-7 h-7" />
-            </Button>
-          </div>
-        )}
       </main>
 
-      {/* BOTTOM SECTION - CONTROLS & SUMMARY */}
-      <footer className="z-20 p-4 max-w-4xl mx-auto w-full">
-        {activeRencana && (
-          <div className="space-y-4">
+      {/* FOOTER SECTION - DYNAMIC CONTROLS */}
+      {activeRencana && (
+        <footer className="z-20 p-4 pt-2 max-w-4xl mx-auto w-full shrink-0">
+          <div className="space-y-3">
             {showSummary && (
-              <div className="animate-in slide-in-from-bottom-4 duration-300">
+              <div className="animate-in slide-in-from-bottom-8 duration-300">
                  <Summary rencana={activeRencana} />
               </div>
             )}
@@ -144,11 +144,11 @@ export default function Home() {
               />
             </div>
           </div>
-        )}
-      </footer>
+        </footer>
+      )}
 
-      {/* EASTERN INDONESIA VIBE BADGE */}
-      <div className="fixed bottom-2 left-4 text-[10px] font-black text-muted-foreground/30 uppercase tracking-[0.2em] pointer-events-none z-50">
+      {/* EASTERN INDONESIA VIBE BADGE - VERY SUBTLE */}
+      <div className="fixed bottom-1 left-4 text-[9px] font-black text-white/20 uppercase tracking-[0.2em] pointer-events-none z-50">
         ALAT TEMPUR KURIR INDONESIA TIMUR 🔥
       </div>
     </div>
