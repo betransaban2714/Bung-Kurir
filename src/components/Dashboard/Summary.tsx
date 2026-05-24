@@ -20,23 +20,30 @@ export function Summary({ rencanaList }: SummaryProps) {
   const done = allBuyers.filter((b) => b.status === 'DONE' || b.status === 'TIP').length;
   const pending = total - done;
 
-  // Total uang harian
-  const totalReceived = allBuyers
-    .filter((b) => b.status === 'DONE' || b.status === 'TIP')
+  // Filter buyer yang melakukan pembayaran saat pengantaran (Bukan yang "Su Bayar" dari awal)
+  const paidAtDelivery = allBuyers.filter(b => 
+    (b.status === 'DONE' || b.status === 'TIP') && 
+    (b.actualPaymentMethod === 'CASH' || b.actualPaymentMethod === 'QRIS')
+  );
+
+  // Total uang yang masuk ke tangan/rekening kurir hari ini
+  const totalReceived = paidAtDelivery.reduce((sum, b) => sum + (b.paidAmount ?? b.price), 0);
+
+  // SETORAN TUNAI: Hanya yang dibayar CASH
+  const totalCashSetoran = paidAtDelivery
+    .filter((b) => b.actualPaymentMethod === 'CASH')
     .reduce((sum, b) => sum + (b.paidAmount ?? b.price), 0);
 
-  // Perhitungan Cash vs Qris
-  const totalCashSetoran = allBuyers
-    .filter((b) => (b.status === 'DONE' || b.status === 'TIP') && (b.actualPaymentMethod === 'CASH' || !b.actualPaymentMethod))
+  // TOTAL QRIS: Hanya yang dibayar QRIS
+  const totalQris = paidAtDelivery
+    .filter((b) => b.actualPaymentMethod === 'QRIS')
     .reduce((sum, b) => sum + (b.paidAmount ?? b.price), 0);
 
-  const totalQris = allBuyers
-    .filter((b) => (b.status === 'DONE' || b.status === 'TIP') && b.actualPaymentMethod === 'QRIS')
-    .reduce((sum, b) => sum + (b.paidAmount ?? b.price), 0);
-
-  const tips = totalReceived - allBuyers
-    .filter((b) => b.status === 'DONE' || b.status === 'TIP')
-    .reduce((sum, b) => sum + b.price, 0);
+  // Doi Ta Lebe (Tips) - Dihitung dari selisih bayar vs harga untuk pembayaran di tempat
+  const tips = paidAtDelivery.reduce((sum, b) => {
+    const paid = b.paidAmount ?? b.price;
+    return sum + Math.max(0, paid - b.price);
+  }, 0);
 
   const formatCurrency = (val: number) => 
     new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
@@ -68,7 +75,7 @@ export function Summary({ rencanaList }: SummaryProps) {
     
     content += `LAPORAN DOI:\n`;
     content += `- Doi Maso (Total): ${formatCurrency(totalReceived)}\n`;
-    content += `- Setoran Cash: ${formatCurrency(totalCashSetoran)}\n`;
+    content += `- Setoran Tunai: ${formatCurrency(totalCashSetoran)}\n`;
     content += `- Total QRIS: ${formatCurrency(totalQris)}\n`;
     content += `- Doi Ta Lebe: ${formatCurrency(tips)}\n\n`;
     
@@ -76,8 +83,8 @@ export function Summary({ rencanaList }: SummaryProps) {
     rencanaList.forEach((r, idx) => {
       content += `${idx + 1}. Rencana: ${r.name}\n`;
       r.buyers.forEach(b => {
-        const method = b.actualPaymentMethod || (b.status === 'PENDING' ? b.paymentMethod : 'CASH');
-        content += `   [${b.packetType}] ${b.name} | ${method} | ${formatCurrency(b.paidAmount ?? b.price)}\n`;
+        const statusText = b.status === 'PENDING' ? 'BELUM' : (b.actualPaymentMethod || b.paymentMethod);
+        content += `   [${b.packetType}] ${b.name} | ${statusText} | ${formatCurrency(b.paidAmount ?? b.price)}\n`;
       });
       content += `\n`;
     });
@@ -144,7 +151,7 @@ export function Summary({ rencanaList }: SummaryProps) {
             
             <div className="grid grid-cols-2 gap-2">
               <div className="bg-green-400/10 p-2 rounded-xl border border-green-500/10">
-                <span className="text-[8px] font-black text-green-400 uppercase flex items-center gap-1"><Banknote className="w-2 h-2" /> SETORAN CASH:</span>
+                <span className="text-[8px] font-black text-green-400 uppercase flex items-center gap-1"><Banknote className="w-2 h-2" /> SETORAN TUNAI:</span>
                 <p className="font-black text-xs text-green-400 mt-1">{formatCurrency(totalCashSetoran)}</p>
               </div>
               <div className="bg-blue-400/10 p-2 rounded-xl border border-blue-500/10">

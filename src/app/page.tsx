@@ -51,7 +51,7 @@ export default function Home() {
   const [showSummary, setShowSummary] = useState(false);
   
   // ONBOARDING STATE
-  const [onboardingStep, setOnboardingStep] = useState(0); // 0: idle, 1: buyer list, 2: summary, 3: finished
+  const [onboardingStep, setOnboardingStep] = useState(0);
 
   useEffect(() => {
     if (isHydrated) {
@@ -91,12 +91,11 @@ export default function Home() {
              <div className="w-full h-full rounded-[1.8rem] overflow-hidden border border-white/5 relative bg-black">
                 <BungMap 
                   rencana={activeRencana} 
-                  onUpdateStatus={(bid, status, paid) => updateBuyerStatus(activeRencana.id, bid, status, paid)}
+                  onUpdateStatus={(bid, status, paid, method) => updateBuyerStatus(activeRencana.id, bid, status, paid, method)}
                 />
                 
                 <div className="absolute top-4 right-4 flex flex-col gap-3 z-30">
                   <div className="relative">
-                    {/* PANDUAN DAFTAR BUYER */}
                     {onboardingStep === 1 && (
                       <div className="absolute right-full mr-4 top-1/2 -translate-y-1/2 whitespace-nowrap animate-in fade-in slide-in-from-right-4 duration-500">
                         <div className="glass-dark text-white font-black text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 border border-white/10">
@@ -124,7 +123,6 @@ export default function Home() {
                   </div>
 
                   <div className="relative">
-                    {/* PANDUAN INFO PENGANTARAN */}
                     {onboardingStep === 2 && (
                       <div className="absolute right-full mr-4 top-1/2 -translate-y-1/2 whitespace-nowrap animate-in fade-in slide-in-from-right-4 duration-500">
                         <div className="glass-dark text-white font-black text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 border border-white/10">
@@ -171,7 +169,6 @@ export default function Home() {
                 }
               />
               <div className="relative">
-                {/* PANDUAN INFO PENGANTARAN (SAAT BELUM ADA RENCANA) */}
                 {onboardingStep === 2 && (
                   <div className="absolute right-full mr-4 top-1/2 -translate-y-1/2 whitespace-nowrap animate-in fade-in slide-in-from-right-4 duration-500 z-50">
                     <div className="glass-dark text-white font-black text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 border border-white/10">
@@ -217,7 +214,7 @@ export default function Home() {
         ALAT TEMPUR KURIR INDONESIA TIMUR 🔥
       </div>
 
-      {/* WATERMARK BETRAN - Polos, Transparansi 18% */}
+      {/* WATERMARK BETRAN */}
       <div className="fixed bottom-4 right-4 text-[10px] font-medium flex items-center gap-1 pointer-events-none z-50">
         <Copyright className="w-3 h-3 text-white/[0.18]" /> <span className="text-white/[0.18] tracking-wider font-normal">byBetranSaban</span>
       </div>
