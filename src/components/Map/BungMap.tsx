@@ -38,17 +38,18 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
     mapRef.current = map;
 
-    // Layer Satelit ESRI
+    // 1. Layer Satelit (ESRI World Imagery)
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Tiles &copy; Esri',
       maxZoom: 20
     }).addTo(map);
 
-    // Layer Label (Nama Toko, Jalan, POI) - CartoDB Voyager Labels
+    // 2. Layer Label (Jalan, Toko, POI) - Hybrid Style (CartoDB Voyager Labels)
+    // Pane 'markerPane' memastikan label muncul di atas tile satelit tapi di bawah marker
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
-      zIndex: 1000
+      zIndex: 500
     }).addTo(map);
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
@@ -59,6 +60,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
+        userMarkerRef.current = null;
       }
     };
   }, []);
@@ -72,24 +74,21 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     buyerGroup.clearLayers();
     const bounds: L.LatLngTuple[] = [];
 
-    // Lokasi User (Satu Titik Biru Saja)
-    // Gunakan lokasi start rencana sebagai posisi awal marker biru
+    // Lokasi User (Titik Biru Tunggal)
     const initialPos = rencana.startLocation;
     if (initialPos) {
       const { latitude, longitude } = initialPos;
       
-      // Jika marker sudah ada di map, jangan buat baru, cukup update posisi
       if (!userMarkerRef.current) {
         userMarkerRef.current = L.marker([latitude, longitude], { 
           icon: createUserIcon(),
           zIndexOffset: 1000 
         }).addTo(map);
       } else {
-        // Jika berganti rencana, pastikan marker masuk ke map yang aktif
+        userMarkerRef.current.setLatLng([latitude, longitude]);
         if (!map.hasLayer(userMarkerRef.current)) {
           userMarkerRef.current.addTo(map);
         }
-        userMarkerRef.current.setLatLng([latitude, longitude]);
       }
       bounds.push([latitude, longitude]);
     }
@@ -179,6 +178,9 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
         const { latitude, longitude } = pos.coords;
         if (userMarkerRef.current) {
           userMarkerRef.current.setLatLng([latitude, longitude]);
+          if (!mapRef.current?.hasLayer(userMarkerRef.current)) {
+            userMarkerRef.current.addTo(mapRef.current!);
+          }
         }
         mapRef.current!.flyTo([latitude, longitude], 18, { duration: 1.5 });
         setLocating(false);
