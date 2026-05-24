@@ -19,25 +19,29 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
     mapRef.current = L.map(containerRef.current, {
       zoomControl: false,
+      maxZoom: 20,
     }).setView([-2.5489, 118.0149], 5);
 
     // 1. Layer Dasar: Satelit (ESRI World Imagery)
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EBP, and the GIS User Community'
+      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EBP, and the GIS User Community',
+      maxZoom: 20
     }).addTo(mapRef.current);
 
     // 2. Overlay: Jalan-jalan (ESRI World Transportation)
-    // Ini yang kasih garis jalan di atas satelit
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Esri, HERE, Garmin, © OpenStreetMap contributors',
-      opacity: 0.8
+      opacity: 0.7,
+      maxZoom: 20
     }).addTo(mapRef.current);
 
-    // 3. Overlay: Nama Tempat & Batas Wilayah (ESRI World Boundaries and Places)
-    // Ini yang kasih teks nama kota, kelurahan, dan tempat penting
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
-      attribution: 'Esri, HERE, Garmin, © OpenStreetMap contributors',
-      opacity: 0.9
+    // 3. Overlay: Nama Tempat, Toko, & POI (CartoDB Voyager Labels)
+    // Layer ini lebih detail untuk nama toko dan tempat dibanding ESRI standar
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      subdomains: 'abcd',
+      maxZoom: 20,
+      zIndex: 1000
     }).addTo(mapRef.current);
 
     L.control.zoom({ position: 'bottomright' }).addTo(mapRef.current);
@@ -63,12 +67,12 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     if (rencana.startLocation) {
        const startIcon = L.divIcon({
         className: 'start-marker',
-        html: `<div style="background-color: #3b82f6; width: 12px; height: 12px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);"></div>`,
-        iconSize: [12, 12],
+        html: `<div style="background-color: #3b82f6; width: 14px; height: 14px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 15px rgba(59, 130, 246, 0.9);"></div>`,
+        iconSize: [14, 14],
       });
       L.marker([rencana.startLocation.latitude, rencana.startLocation.longitude], { icon: startIcon })
         .addTo(mapRef.current)
-        .bindTooltip("Mulai dari Sini", { permanent: false, direction: 'top' });
+        .bindTooltip("Titik Start", { permanent: false, direction: 'top' });
       bounds.push([rencana.startLocation.latitude, rencana.startLocation.longitude]);
     }
 
@@ -78,9 +82,9 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
       
       const icon = L.divIcon({
         className: 'custom-marker',
-        html: `<div style="background-color: ${color}; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>`,
-        iconSize: [16, 16],
-        iconAnchor: [8, 8],
+        html: `<div style="background-color: ${color}; width: 18px; height: 18px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 12px rgba(0,0,0,0.6);"></div>`,
+        iconSize: [18, 18],
+        iconAnchor: [9, 9],
       });
 
       const marker = L.marker([buyer.latitude, buyer.longitude], { icon })

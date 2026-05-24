@@ -40,23 +40,25 @@
     @apply bg-background text-foreground font-body overflow-hidden;
     height: 100dvh;
     max-height: 100dvh;
+    width: 100vw;
+    position: fixed; /* Mencegah scroll browser yang tra perlu */
   }
 }
 
 .glass {
-  @apply bg-card/60 backdrop-blur-xl border border-white/10 shadow-2xl;
+  @apply bg-card/70 backdrop-blur-2xl border border-white/10 shadow-2xl;
 }
 
 .glass-dark {
-  @apply bg-black/40 backdrop-blur-lg border border-white/5 shadow-xl;
+  @apply bg-black/50 backdrop-blur-xl border border-white/5 shadow-xl;
 }
 
 .glow-blue {
-  box-shadow: 0 4px 20px -5px hsl(var(--primary) / 0.5);
+  box-shadow: 0 4px 25px -5px hsl(var(--primary) / 0.5);
 }
 
 .glow-orange {
-  box-shadow: 0 4px 20px -5px hsl(var(--accent) / 0.5);
+  box-shadow: 0 4px 25px -5px hsl(var(--accent) / 0.5);
 }
 
 /* Leaflet Overrides */
@@ -66,12 +68,17 @@
   background: #000 !important;
 }
 
+/* Membuat label map lebih terbaca di atas satelit */
+.leaflet-tile-pane {
+  filter: brightness(1.1) contrast(1.1);
+}
+
 .leaflet-popup-content-wrapper {
   @apply glass text-foreground rounded-[2rem] p-0 overflow-hidden !important;
 }
 
 .leaflet-popup-tip {
-  @apply bg-card/80 backdrop-blur-md !important;
+  @apply bg-card/90 backdrop-blur-md !important;
 }
 
 .leaflet-control-zoom {
@@ -88,10 +95,10 @@
 
 /* Custom Marker Styles */
 .custom-marker, .start-marker {
-  transition: transform 0.2s ease-out;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .custom-marker:hover {
-  transform: scale(1.5);
+  transform: scale(1.4);
   z-index: 1000 !important;
 }

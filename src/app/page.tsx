@@ -49,8 +49,8 @@ export default function Home() {
 
   return (
     <div className="relative h-[100dvh] w-full flex flex-col overflow-hidden bg-background">
-      {/* HEADER SECTION - COMPACT */}
-      <header className="z-20 p-4 pb-2 glass-dark border-b border-white/5 shrink-0">
+      {/* HEADER SECTION - FIXED COMPACT */}
+      <header className="z-20 p-4 pb-3 glass-dark border-b border-white/5 shrink-0">
         <div className="max-w-4xl mx-auto">
           <RencanaHeader 
             rencanaList={rencanaList}
@@ -62,8 +62,8 @@ export default function Home() {
         </div>
       </header>
 
-      {/* MAIN CONTENT AREA */}
-      <main className="flex-1 relative z-10 overflow-hidden">
+      {/* MAIN CONTENT AREA - MAP TAKES ALL SPACE */}
+      <main className="flex-1 relative z-10 overflow-hidden bg-black">
         {activeRencana ? (
           <div className="w-full h-full">
             <BungMap 
@@ -71,7 +71,7 @@ export default function Home() {
               onUpdateStatus={(bid, status, paid) => updateBuyerStatus(activeRencana.id, bid, status, paid)}
             />
             
-            {/* FLOATING ACTION BUTTONS - POSITIONED RELATIVE TO MAP */}
+            {/* FLOATING ACTION BUTTONS */}
             <div className="absolute top-4 right-4 flex flex-col gap-3 z-30">
               <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
                 <SheetTrigger asChild>
@@ -82,7 +82,7 @@ export default function Home() {
                 <SheetContent side="right" className="p-0 glass border-none w-[320px]">
                   <SheetHeader className="sr-only">
                     <SheetTitle>Daftar Antaran</SheetTitle>
-                    <SheetDescription>Daftar paket yang harus diantar hari ini dalam rencana aktif.</SheetDescription>
+                    <SheetDescription>Daftar paket yang harus diantar hari ini.</SheetDescription>
                   </SheetHeader>
                   <BuyerList 
                     buyers={activeRencana.buyers} 
@@ -106,10 +106,10 @@ export default function Home() {
                <Package className="w-20 h-20 text-primary animate-bounce" />
             </div>
             <div>
-              <h2 className="text-3xl font-black mb-2 italic">BUNG'KURIR📦</h2>
+              <h2 className="text-3xl font-black mb-2 italic tracking-tighter">BUNG'KURIR📦</h2>
               <p className="text-muted-foreground text-sm max-w-xs mx-auto">
-                Halo Bung! Sio, ko belum ada antaran? 
-                Buat rencana dolo baru gas keliling kota!
+                Halo Bung! Belum ada rencana antaran? 
+                Buat satu dolo baru gas keliling kota! 🔥
               </p>
             </div>
             <CreateRencanaDialog 
@@ -129,8 +129,8 @@ export default function Home() {
 
       {/* FOOTER SECTION - DYNAMIC CONTROLS */}
       {activeRencana && (
-        <footer className="z-20 p-4 pt-2 max-w-4xl mx-auto w-full shrink-0">
-          <div className="space-y-3">
+        <footer className="z-20 p-4 pt-3 max-w-4xl mx-auto w-full shrink-0 glass-dark border-t border-white/5">
+          <div className="space-y-4">
             {showSummary && (
               <div className="animate-in slide-in-from-bottom-8 duration-300">
                  <Summary rencana={activeRencana} />
@@ -147,8 +147,8 @@ export default function Home() {
         </footer>
       )}
 
-      {/* EASTERN INDONESIA VIBE BADGE - VERY SUBTLE */}
-      <div className="fixed bottom-1 left-4 text-[9px] font-black text-white/20 uppercase tracking-[0.2em] pointer-events-none z-50">
+      {/* EASTERN INDONESIA VIBE BADGE */}
+      <div className="fixed bottom-0.5 left-4 text-[8px] font-black text-white/30 uppercase tracking-[0.2em] pointer-events-none z-50">
         ALAT TEMPUR KURIR INDONESIA TIMUR 🔥
       </div>
     </div>
