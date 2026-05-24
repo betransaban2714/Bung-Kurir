@@ -1,18 +1,15 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import L from 'leaflet';
-import { Plane, Buyer, DeliveryStatus } from '@/types';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Navigation, MessageCircle, CheckCircle2, MapPin } from 'lucide-react';
+import { Rencana, DeliveryStatus } from '@/types';
 
 interface BungMapProps {
-  plane: Plane;
+  rencana: Rencana;
   onUpdateStatus: (buyerId: string, status: DeliveryStatus, paidAmount?: number) => void;
 }
 
-export default function BungMap({ plane, onUpdateStatus }: BungMapProps) {
+export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const markersRef = useRef<Record<string, L.Marker>>({});
@@ -47,7 +44,20 @@ export default function BungMap({ plane, onUpdateStatus }: BungMapProps) {
 
     const bounds: L.LatLngTuple[] = [];
 
-    plane.buyers.forEach((buyer) => {
+    // Add start location marker if exists
+    if (rencana.startLocation) {
+       const startIcon = L.divIcon({
+        className: 'start-marker',
+        html: `<div style="background-color: #3b82f6; width: 10px; height: 10px; border-radius: 50%; border: 2px solid white;"></div>`,
+        iconSize: [10, 10],
+      });
+      L.marker([rencana.startLocation.latitude, rencana.startLocation.longitude], { icon: startIcon })
+        .addTo(mapRef.current)
+        .bindTooltip("Titik Start");
+      bounds.push([rencana.startLocation.latitude, rencana.startLocation.longitude]);
+    }
+
+    rencana.buyers.forEach((buyer) => {
       const color = buyer.status === 'DONE' ? '#64748b' : 
                    buyer.status === 'TIP' ? '#10b981' : '#ef4444';
       
@@ -149,7 +159,7 @@ export default function BungMap({ plane, onUpdateStatus }: BungMapProps) {
     if (bounds.length > 0) {
       mapRef.current.fitBounds(L.latLngBounds(bounds), { padding: [50, 50] });
     }
-  }, [plane, onUpdateStatus]);
+  }, [rencana, onUpdateStatus]);
 
   return <div ref={containerRef} className="w-full h-full relative z-0" />;
 }

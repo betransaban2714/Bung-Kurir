@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { Plane, Buyer, DeliveryStatus } from '@/types';
+import type { Rencana, Buyer, DeliveryStatus } from '@/types';
 
-const STORAGE_KEY = 'bungkurir_data_v1';
+const STORAGE_KEY = 'bungkurir_data_v2';
 
 export function useKurirStore() {
-  const [planes, setPlanes] = useState<Plane[]>([]);
-  const [activePlaneId, setActivePlaneId] = useState<string | null>(null);
+  const [rencanaList, setRencanaList] = useState<Rencana[]>([]);
+  const [activeRencanaId, setActiveRencanaId] = useState<string | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
@@ -15,8 +15,8 @@ export function useKurirStore() {
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        setPlanes(parsed.planes || []);
-        setActivePlaneId(parsed.activePlaneId || null);
+        setRencanaList(parsed.rencanaList || []);
+        setActiveRencanaId(parsed.activeRencanaId || null);
       } catch (e) {
         console.error('Failed to parse storage', e);
       }
@@ -26,74 +26,73 @@ export function useKurirStore() {
 
   useEffect(() => {
     if (!isHydrated) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ planes, activePlaneId }));
-  }, [planes, activePlaneId, isHydrated]);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ rencanaList, activeRencanaId }));
+  }, [rencanaList, activeRencanaId, isHydrated]);
 
-  const activePlane = planes.find((p) => p.id === activePlaneId) || null;
+  const activeRencana = rencanaList.find((r) => r.id === activeRencanaId) || null;
 
-  const createPlane = (name: string, start?: any, end?: any) => {
-    const newPlane: Plane = {
+  const createRencana = (name: string, location?: { latitude: number; longitude: number; address: string }) => {
+    const newRencana: Rencana = {
       id: crypto.randomUUID(),
       name,
-      startLocation: start,
-      endLocation: end,
+      startLocation: location,
       buyers: [],
       createdAt: Date.now(),
     };
-    setPlanes((prev) => [...prev, newPlane]);
-    setActivePlaneId(newPlane.id);
-    return newPlane;
+    setRencanaList((prev) => [...prev, newRencana]);
+    setActiveRencanaId(newRencana.id);
+    return newRencana;
   };
 
-  const deletePlane = (id: string) => {
-    setPlanes((prev) => prev.filter((p) => p.id !== id));
-    if (activePlaneId === id) setActivePlaneId(null);
+  const deleteRencana = (id: string) => {
+    setRencanaList((prev) => prev.filter((r) => r.id !== id));
+    if (activeRencanaId === id) setActiveRencanaId(null);
   };
 
-  const addBuyer = (planeId: string, buyerData: Omit<Buyer, 'id' | 'status' | 'createdAt'>) => {
+  const addBuyer = (rencanaId: string, buyerData: Omit<Buyer, 'id' | 'status' | 'createdAt'>) => {
     const newBuyer: Buyer = {
       ...buyerData,
       id: crypto.randomUUID(),
       status: 'PENDING',
       createdAt: Date.now(),
     };
-    setPlanes((prev) =>
-      prev.map((p) => (p.id === planeId ? { ...p, buyers: [...p.buyers, newBuyer] } : p))
+    setRencanaList((prev) =>
+      prev.map((r) => (r.id === rencanaId ? { ...r, buyers: [...r.buyers, newBuyer] } : r))
     );
   };
 
-  const updateBuyerStatus = (planeId: string, buyerId: string, status: DeliveryStatus, paidAmount?: number) => {
-    setPlanes((prev) =>
-      prev.map((p) =>
-        p.id === planeId
+  const updateBuyerStatus = (rencanaId: string, buyerId: string, status: DeliveryStatus, paidAmount?: number) => {
+    setRencanaList((prev) =>
+      prev.map((r) =>
+        r.id === rencanaId
           ? {
-              ...p,
-              buyers: p.buyers.map((b) =>
+              ...r,
+              buyers: r.buyers.map((b) =>
                 b.id === buyerId ? { ...b, status, paidAmount } : b
               ),
             }
-          : p
+          : r
       )
     );
   };
 
-  const deleteBuyer = (planeId: string, buyerId: string) => {
-    setPlanes((prev) =>
-      prev.map((p) =>
-        p.id === planeId
-          ? { ...p, buyers: p.buyers.filter((b) => b.id !== buyerId) }
-          : p
+  const deleteBuyer = (rencanaId: string, buyerId: string) => {
+    setRencanaList((prev) =>
+      prev.map((r) =>
+        r.id === rencanaId
+          ? { ...r, buyers: r.buyers.filter((b) => b.id !== buyerId) }
+          : r
       )
     );
   };
 
   return {
-    planes,
-    activePlane,
-    activePlaneId,
-    setActivePlaneId,
-    createPlane,
-    deletePlane,
+    rencanaList,
+    activeRencana,
+    activeRencanaId,
+    setActiveRencanaId,
+    createRencana,
+    deleteRencana,
     addBuyer,
     updateBuyerStatus,
     deleteBuyer,

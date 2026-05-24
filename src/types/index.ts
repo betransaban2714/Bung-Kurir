@@ -17,7 +17,7 @@ export interface Buyer {
   createdAt: number;
 }
 
-export interface Plane {
+export interface Rencana {
   id: string;
   name: string;
   startLocation?: {

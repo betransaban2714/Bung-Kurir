@@ -1,27 +1,27 @@
 'use client';
 
-import { Plane } from '@/types';
+import { Rencana } from '@/types';
 import { Card } from '@/components/ui/card';
 import { Package, Wallet, TrendingUp } from 'lucide-react';
 
 interface SummaryProps {
-  plane: Plane;
+  rencana: Rencana;
 }
 
-export function Summary({ plane }: SummaryProps) {
-  const total = plane.buyers.length;
-  const done = plane.buyers.filter((b) => b.status === 'DONE' || b.status === 'TIP').length;
+export function Summary({ rencana }: SummaryProps) {
+  const total = rencana.buyers.length;
+  const done = rencana.buyers.filter((b) => b.status === 'DONE' || b.status === 'TIP').length;
   const pending = total - done;
 
-  const totalCodExpected = plane.buyers
+  const totalCodExpected = rencana.buyers
     .filter((b) => b.paymentMethod === 'COD')
     .reduce((sum, b) => sum + b.price, 0);
 
-  const totalReceived = plane.buyers
+  const totalReceived = rencana.buyers
     .filter((b) => b.paymentMethod === 'COD' && (b.status === 'DONE' || b.status === 'TIP'))
     .reduce((sum, b) => sum + (b.paidAmount ?? b.price), 0);
 
-  const tips = totalReceived - plane.buyers
+  const tips = totalReceived - rencana.buyers
     .filter((b) => b.paymentMethod === 'COD' && (b.status === 'DONE' || b.status === 'TIP'))
     .reduce((sum, b) => sum + b.price, 0);
 

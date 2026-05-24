@@ -3,18 +3,14 @@
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import { useKurirStore } from '@/store/useKurirStore';
-import { PlaneHeader } from '@/components/Plane/PlaneHeader';
+import { RencanaHeader } from '@/components/Rencana/RencanaHeader';
 import { Summary } from '@/components/Dashboard/Summary';
 import { AddBuyer } from '@/components/Buyer/AddBuyer';
 import { BuyerList } from '@/components/Buyer/BuyerList';
 import { 
   Menu, 
-  X, 
-  ChevronUp, 
   LayoutDashboard, 
-  Map as MapIcon, 
-  Package, 
-  Settings 
+  Package 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { 
@@ -25,7 +21,6 @@ import {
   SheetTitle,
   SheetDescription
 } from '@/components/ui/sheet';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 // Dynamic import for Leaflet to avoid SSR issues
 const BungMap = dynamic(() => import('@/components/Map/BungMap'), { 
@@ -35,12 +30,12 @@ const BungMap = dynamic(() => import('@/components/Map/BungMap'), {
 
 export default function Home() {
   const { 
-    planes, 
-    activePlane, 
+    rencanaList, 
+    activeRencana, 
     isHydrated, 
-    setActivePlaneId, 
-    createPlane, 
-    deletePlane,
+    setActiveRencanaId, 
+    createRencana, 
+    deleteRencana,
     addBuyer,
     updateBuyerStatus,
     deleteBuyer
@@ -56,22 +51,22 @@ export default function Home() {
       {/* HEADER SECTION */}
       <header className="z-20 p-4 pb-2 glass border-b border-white/5">
         <div className="max-w-4xl mx-auto space-y-4">
-          <PlaneHeader 
-            planes={planes}
-            activePlane={activePlane}
-            onSelect={setActivePlaneId}
-            onCreate={createPlane}
-            onDelete={deletePlane}
+          <RencanaHeader 
+            rencanaList={rencanaList}
+            activeRencana={activeRencana}
+            onSelect={setActiveRencanaId}
+            onCreate={createRencana}
+            onDelete={deleteRencana}
           />
         </div>
       </header>
 
       {/* MAP SECTION - FULL SCREEN BACKGROUND */}
       <main className="flex-1 relative z-10">
-        {activePlane ? (
+        {activeRencana ? (
           <BungMap 
-            plane={activePlane} 
-            onUpdateStatus={(bid, status, paid) => updateBuyerStatus(activePlane.id, bid, status, paid)}
+            rencana={activeRencana} 
+            onUpdateStatus={(bid, status, paid) => updateBuyerStatus(activeRencana.id, bid, status, paid)}
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center space-y-6">
@@ -82,7 +77,7 @@ export default function Home() {
               <h2 className="text-3xl font-black mb-2 italic">BUNG'KURIR📦</h2>
               <p className="text-muted-foreground text-sm max-w-xs mx-auto">
                 Halo Bung! Sio, ko belum ada antaran? 
-                Buat plane dolo baru gas keliling kota!
+                Buat rencana dolo baru gas keliling kota!
               </p>
             </div>
             <Button 
@@ -91,16 +86,16 @@ export default function Home() {
               onClick={() => {
                 const names = ['Gas Pagi', 'Keliling Kota Dolo', 'Paket Hari Ini', 'Gas Sore'];
                 const randomName = names[Math.floor(Math.random() * names.length)];
-                createPlane(randomName);
+                createRencana(randomName);
               }}
             >
-              GAS BUAT SEKARANG!
+              GAS BUAT RENCANA!
             </Button>
           </div>
         )}
 
         {/* FLOATING ACTION BUTTONS */}
-        {activePlane && (
+        {activeRencana && (
           <div className="absolute top-4 right-4 flex flex-col gap-3 z-30">
             <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
               <SheetTrigger asChild>
@@ -111,11 +106,11 @@ export default function Home() {
               <SheetContent side="right" className="p-0 glass border-none w-[320px]">
                 <SheetHeader className="sr-only">
                   <SheetTitle>Daftar Antaran</SheetTitle>
-                  <SheetDescription>Daftar paket yang harus diantar hari ini dalam plane aktif.</SheetDescription>
+                  <SheetDescription>Daftar paket yang harus diantar hari ini dalam rencana aktif.</SheetDescription>
                 </SheetHeader>
                 <BuyerList 
-                  buyers={activePlane.buyers} 
-                  onDelete={(id) => deleteBuyer(activePlane.id, id)}
+                  buyers={activeRencana.buyers} 
+                  onDelete={(id) => deleteBuyer(activeRencana.id, id)}
                 />
               </SheetContent>
             </Sheet>
@@ -133,18 +128,18 @@ export default function Home() {
 
       {/* BOTTOM SECTION - CONTROLS & SUMMARY */}
       <footer className="z-20 p-4 max-w-4xl mx-auto w-full">
-        {activePlane && (
+        {activeRencana && (
           <div className="space-y-4">
             {showSummary && (
               <div className="animate-in slide-in-from-bottom-4 duration-300">
-                 <Summary plane={activePlane} />
+                 <Summary rencana={activeRencana} />
               </div>
             )}
             
             <div className="flex gap-4">
               <AddBuyer 
-                onAdd={(data) => addBuyer(activePlane.id, data)}
-                disabled={!activePlane}
+                onAdd={(data) => addBuyer(activeRencana.id, data)}
+                disabled={!activeRencana}
               />
             </div>
           </div>
