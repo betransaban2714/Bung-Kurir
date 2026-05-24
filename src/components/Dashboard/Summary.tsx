@@ -43,9 +43,17 @@ export function Summary({ rencanaList }: SummaryProps) {
       return;
     }
 
-    const dateStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    const now = new Date();
+    const hari = now.toLocaleDateString('id-ID', { weekday: 'long' });
+    const tanggal = now.toLocaleDateString('id-ID', { day: 'numeric' });
+    const bulan = now.toLocaleDateString('id-ID', { month: 'long' });
+    const tahun = now.toLocaleDateString('id-ID', { year: 'numeric' });
+    
+    const displayDate = `${hari}, ${tanggal} ${bulan} ${tahun}`;
+    const fileName = `Data_Pengantaran_Paket-${hari},${tanggal}-${bulan}-${tahun}.txt`;
+
     let content = `LAPORAN PENGANTARAN BUNG'KURIR 📦\n`;
-    content += `Tanggal: ${dateStr}\n`;
+    content += `Tanggal: ${displayDate}\n`;
     content += `------------------------------------------\n\n`;
     
     content += `RINGKASAN HARIAN:\n`;
@@ -76,7 +84,7 @@ export function Summary({ rencanaList }: SummaryProps) {
     const element = document.createElement("a");
     const file = new Blob([content], { type: 'text/plain' });
     element.href = URL.createObjectURL(file);
-    element.download = `Laporan_BungKurir_${new Date().toISOString().split('T')[0]}.txt`;
+    element.download = fileName;
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
@@ -150,7 +158,7 @@ export function Summary({ rencanaList }: SummaryProps) {
         onClick={handleExport}
         className="w-full h-14 bg-white/5 hover:bg-white/10 text-white font-black rounded-2xl border border-white/10 gap-3 active:scale-95 transition-all shadow-xl"
       >
-        <FileText className="w-6 h-6 text-primary" /> EXPORT DATA HARI INI (.TXT) <Download className="w-5 h-5 opacity-50" />
+        <FileText className="w-6 h-6 text-primary" /> EXPORT DATA <Download className="w-5 h-5 opacity-50" />
       </Button>
     </div>
   );
