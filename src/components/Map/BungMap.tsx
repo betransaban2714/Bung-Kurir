@@ -19,7 +19,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
   const userMarkerRef = useRef<L.Marker | null>(null);
   const [locating, setLocating] = useState(false);
 
-  // Ikon Titik Biru Menyala
+  // Ikon Titik Biru Menyala (Satu-satunya yang animasi)
   const createUserIcon = () => L.divIcon({
     className: 'user-marker',
     html: `
@@ -60,18 +60,19 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
     mapRef.current = map;
 
-    // Layer Satelit
+    // Layer Satelit Premium
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 20
     }).addTo(map);
 
-    // Layer Label yang lebih kuat & kontras
+    // Layer Label yang kontras agar nama jalan terlihat jelas
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
       zIndex: 1000
     }).addTo(map);
 
+    // Zoom control di pojok kanan bawah
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
     buyerLayerGroupRef.current = L.layerGroup().addTo(map);
@@ -99,7 +100,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     buyerGroup.clearLayers();
     const bounds: L.LatLngTuple[] = [];
 
-    // Tampilkan CUMA SATU Titik Biru yang menyala
+    // Tampilkan Titik Biru Animasi (Lokasi Start/Live)
     const initialPos = rencana.startLocation;
     if (initialPos) {
       const { latitude, longitude } = initialPos;
@@ -133,7 +134,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
         .addTo(buyerGroup)
         .bindPopup(() => {
           const div = document.createElement('div');
-          div.className = 'p-5 min-w-[290px] space-y-4';
+          div.className = 'p-5 min-w-[280px] max-w-[90vw] space-y-4';
           div.innerHTML = `
             <div class="space-y-1">
               <h3 class="font-black text-xl flex items-center gap-2 text-white">
@@ -141,6 +142,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
               </h3>
               <p class="text-[12px] leading-tight text-muted-foreground italic">${buyer.address}</p>
             </div>
+            
             <div id="route-info-${buyer.id}" class="hidden py-2 px-4 bg-white/10 rounded-2xl border border-white/20 flex items-center justify-around">
                <div class="text-center">
                  <p class="text-[9px] font-black text-white/50 uppercase">Jarak</p>
@@ -152,6 +154,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
                  <span id="time-${buyer.id}" class="text-sm font-black text-white">...</span>
                </div>
             </div>
+
             <div class="grid grid-cols-2 gap-3 py-3 border-y border-white/10">
               <div class="bg-white/5 p-2 rounded-xl text-center">
                 <p class="text-[9px] text-muted-foreground uppercase font-black">Paket</p>
@@ -162,8 +165,9 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
                 <p class="text-xs font-black text-accent">💰 ${buyer.paymentMethod}</p>
               </div>
             </div>
+
             <div class="flex justify-between items-center px-1">
-               <span class="text-xs font-bold text-muted-foreground">Harga Paket:</span>
+               <span class="text-xs font-bold text-muted-foreground">Harga:</span>
                <span class="font-black text-xl text-primary">Rp${buyer.price.toLocaleString()}</span>
             </div>
             
@@ -173,7 +177,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
                   ✅ SELESAI
                 </button>
                 <div id="confirm-input-area-${buyer.id}" class="hidden space-y-3 animate-in fade-in slide-in-from-top-2 duration-300 bg-white/5 p-3 rounded-2xl border border-white/10">
-                  <p class="text-[10px] font-black text-accent uppercase text-center">Berapa Bung terima uang?</p>
+                  <p class="text-[10px] font-black text-accent uppercase text-center">Uang yang Diterima:</p>
                   <input 
                     type="number" 
                     id="paid-input-${buyer.id}" 
@@ -187,7 +191,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
               </div>
             ` : `
               <div class="bg-green-500/20 border border-green-500/30 rounded-2xl p-4 text-center">
-                <p class="text-[11px] font-black text-green-400 uppercase tracking-widest mb-1">ANTARAN BERHASIL 🔥</p>
+                <p class="text-[11px] font-black text-green-400 uppercase tracking-widest mb-1">BERHASIL 🔥</p>
                 <p class="text-lg font-black text-white">Rp${(buyer.paidAmount || buyer.price).toLocaleString()}</p>
               </div>
             `}
@@ -212,11 +216,11 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
                 routeGroup.clearLayers();
                 L.polyline(routeData.coordinates as L.LatLngExpression[], {
                   color: 'white',
-                  weight: 7,
-                  opacity: 0.95,
+                  weight: 6,
+                  opacity: 0.9,
                   lineJoin: 'round',
                   lineCap: 'round',
-                  dashArray: '1, 15'
+                  dashArray: '1, 12'
                 }).addTo(routeGroup);
 
                 const infoBox = document.getElementById(`route-info-${buyer.id}`);
@@ -255,10 +259,10 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
               onUpdateStatus(buyer.id, status, paidAmount);
               map.closePopup();
             });
-          }, 0);
+          }, 50);
 
           return div;
-        }, { maxWidth: 320, minWidth: 290, className: 'elegant-popup' });
+        }, { maxWidth: 320, minWidth: 280, className: 'elegant-popup' });
 
       bounds.push([buyer.latitude, buyer.longitude]);
     });
@@ -291,7 +295,8 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
   return (
     <div className="w-full h-full relative group">
       <div ref={containerRef} className="w-full h-full z-0" />
-      <div className="absolute bottom-6 right-6 z-30 flex flex-col gap-2">
+      {/* Tombol Lokasi diatur posisinya agar tidak bertindihan dengan Zoom */}
+      <div className="absolute bottom-36 right-6 z-30 flex flex-col gap-2">
         <Button
           onClick={handleLocateMe}
           disabled={locating}
