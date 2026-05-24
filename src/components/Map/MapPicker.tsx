@@ -1,10 +1,18 @@
-
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import { Button } from '@/components/ui/button';
 import { MapPin, Check } from 'lucide-react';
+
+// Fix for Leaflet default icon issues in production
+// @ts-ignore
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+});
 
 interface MapPickerProps {
   onSelect: (coords: { lat: number; lng: number }) => void;
@@ -30,13 +38,14 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
 
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 20,
-      attribution: 'Tiles &copy; Esri'
+      attribution: 'Tiles &copy; Esri',
+      zIndex: 1
     }).addTo(map);
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
-      zIndex: 500
+      zIndex: 10
     }).addTo(map);
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
@@ -54,7 +63,7 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
           iconSize: [24, 24],
           iconAnchor: [12, 12],
         });
-        markerRef.current = L.marker([lat, lng], { icon }).addTo(map);
+        markerRef.current = L.marker([lat, lng], { icon, zIndexOffset: 1000 }).addTo(map);
       }
     });
 

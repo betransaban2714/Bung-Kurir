@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -6,6 +5,15 @@ import L from 'leaflet';
 import { Rencana, DeliveryStatus } from '@/types';
 import { LocateFixed, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+
+// Fix for Leaflet default icon issues in production
+// @ts-ignore
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+});
 
 interface BungMapProps {
   rencana: Rencana;
@@ -61,13 +69,14 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     mapRef.current = map;
 
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      maxZoom: 20
+      maxZoom: 20,
+      zIndex: 1
     }).addTo(map);
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
-      zIndex: 1000
+      zIndex: 10
     }).addTo(map);
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
@@ -126,7 +135,10 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
         iconAnchor: [10, 10],
       });
 
-      L.marker([buyer.latitude, buyer.longitude], { icon })
+      L.marker([buyer.latitude, buyer.longitude], { 
+        icon,
+        zIndexOffset: 1000 
+      })
         .addTo(buyerGroup)
         .bindPopup(() => {
           const div = document.createElement('div');
