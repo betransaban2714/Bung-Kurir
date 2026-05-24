@@ -9,7 +9,14 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { Plus, ChevronDown, Trash2, CalendarDays } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { Plus, ChevronDown, Trash2, CalendarDays, Info, ExternalLink } from 'lucide-react';
 import { Rencana } from '@/types';
 import { CreateRencanaDialog } from './CreateRencanaDialog';
 
@@ -23,6 +30,7 @@ interface RencanaHeaderProps {
 
 export function RencanaHeader({ rencanaList, activeRencana, onSelect, onCreate, onDelete }: RencanaHeaderProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
 
   return (
     <div className="flex items-center justify-between gap-4">
@@ -79,11 +87,22 @@ export function RencanaHeader({ rencanaList, activeRencana, onSelect, onCreate, 
         </DropdownMenu>
       </div>
 
-      <div className="p-2 bg-secondary rounded-2xl flex items-center gap-2 border border-white/5 shadow-inner">
-        <CalendarDays className="w-4 h-4 text-muted-foreground" />
-        <span className="text-[10px] font-bold text-muted-foreground uppercase">
-          {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
-        </span>
+      <div className="flex items-center gap-2">
+        <div className="p-2 bg-secondary rounded-2xl flex items-center gap-2 border border-white/5 shadow-inner">
+          <CalendarDays className="w-4 h-4 text-muted-foreground" />
+          <span className="text-[10px] font-bold text-muted-foreground uppercase">
+            {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+          </span>
+        </div>
+
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="h-10 w-10 rounded-2xl bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20"
+          onClick={() => setIsInfoOpen(true)}
+        >
+          <Info className="w-5 h-5" />
+        </Button>
       </div>
 
       {/* Dialog dipindah ke luar DropdownContent supaya tidak ada konflik Focus */}
@@ -95,6 +114,49 @@ export function RencanaHeader({ rencanaList, activeRencana, onSelect, onCreate, 
           setIsDialogOpen(false);
         }}
       />
+
+      {/* DIALOG KREDIT */}
+      <Dialog open={isInfoOpen} onOpenChange={setIsInfoOpen}>
+        <DialogContent className="glass border-none shadow-2xl rounded-[2.5rem] w-[90vw] sm:max-w-[400px]">
+          <DialogHeader className="space-y-4">
+            <div className="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mx-auto border-4 border-primary/30 animate-pulse">
+               <Info className="w-10 h-10 text-primary" />
+            </div>
+            <DialogTitle className="text-3xl font-black text-center text-white italic tracking-tighter uppercase">
+              Bung'Kurir 📦
+            </DialogTitle>
+            <DialogDescription className="sr-only">Informasi Pembuat Aplikasi</DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-6 space-y-6">
+            <div className="text-center space-y-2">
+              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em]">Developer / Pembuat</p>
+              <h2 className="text-2xl font-black text-primary">Betran Saban</h2>
+            </div>
+
+            <div className="bg-white/5 p-5 rounded-3xl border border-white/5 space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] font-bold text-muted-foreground uppercase">Status:</span>
+                <span className="text-[11px] font-black text-green-400 bg-green-400/10 px-3 py-1 rounded-full">ONLINE 🔥</span>
+              </div>
+              <div className="h-px bg-white/5 w-full" />
+              <div className="space-y-2">
+                <p className="text-[11px] font-bold text-muted-foreground uppercase">Hubungi Saya:</p>
+                <Button 
+                  className="w-full h-12 bg-green-500 hover:bg-green-600 font-black text-white rounded-2xl gap-2 active:scale-95 transition-all"
+                  onClick={() => window.open('https://wa.me/6282196913604', '_blank')}
+                >
+                  WHATSAPP <ExternalLink className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+
+            <p className="text-[9px] text-center text-muted-foreground italic leading-relaxed px-4">
+              "Aplikasi ini dibuat khusus untuk mempermudah operasional kurir di wilayah Indonesia Timur. Terus semangat antar paket dolo Bung! 🔥"
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

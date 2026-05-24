@@ -10,7 +10,8 @@ import { BuyerList } from '@/components/Buyer/BuyerList';
 import { 
   Menu, 
   LayoutDashboard, 
-  Package 
+  Package,
+  Copyright
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { 
@@ -155,8 +156,14 @@ export default function Home() {
         </footer>
       )}
 
+      {/* WATERMARK CENTER */}
       <div className="fixed bottom-1 left-1/2 -translate-x-1/2 text-[8px] font-black text-white/20 uppercase tracking-[0.3em] pointer-events-none z-50 whitespace-nowrap">
         ALAT TEMPUR KURIR INDONESIA TIMUR 🔥
+      </div>
+
+      {/* WATERMARK BETRAN */}
+      <div className="fixed bottom-4 right-4 text-[10px] font-black text-white/70 flex items-center gap-1 pointer-events-none z-50 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/5">
+        <Copyright className="w-3 h-3" /> byBetranSaban
       </div>
     </div>
   );
