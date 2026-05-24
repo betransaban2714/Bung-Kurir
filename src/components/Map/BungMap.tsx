@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -147,6 +146,9 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
         .bindPopup(() => {
           const div = document.createElement('div');
           div.className = 'p-3 min-w-[250px] max-w-[80vw] space-y-3 bg-transparent text-white';
+          
+          const formatNumber = (val: number) => val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
           div.innerHTML = `
             <div class="space-y-0.5">
               <h3 class="font-black text-base flex items-center gap-2">
@@ -191,10 +193,10 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
                 <div id="confirm-input-area-${buyer.id}" class="hidden space-y-2 animate-in fade-in slide-in-from-top-1 duration-200 bg-black/40 p-2 rounded-xl border border-white/5">
                   <p class="text-[8px] font-black text-accent uppercase text-center">Uang yang Diterima:</p>
                   <input 
-                    type="number" 
+                    type="text" 
                     id="paid-input-${buyer.id}" 
                     class="w-full h-9 bg-black/60 border border-white/10 rounded-lg px-2 text-center text-base font-black text-white focus:ring-1 focus:ring-accent outline-none"
-                    value="${buyer.price}"
+                    value="${formatNumber(buyer.price)}"
                   />
                   <button id="done-btn-${buyer.id}" class="w-full bg-accent text-white h-10 rounded-lg font-black text-sm shadow-lg active:scale-95 transition-all glow-orange">
                     KONFIRMASI ✅
@@ -259,16 +261,23 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
             const preBtn = document.getElementById(`pre-done-btn-${buyer.id}`);
             const inputArea = document.getElementById(`confirm-input-area-${buyer.id}`);
             const doneBtn = document.getElementById(`done-btn-${buyer.id}`);
+            const paidInput = document.getElementById(`paid-input-${buyer.id}`) as HTMLInputElement;
+
+            paidInput?.addEventListener('input', (e) => {
+              const target = e.target as HTMLInputElement;
+              const raw = target.value.replace(/\D/g, '');
+              target.value = raw.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            });
 
             preBtn?.addEventListener('click', () => {
               preBtn.classList.add('hidden');
               inputArea?.classList.remove('hidden');
-              document.getElementById(`paid-input-${buyer.id}`)?.focus();
+              paidInput?.focus();
             });
 
             doneBtn?.addEventListener('click', () => {
-              const input = document.getElementById(`paid-input-${buyer.id}`) as HTMLInputElement;
-              const paidAmount = parseFloat(input.value) || buyer.price;
+              const rawValue = paidInput.value.replace(/\./g, '');
+              const paidAmount = parseFloat(rawValue) || buyer.price;
               const status: DeliveryStatus = paidAmount > buyer.price ? 'TIP' : 'DONE';
               onUpdateStatus(buyer.id, status, paidAmount);
               map.closePopup();

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -41,11 +40,21 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
     name: '',
     waNumber: '',
     locationInput: '',
-    price: '',
+    price: '', // Raw string number
     packetType: 'STD' as PacketType,
     paymentMethod: 'COD' as PaymentStatus,
     manualCoords: null as { lat: number; lng: number } | null,
   });
+
+  const formatPrice = (val: string) => {
+    const number = val.replace(/\D/g, '');
+    return number.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/\D/g, '');
+    setFormData({ ...formData, price: rawValue });
+  };
 
   const handleManualLocation = (coords: { lat: number; lng: number }) => {
     setFormData({ 
@@ -182,11 +191,11 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
                 <Label htmlFor="price" className="text-muted-foreground font-black uppercase tracking-widest text-[10px]">Harga Paket</Label>
                 <Input
                   id="price"
-                  type="number"
-                  placeholder="150000"
+                  type="text"
+                  placeholder="150.000"
                   className="bg-secondary/40 h-14 text-lg font-black rounded-2xl border-white/5"
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  value={formatPrice(formData.price)}
+                  onChange={handlePriceChange}
                 />
               </div>
             </div>
