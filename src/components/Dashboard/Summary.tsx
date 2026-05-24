@@ -50,11 +50,11 @@ export function Summary({ rencanaList }: SummaryProps) {
     const tahun = now.toLocaleDateString('id-ID', { year: 'numeric' });
     
     const displayDate = `${hari}, ${tanggal} ${bulan} ${tahun}`;
-    const fileName = `Data_Pengantaran_Paket-${hari},${tanggal}-${bulan}-${tahun}.txt`;
+    const fileName = `Data_Pengantaran_Paket-(${hari},${tanggal}-${bulan}-${tahun}).txt`;
 
-    let content = `LAPORAN PENGANTARAN BUNG'KURIR 📦\n`;
+    let content = `LAPORAN PENGANTARAN\n`;
     content += `Tanggal: ${displayDate}\n`;
-    content += `------------------------------------------\n\n`;
+    content += `---------------------------------------------\n\n`;
     
     content += `RINGKASAN HARIAN:\n`;
     content += `- Total Rencana: ${rencanaList.length}\n`;
@@ -65,24 +65,24 @@ export function Summary({ rencanaList }: SummaryProps) {
     content += `LAPORAN DOI:\n`;
     content += `- Target COD: ${formatCurrency(totalCodExpected)}\n`;
     content += `- Doi Maso: ${formatCurrency(totalReceived)}\n`;
-    content += `- Doi Ta Lebe (Tips): ${formatCurrency(tips)}\n\n`;
+    content += `- Doi Ta Lebe: ${formatCurrency(tips)}\n\n`;
     
     content += `DETAIL PER RENCANA:\n`;
     rencanaList.forEach((r, idx) => {
       content += `${idx + 1}. Rencana: ${r.name}\n`;
       r.buyers.forEach(b => {
-        const statusStr = b.status === 'PENDING' ? '[ ]' : '[X]';
-        content += `   ${statusStr} ${b.name} | ${b.paymentMethod} | ${formatCurrency(b.price)}${b.status === 'TIP' ? ` (Tip: ${formatCurrency((b.paidAmount || 0) - b.price)})` : ''}\n`;
+        content += `   [${b.packetType}] ${b.name} | ${b.paymentMethod} | ${formatCurrency(b.price)}\n`;
       });
       content += `\n`;
     });
 
     content += `------------------------------------------\n`;
-    content += `ALAT TEMPUR KURIR INDONESIA TIMUR 🔥\n`;
+    content += `ALAT TEMPUR KURIR INDONESIA TIMUR\n`;
     content += `byBetranSaban\n`;
 
     const element = document.createElement("a");
-    const file = new Blob([content], { type: 'text/plain' });
+    // Menggunakan UTF-8 untuk mencegah karakter aneh
+    const file = new Blob([content], { type: 'text/plain;charset=utf-8' });
     element.href = URL.createObjectURL(file);
     element.download = fileName;
     document.body.appendChild(element);
