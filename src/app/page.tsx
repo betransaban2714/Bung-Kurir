@@ -163,7 +163,7 @@ export default function Home() {
 
       {/* WATERMARK BETRAN - Polos tanpa background, 8% transparansi */}
       <div className="fixed bottom-4 right-4 text-[10px] font-black flex items-center gap-1 pointer-events-none z-50">
-        <Copyright className="w-3 h-3 text-white/[0.08]" /> <span className="text-white/[0.08] uppercase tracking-wider">byBetranSaban</span>
+        <Copyright className="w-3 h-3 text-white/[0.08]" /> <span className="text-white/[0.08] tracking-wider">byBetranSaban</span>
       </div>
     </div>
   );
