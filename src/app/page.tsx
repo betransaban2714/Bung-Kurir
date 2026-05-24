@@ -157,13 +157,13 @@ export default function Home() {
       )}
 
       {/* WATERMARK CENTER */}
-      <div className="fixed bottom-1 left-1/2 -translate-x-1/2 text-[8px] font-black text-white/20 uppercase tracking-[0.3em] pointer-events-none z-50 whitespace-nowrap">
+      <div className="fixed bottom-1 left-1/2 -translate-x-1/2 text-[8px] font-black text-white/10 uppercase tracking-[0.3em] pointer-events-none z-50 whitespace-nowrap">
         ALAT TEMPUR KURIR INDONESIA TIMUR 🔥
       </div>
 
-      {/* WATERMARK BETRAN - Subtle transparency for a professional look */}
+      {/* WATERMARK BETRAN - Extremely subtle transparency for a premium feel */}
       <div className="fixed bottom-4 right-4 text-[10px] font-black text-white/20 flex items-center gap-1 pointer-events-none z-50 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/5">
-        <Copyright className="w-3 h-3" /> byBetranSaban
+        <Copyright className="w-3 h-3 text-white/[0.08]" /> <span className="text-white/[0.08]">byBetranSaban</span>
       </div>
     </div>
   );
