@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -17,7 +16,18 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
-import { Plus, ChevronDown, Trash2, CalendarDays, Info, ExternalLink } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Plus, ChevronDown, Trash2, CalendarDays, Info, ExternalLink, AlertTriangle } from 'lucide-react';
 import { Rencana } from '@/types';
 import { CreateRencanaDialog } from './CreateRencanaDialog';
 
@@ -60,18 +70,41 @@ export function RencanaHeader({ rencanaList, activeRencana, onSelect, onCreate, 
                 >
                   <span className="truncate">{r.name}</span>
                 </DropdownMenuItem>
-                <Button 
-                  size="icon" 
-                  variant="ghost" 
-                  className="h-8 w-8 text-muted-foreground hover:text-red-400 shrink-0"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onDelete(r.id);
-                  }}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+                
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                      size="icon" 
+                      variant="ghost" 
+                      className="h-8 w-8 text-muted-foreground hover:text-red-400 shrink-0"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent className="glass border-none rounded-[2.5rem] shadow-2xl max-w-[320px] mx-auto">
+                    <AlertDialogHeader className="items-center text-center">
+                      <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mb-2">
+                         <AlertTriangle className="w-8 h-8 text-red-500" />
+                      </div>
+                      <AlertDialogTitle className="text-xl font-black text-white italic">HAPUS RENCANA?</AlertDialogTitle>
+                      <AlertDialogDescription className="text-xs font-medium text-muted-foreground">
+                        Yakin mo hapus rencana <span className="text-white font-bold">{r.name}</span>? Semua data buyer di dalam situ nanti hilang e.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="flex-col sm:flex-col gap-2 mt-4">
+                      <AlertDialogAction 
+                        onClick={() => onDelete(r.id)}
+                        className="w-full bg-red-500 hover:bg-red-600 text-white font-black h-12 rounded-2xl"
+                      >
+                        IYO, HAPUS!
+                      </AlertDialogAction>
+                      <AlertDialogCancel className="w-full bg-white/5 border-none hover:bg-white/10 text-white font-black h-12 rounded-2xl m-0">
+                        TRA JADI
+                      </AlertDialogCancel>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             ))}
             <DropdownMenuSeparator className="bg-white/5 mx-2" />

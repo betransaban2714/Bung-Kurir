@@ -1,11 +1,21 @@
-
 'use client';
 
 import { Buyer } from '@/types';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
-import { CheckCircle2, Clock, Trash2, MapPin } from 'lucide-react';
+import { CheckCircle2, Clock, Trash2, MapPin, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface BuyerListProps {
   buyers: Buyer[];
@@ -79,17 +89,39 @@ export function BuyerList({ buyers, onDelete }: BuyerListProps) {
                     )}
                   </div>
                   
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-9 w-9 text-red-400 hover:bg-red-400/10 rounded-xl active:scale-90 transition-all mt-2"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDelete(buyer.id);
-                    }}
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-9 w-9 text-red-400 hover:bg-red-400/10 rounded-xl active:scale-90 transition-all mt-2"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent className="glass border-none rounded-[2rem] shadow-2xl max-w-[320px] mx-auto">
+                      <AlertDialogHeader className="items-center text-center">
+                        <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mb-2">
+                           <AlertTriangle className="w-8 h-8 text-red-500" />
+                        </div>
+                        <AlertDialogTitle className="text-xl font-black text-white italic">HAPUS BUYER?</AlertDialogTitle>
+                        <AlertDialogDescription className="text-xs font-medium text-muted-foreground">
+                          Yakin mo hapus <span className="text-white font-bold">{buyer.name}</span> dari daftar antaran?
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter className="flex-col sm:flex-col gap-2 mt-4">
+                        <AlertDialogAction 
+                          onClick={() => onDelete(buyer.id)}
+                          className="w-full bg-red-500 hover:bg-red-600 text-white font-black h-12 rounded-2xl"
+                        >
+                          IYO, HAPUS!
+                        </AlertDialogAction>
+                        <AlertDialogCancel className="w-full bg-white/5 border-none hover:bg-white/10 text-white font-black h-12 rounded-2xl m-0">
+                          TRA JADI
+                        </AlertDialogCancel>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               </div>
             </Card>
