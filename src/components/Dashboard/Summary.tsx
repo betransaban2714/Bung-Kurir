@@ -20,13 +20,18 @@ export function Summary({ rencanaList }: SummaryProps) {
   const done = allBuyers.filter((b) => b.status === 'DONE' || b.status === 'TIP').length;
   const pending = total - done;
 
+  // TARGET COD: Semua buyer yang paymentMethod-nya COD (berapa yang harus ditagih hari ini)
+  const targetCOD = allBuyers
+    .filter(b => b.paymentMethod === 'COD')
+    .reduce((sum, b) => sum + b.price, 0);
+
   // Filter buyer yang melakukan pembayaran saat pengantaran (Bukan yang "Su Bayar" dari awal)
   const paidAtDelivery = allBuyers.filter(b => 
     (b.status === 'DONE' || b.status === 'TIP') && 
     (b.actualPaymentMethod === 'CASH' || b.actualPaymentMethod === 'QRIS')
   );
 
-  // Total uang yang masuk ke tangan/rekening kurir hari ini
+  // Total uang yang masuk ke tangan/rekening kurir hari ini (Doi Maso)
   const totalReceived = paidAtDelivery.reduce((sum, b) => sum + (b.paidAmount ?? b.price), 0);
 
   // SETORAN TUNAI: Hanya yang dibayar CASH
@@ -74,9 +79,8 @@ export function Summary({ rencanaList }: SummaryProps) {
     content += `- Sisa: ${pending}\n\n`;
     
     content += `LAPORAN DOI:\n`;
-    content += `- Doi Maso (Total): ${formatCurrency(totalReceived)}\n`;
-    content += `- Setoran Tunai: ${formatCurrency(totalCashSetoran)}\n`;
-    content += `- Total QRIS: ${formatCurrency(totalQris)}\n`;
+    content += `- Target COD: ${formatCurrency(targetCOD)}\n`;
+    content += `- Doi Maso: ${formatCurrency(totalReceived)}\n`;
     content += `- Doi Ta Lebe: ${formatCurrency(tips)}\n\n`;
     
     content += `DETAIL PER RENCANA:\n`;
@@ -145,8 +149,13 @@ export function Summary({ rencanaList }: SummaryProps) {
           </div>
           <div className="space-y-3">
             <div className="flex justify-between items-center bg-white/5 p-2 rounded-lg">
-              <span className="text-[11px] font-bold text-muted-foreground uppercase">Doi Maso (Total):</span>
-              <span className="font-black text-sm">{formatCurrency(totalReceived)}</span>
+              <span className="text-[11px] font-bold text-muted-foreground uppercase">Target COD:</span>
+              <span className="font-black text-sm text-white">{formatCurrency(targetCOD)}</span>
+            </div>
+
+            <div className="flex justify-between items-center bg-primary/10 p-2 rounded-lg border border-primary/20">
+              <span className="text-[11px] font-bold text-primary uppercase">Doi Maso (Total):</span>
+              <span className="font-black text-sm text-primary">{formatCurrency(totalReceived)}</span>
             </div>
             
             <div className="grid grid-cols-2 gap-2">

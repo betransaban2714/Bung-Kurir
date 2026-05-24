@@ -166,7 +166,7 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
               </div>
               <Input
                 id="location"
-                placeholder="Paste koordinat atau pilih manual..."
+                placeholder="Masukan Koordinat atau pilih Manual"
                 className={`bg-secondary/40 h-14 text-xs rounded-2xl border-white/5 transition-all ${formData.manualCoords ? 'border-primary/50 ring-2 ring-primary/20 bg-primary/5' : ''}`}
                 value={formData.locationInput}
                 onChange={(e) => setFormData({ ...formData, locationInput: e.target.value, manualCoords: null })}
