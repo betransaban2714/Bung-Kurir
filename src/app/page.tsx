@@ -73,7 +73,7 @@ export default function Home() {
             <div className="absolute top-4 right-4 flex flex-col gap-3 z-30">
               <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
                 <SheetTrigger asChild>
-                  <Button size="icon" className="w-14 h-14 rounded-2xl glass-dark shadow-2xl glow-blue active:scale-90 transition-all">
+                  <Button size="icon" className="w-14 h-14 rounded-2xl glass-dark shadow-2xl glow-blue active:scale-95 transition-all">
                     <Menu className="w-7 h-7" />
                   </Button>
                 </SheetTrigger>
@@ -91,7 +91,7 @@ export default function Home() {
 
               <Button 
                 size="icon" 
-                className={`w-14 h-14 rounded-2xl glass-dark shadow-2xl transition-all active:scale-90 ${showSummary ? 'bg-accent text-white scale-110' : 'glow-orange'}`}
+                className={`w-14 h-14 rounded-2xl glass-dark shadow-2xl transition-all active:scale-95 ${showSummary ? 'bg-accent text-white scale-110' : 'glow-orange'}`}
                 onClick={() => setShowSummary(!showSummary)}
               >
                 <LayoutDashboard className="w-7 h-7" />
