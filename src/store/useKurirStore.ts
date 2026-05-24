@@ -1,9 +1,18 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import type { Rencana, Buyer, DeliveryStatus } from '@/types';
 
 const STORAGE_KEY = 'bungkurir_data_v2';
+
+// Fallback for crypto.randomUUID
+const generateId = () => {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+};
 
 export function useKurirStore() {
   const [rencanaList, setRencanaList] = useState<Rencana[]>([]);
@@ -15,8 +24,8 @@ export function useKurirStore() {
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        setRencanaList(parsed.rencanaList || []);
-        setActiveRencanaId(parsed.activeRencanaId || null);
+        if (parsed.rencanaList) setRencanaList(parsed.rencanaList);
+        if (parsed.activeRencanaId) setActiveRencanaId(parsed.activeRencanaId);
       } catch (e) {
         console.error('Failed to parse storage', e);
       }
@@ -26,14 +35,18 @@ export function useKurirStore() {
 
   useEffect(() => {
     if (!isHydrated) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ rencanaList, activeRencanaId }));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ rencanaList, activeRencanaId }));
+    } catch (e) {
+      console.error('Failed to save to storage', e);
+    }
   }, [rencanaList, activeRencanaId, isHydrated]);
 
   const activeRencana = rencanaList.find((r) => r.id === activeRencanaId) || null;
 
   const createRencana = (name: string, location?: { latitude: number; longitude: number; address: string }) => {
     const newRencana: Rencana = {
-      id: crypto.randomUUID(),
+      id: generateId(),
       name,
       startLocation: location,
       buyers: [],
@@ -52,7 +65,7 @@ export function useKurirStore() {
   const addBuyer = (rencanaId: string, buyerData: Omit<Buyer, 'id' | 'status' | 'createdAt'>) => {
     const newBuyer: Buyer = {
       ...buyerData,
-      id: crypto.randomUUID(),
+      id: generateId(),
       status: 'PENDING',
       createdAt: Date.now(),
     };

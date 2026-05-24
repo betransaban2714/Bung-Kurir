@@ -33,31 +33,38 @@ export function CreateRencanaDialog({ onCreate, trigger, open: controlledOpen, o
     if (!newName.trim()) return;
     
     setLoading(true);
+
+    const proceed = (location?: any) => {
+      onCreate(newName, location);
+      setNewName('');
+      setOpen(false);
+      setLoading(false);
+    };
     
     if ("geolocation" in navigator) {
+      // Tambahkan timeout agar tidak "stuck" jika GPS lambat
+      const geoTimeout = setTimeout(() => {
+        console.warn("GPS Timeout, melanjutkan tanpa lokasi awal.");
+        proceed();
+      }, 5000);
+
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          onCreate(newName, {
+          clearTimeout(geoTimeout);
+          proceed({
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
             address: "Lokasi Start Saya"
           });
-          setNewName('');
-          setOpen(false);
-          setLoading(false);
         },
         () => {
-          onCreate(newName);
-          setNewName('');
-          setOpen(false);
-          setLoading(false);
-        }
+          clearTimeout(geoTimeout);
+          proceed();
+        },
+        { enableHighAccuracy: true, timeout: 4500 }
       );
     } else {
-      onCreate(newName);
-      setNewName('');
-      setOpen(false);
-      setLoading(false);
+      proceed();
     }
   };
 

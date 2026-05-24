@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -8,12 +9,14 @@ import { Button } from '@/components/ui/button';
 
 // Fix for Leaflet default icon issues in production
 // @ts-ignore
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-});
+if (typeof window !== 'undefined') {
+  delete (L.Icon.Default.prototype as any)._getIconUrl;
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  });
+}
 
 interface BungMapProps {
   rencana: Rencana;
@@ -43,6 +46,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
       const response = await fetch(
         `https://router.project-osrm.org/route/v1/driving/${start[1]},${start[0]};${end[1]},${end[0]}?overview=full&geometries=geojson`
       );
+      if (!response.ok) return null;
       const data = await response.json();
       if (data.routes && data.routes.length > 0) {
         return {
@@ -106,7 +110,6 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     buyerGroup.clearLayers();
     const bounds: L.LatLngTuple[] = [];
 
-    // UPDATE ATAU TAMBAH USER MARKER (BIRU MENYALA)
     const initialPos = rencana.startLocation;
     if (initialPos) {
       const { latitude, longitude } = initialPos;
@@ -250,7 +253,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
             
             document.getElementById(`chat-btn-${buyer.id}`)?.addEventListener('click', () => {
               const phone = buyer.waNumber.replace(/[^0-9]/g, '');
-              window.location.href = `whatsapp://send?phone=${phone}`;
+              window.open(`https://wa.me/${phone}`, '_blank');
             });
 
             const preBtn = document.getElementById(`pre-done-btn-${buyer.id}`);
@@ -278,7 +281,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
       bounds.push([buyer.latitude, buyer.longitude]);
     });
 
-    if (bounds.length > 0 && !map.getBounds().contains(L.latLngBounds(bounds))) {
+    if (bounds.length > 0) {
       map.fitBounds(L.latLngBounds(bounds), { padding: [60, 60], maxZoom: 18 });
     }
   }, [rencana, onUpdateStatus]);
@@ -304,7 +307,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
         setTimeout(() => setLocating(false), 200);
       },
       () => setLocating(false),
-      { enableHighAccuracy: true }
+      { enableHighAccuracy: true, timeout: 5000 }
     );
   };
 
