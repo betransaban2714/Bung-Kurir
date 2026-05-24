@@ -1,6 +1,7 @@
 export type PaymentStatus = 'COD' | 'Su Bayar';
 export type PacketType = 'STD' | 'ECO';
 export type DeliveryStatus = 'PENDING' | 'DONE' | 'TIP';
+export type ActualPaymentMethod = 'CASH' | 'QRIS';
 
 export interface Buyer {
   id: string;
@@ -8,6 +9,7 @@ export interface Buyer {
   waNumber: string;
   packetType: PacketType;
   paymentMethod: PaymentStatus;
+  actualPaymentMethod?: ActualPaymentMethod;
   price: number;
   paidAmount?: number;
   latitude: number;

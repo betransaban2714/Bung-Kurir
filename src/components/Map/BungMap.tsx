@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
-import { Rencana, DeliveryStatus } from '@/types';
+import { Rencana, DeliveryStatus, ActualPaymentMethod } from '@/types';
 import { LocateFixed, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -19,7 +19,7 @@ if (typeof window !== 'undefined') {
 
 interface BungMapProps {
   rencana: Rencana;
-  onUpdateStatus: (buyerId: string, status: DeliveryStatus, paidAmount?: number) => void;
+  onUpdateStatus: (buyerId: string, status: DeliveryStatus, paidAmount?: number, actualPaymentMethod?: ActualPaymentMethod) => void;
 }
 
 export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
@@ -190,6 +190,16 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
                 <button id="pre-done-btn-${buyer.id}" class="w-full bg-primary text-white h-11 rounded-xl font-black text-sm shadow-lg active:scale-95 transition-all glow-blue">
                   ✅ SELESAI
                 </button>
+                
+                <div id="payment-choice-area-${buyer.id}" class="hidden grid grid-cols-2 gap-2 animate-in fade-in duration-200">
+                  <button id="choose-cash-${buyer.id}" class="bg-secondary text-white h-11 rounded-xl font-black text-[10px] border border-white/10 active:scale-95 transition-all">
+                    💵 CASH (COD)
+                  </button>
+                  <button id="choose-qris-${buyer.id}" class="bg-blue-600/30 text-blue-400 h-11 rounded-xl font-black text-[10px] border border-blue-500/20 active:scale-95 transition-all">
+                    📱 QRIS
+                  </button>
+                </div>
+
                 <div id="confirm-input-area-${buyer.id}" class="hidden space-y-2 animate-in fade-in slide-in-from-top-1 duration-200 bg-black/40 p-2 rounded-xl border border-white/5">
                   <p class="text-[8px] font-black text-accent uppercase text-center">Uang yang Diterima:</p>
                   <input 
@@ -198,14 +208,24 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
                     class="w-full h-9 bg-black/60 border border-white/10 rounded-lg px-2 text-center text-base font-black text-white focus:ring-1 focus:ring-accent outline-none"
                     value="${formatNumber(buyer.price)}"
                   />
-                  <button id="done-btn-${buyer.id}" class="w-full bg-accent text-white h-10 rounded-lg font-black text-sm shadow-lg active:scale-95 transition-all glow-orange">
+                  <button id="done-cash-btn-${buyer.id}" class="w-full bg-accent text-white h-10 rounded-lg font-black text-sm shadow-lg active:scale-95 transition-all glow-orange">
                     KONFIRMASI ✅
+                  </button>
+                </div>
+
+                <div id="confirm-qris-area-${buyer.id}" class="hidden space-y-2 animate-in fade-in slide-in-from-top-1 duration-200 bg-blue-900/20 p-2 rounded-xl border border-blue-500/10">
+                  <p class="text-[9px] font-black text-blue-400 uppercase text-center">Konfirmasi QRIS Berhasil?</p>
+                  <button id="done-qris-btn-${buyer.id}" class="w-full bg-blue-600 text-white h-10 rounded-lg font-black text-sm shadow-lg active:scale-95 transition-all">
+                    IYO, QRIS ✅
                   </button>
                 </div>
               </div>
             ` : `
               <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-2 text-center">
-                <p class="text-[8px] font-black text-green-400 uppercase tracking-widest">BERHASIL 🔥</p>
+                <div class="flex items-center justify-center gap-2 mb-1">
+                  <span class="text-[8px] font-black text-green-400 uppercase tracking-widest">BERHASIL 🔥</span>
+                  <span class="text-[7px] font-black bg-white/10 px-1.5 py-0.5 rounded text-white/60 uppercase">${buyer.actualPaymentMethod || 'CASH'}</span>
+                </div>
                 <p class="text-sm font-black">Rp${(buyer.paidAmount || buyer.price).toLocaleString()}</p>
               </div>
             `}
@@ -258,9 +278,17 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
               window.open(`https://wa.me/${phone}`, '_blank');
             });
 
+            // LOGIKA PEMBAYARAN
             const preBtn = document.getElementById(`pre-done-btn-${buyer.id}`);
-            const inputArea = document.getElementById(`confirm-input-area-${buyer.id}`);
-            const doneBtn = document.getElementById(`done-btn-${buyer.id}`);
+            const paymentChoice = document.getElementById(`payment-choice-area-${buyer.id}`);
+            const cashArea = document.getElementById(`confirm-input-area-${buyer.id}`);
+            const qrisArea = document.getElementById(`confirm-qris-area-${buyer.id}`);
+            
+            const btnCash = document.getElementById(`choose-cash-${buyer.id}`);
+            const btnQris = document.getElementById(`choose-qris-${buyer.id}`);
+            
+            const doneCashBtn = document.getElementById(`done-cash-btn-${buyer.id}`);
+            const doneQrisBtn = document.getElementById(`done-qris-btn-${buyer.id}`);
             const paidInput = document.getElementById(`paid-input-${buyer.id}`) as HTMLInputElement;
 
             paidInput?.addEventListener('input', (e) => {
@@ -271,15 +299,30 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
             preBtn?.addEventListener('click', () => {
               preBtn.classList.add('hidden');
-              inputArea?.classList.remove('hidden');
+              paymentChoice?.classList.remove('hidden');
+            });
+
+            btnCash?.addEventListener('click', () => {
+              paymentChoice?.classList.add('hidden');
+              cashArea?.classList.remove('hidden');
               paidInput?.focus();
             });
 
-            doneBtn?.addEventListener('click', () => {
+            btnQris?.addEventListener('click', () => {
+              paymentChoice?.classList.add('hidden');
+              qrisArea?.classList.remove('hidden');
+            });
+
+            doneCashBtn?.addEventListener('click', () => {
               const rawValue = paidInput.value.replace(/\./g, '');
               const paidAmount = parseFloat(rawValue) || buyer.price;
               const status: DeliveryStatus = paidAmount > buyer.price ? 'TIP' : 'DONE';
-              onUpdateStatus(buyer.id, status, paidAmount);
+              onUpdateStatus(buyer.id, status, paidAmount, 'CASH');
+              map.closePopup();
+            });
+
+            doneQrisBtn?.addEventListener('click', () => {
+              onUpdateStatus(buyer.id, 'DONE', buyer.price, 'QRIS');
               map.closePopup();
             });
           }, 50);

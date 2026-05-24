@@ -1,8 +1,7 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { Rencana, Buyer, DeliveryStatus } from '@/types';
+import type { Rencana, Buyer, DeliveryStatus, ActualPaymentMethod } from '@/types';
 
 const STORAGE_KEY = 'bungkurir_data_v2';
 
@@ -74,14 +73,20 @@ export function useKurirStore() {
     );
   };
 
-  const updateBuyerStatus = (rencanaId: string, buyerId: string, status: DeliveryStatus, paidAmount?: number) => {
+  const updateBuyerStatus = (
+    rencanaId: string, 
+    buyerId: string, 
+    status: DeliveryStatus, 
+    paidAmount?: number,
+    actualPaymentMethod?: ActualPaymentMethod
+  ) => {
     setRencanaList((prev) =>
       prev.map((r) =>
         r.id === rencanaId
           ? {
               ...r,
               buyers: r.buyers.map((b) =>
-                b.id === buyerId ? { ...b, status, paidAmount } : b
+                b.id === buyerId ? { ...b, status, paidAmount, actualPaymentMethod } : b
               ),
             }
           : r

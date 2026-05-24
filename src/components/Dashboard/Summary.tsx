@@ -2,7 +2,7 @@
 
 import { Rencana, Buyer } from '@/types';
 import { Card } from '@/components/ui/card';
-import { Package, Wallet, TrendingUp, Download, FileText } from 'lucide-react';
+import { Package, Wallet, TrendingUp, Download, FileText, Banknote, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
@@ -21,16 +21,21 @@ export function Summary({ rencanaList }: SummaryProps) {
   const pending = total - done;
 
   // Total uang harian
-  const totalCodExpected = allBuyers
-    .filter((b) => b.paymentMethod === 'COD')
-    .reduce((sum, b) => sum + b.price, 0);
-
   const totalReceived = allBuyers
-    .filter((b) => b.paymentMethod === 'COD' && (b.status === 'DONE' || b.status === 'TIP'))
+    .filter((b) => b.status === 'DONE' || b.status === 'TIP')
+    .reduce((sum, b) => sum + (b.paidAmount ?? b.price), 0);
+
+  // Perhitungan Cash vs Qris
+  const totalCashSetoran = allBuyers
+    .filter((b) => (b.status === 'DONE' || b.status === 'TIP') && (b.actualPaymentMethod === 'CASH' || !b.actualPaymentMethod))
+    .reduce((sum, b) => sum + (b.paidAmount ?? b.price), 0);
+
+  const totalQris = allBuyers
+    .filter((b) => (b.status === 'DONE' || b.status === 'TIP') && b.actualPaymentMethod === 'QRIS')
     .reduce((sum, b) => sum + (b.paidAmount ?? b.price), 0);
 
   const tips = totalReceived - allBuyers
-    .filter((b) => b.paymentMethod === 'COD' && (b.status === 'DONE' || b.status === 'TIP'))
+    .filter((b) => b.status === 'DONE' || b.status === 'TIP')
     .reduce((sum, b) => sum + b.price, 0);
 
   const formatCurrency = (val: number) => 
@@ -62,22 +67,24 @@ export function Summary({ rencanaList }: SummaryProps) {
     content += `- Sisa: ${pending}\n\n`;
     
     content += `LAPORAN DOI:\n`;
-    content += `- Target COD: ${formatCurrency(totalCodExpected)}\n`;
-    content += `- Doi Maso: ${formatCurrency(totalReceived)}\n`;
+    content += `- Doi Maso (Total): ${formatCurrency(totalReceived)}\n`;
+    content += `- Setoran Cash: ${formatCurrency(totalCashSetoran)}\n`;
+    content += `- Total QRIS: ${formatCurrency(totalQris)}\n`;
     content += `- Doi Ta Lebe: ${formatCurrency(tips)}\n\n`;
     
     content += `DETAIL PER RENCANA:\n`;
     rencanaList.forEach((r, idx) => {
       content += `${idx + 1}. Rencana: ${r.name}\n`;
       r.buyers.forEach(b => {
-        content += `   [${b.packetType}] ${b.name} | ${b.paymentMethod} | ${formatCurrency(b.price)}\n`;
+        const method = b.actualPaymentMethod || (b.status === 'PENDING' ? b.paymentMethod : 'CASH');
+        content += `   [${b.packetType}] ${b.name} | ${method} | ${formatCurrency(b.paidAmount ?? b.price)}\n`;
       });
       content += `\n`;
     });
 
     content += `------------------------------------------\n`;
     content += `ALAT TEMPUR KURIR INDONESIA TIMUR\n`;
-    content += `byBetranSaban\n`;
+    content += `BetranSaban\n`;
 
     const element = document.createElement("a");
     const file = new Blob([content], { type: 'text/plain;charset=utf-8' });
@@ -131,12 +138,19 @@ export function Summary({ rencanaList }: SummaryProps) {
           </div>
           <div className="space-y-3">
             <div className="flex justify-between items-center bg-white/5 p-2 rounded-lg">
-              <span className="text-[11px] font-bold text-muted-foreground uppercase">Target COD:</span>
-              <span className="font-black text-sm">{formatCurrency(totalCodExpected)}</span>
+              <span className="text-[11px] font-bold text-muted-foreground uppercase">Doi Maso (Total):</span>
+              <span className="font-black text-sm">{formatCurrency(totalReceived)}</span>
             </div>
-            <div className="flex justify-between items-center bg-green-400/10 p-2 rounded-lg">
-              <span className="text-[11px] font-bold text-green-400 uppercase">Doi Maso:</span>
-              <span className="font-black text-sm text-green-400">{formatCurrency(totalReceived)}</span>
+            
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-green-400/10 p-2 rounded-xl border border-green-500/10">
+                <span className="text-[8px] font-black text-green-400 uppercase flex items-center gap-1"><Banknote className="w-2 h-2" /> SETORAN CASH:</span>
+                <p className="font-black text-xs text-green-400 mt-1">{formatCurrency(totalCashSetoran)}</p>
+              </div>
+              <div className="bg-blue-400/10 p-2 rounded-xl border border-blue-500/10">
+                <span className="text-[8px] font-black text-blue-400 uppercase flex items-center gap-1"><Smartphone className="w-2 h-2" /> TOTAL QRIS:</span>
+                <p className="font-black text-xs text-blue-400 mt-1">{formatCurrency(totalQris)}</p>
+              </div>
             </div>
             
             <div className="flex justify-between items-center pt-2 border-t border-white/5">
