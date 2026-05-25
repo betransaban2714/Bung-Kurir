@@ -109,7 +109,7 @@ export function Summary({ jadwalList }: SummaryProps) {
     content += `LAPORAN DOI:\n`;
     content += `- Target COD: ${formatCurrency(targetCOD)}\n`;
     content += `- Doi Maso: ${formatCurrency(totalReceived)}\n`;
-    content += `- Setoran Tunai: ${formatCurrency(totalCashSetoran)}\n`;
+    content += `- Ba Stor: ${formatCurrency(totalCashSetoran)}\n`;
     content += `- Total QRIS: ${formatCurrency(totalQris)}\n`;
     content += `- Doi Ta Lebe: ${formatCurrency(tips)}\n\n`;
     
@@ -170,7 +170,7 @@ export function Summary({ jadwalList }: SummaryProps) {
           if (line.includes('- Sisa:')) data.sisa = parseInt(line.split(':')[1]) || 0;
           if (line.includes('- Target COD:')) data.targetCod = parseInt(line.replace(/\D/g, '')) || 0;
           if (line.includes('- Doi Maso:')) data.doiMaso = parseInt(line.replace(/\D/g, '')) || 0;
-          if (line.includes('- Setoran Tunai:')) data.totalCashSetoran = parseInt(line.replace(/\D/g, '')) || 0;
+          if (line.includes('- Ba Stor:')) data.totalCashSetoran = parseInt(line.replace(/\D/g, '')) || 0;
           if (line.includes('- Total QRIS:')) data.totalQris = parseInt(line.replace(/\D/g, '')) || 0;
           if (line.includes('- Doi Ta Lebe:')) data.doiTaLebe = parseInt(line.replace(/\D/g, '')) || 0;
         });
@@ -220,7 +220,7 @@ export function Summary({ jadwalList }: SummaryProps) {
           <div className="flex items-center gap-2">
             <History className="w-5 h-5 text-accent" />
             <div>
-              <p className="text-[10px] font-black text-accent uppercase tracking-widest leading-none">Mode Import Data</p>
+              <p className="text-[10px] font-black text-accent uppercase tracking-widest leading-none">Mode Reader Aktif (Mode Import Data)</p>
               <p className="text-xs font-bold text-white mt-1">{activeStats.originalDate}</p>
             </div>
           </div>
@@ -293,7 +293,7 @@ export function Summary({ jadwalList }: SummaryProps) {
             
             <div className="grid grid-cols-2 gap-2">
               <div className="bg-green-400/10 p-2 rounded-xl border border-green-500/10">
-                <span className="text-[8px] font-black text-green-400 uppercase flex items-center gap-1"><Banknote className="w-2 h-2" /> SETORAN TUNAI:</span>
+                <span className="text-[8px] font-black text-green-400 uppercase flex items-center gap-1"><Banknote className="w-2 h-2" /> BA STOR:</span>
                 <p className="font-black text-xs text-green-400 mt-1">{formatCurrency(activeStats.cashSetoran)}</p>
               </div>
               <div className="bg-blue-400/10 p-2 rounded-xl border border-blue-500/10">
