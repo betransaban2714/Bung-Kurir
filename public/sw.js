@@ -1,23 +1,11 @@
-// Service Worker sederhana untuk PWA Bung'Kurir
-const CACHE_NAME = 'bungkurir-v1';
-const ASSETS = [
-  '/',
-  '/manifest.json',
-  '/bungkurir_icon.png'
-];
-
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
-    })
-  );
+self.addEventListener('install', function(event) {
+  self.skipWaiting();
 });
 
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
-    })
-  );
+self.addEventListener('activate', function(event) {
+  event.waitUntil(clients.claim());
+});
+
+self.addEventListener('fetch', function(event) {
+  // Biarkan browser handle fetch seperti biasa, ini cuma syarat PWA
 });
