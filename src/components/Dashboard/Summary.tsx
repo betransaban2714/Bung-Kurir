@@ -20,6 +20,8 @@ interface ImportedData {
   targetCod: number;
   doiMaso: number;
   doiTaLebe: number;
+  totalCashSetoran: number;
+  totalQris: number;
 }
 
 export function Summary({ jadwalList }: SummaryProps) {
@@ -59,7 +61,6 @@ export function Summary({ jadwalList }: SummaryProps) {
   const formatCurrency = (val: number) => 
     new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
 
-  // Helper untuk konversi tanggal Indo panjang ke DD/MM/YY
   const formatShortDate = (indoDate: string) => {
     if (!indoDate) return "";
     const months: Record<string, string> = {
@@ -68,7 +69,6 @@ export function Summary({ jadwalList }: SummaryProps) {
     };
     
     try {
-      // Contoh: "Senin, 25 Mei 2026" -> split jadi ["Senin", "25", "Mei", "2026"]
       const parts = indoDate.split(/[ ,]+/);
       const day = parts[1]?.padStart(2, '0');
       const month = months[parts[2]];
@@ -94,7 +94,7 @@ export function Summary({ jadwalList }: SummaryProps) {
     const tahun = now.toLocaleDateString('id-ID', { year: 'numeric' });
     
     const displayDate = `${hari}, ${tanggal} ${bulan} ${tahun}`;
-    const fileName = `Data_Pengantaran_Paket-(${hari},${tanggal}-${bulan}-${tahun}).txt`;
+    const fileName = `Laporan_BungKurir-(${hari},${tanggal}-${bulan}-${tahun}).txt`;
 
     let content = `LAPORAN PENGANTARAN\n`;
     content += `Tanggal: ${displayDate}\n`;
@@ -109,6 +109,8 @@ export function Summary({ jadwalList }: SummaryProps) {
     content += `LAPORAN DOI:\n`;
     content += `- Target COD: ${formatCurrency(targetCOD)}\n`;
     content += `- Doi Maso: ${formatCurrency(totalReceived)}\n`;
+    content += `- Setoran Tunai: ${formatCurrency(totalCashSetoran)}\n`;
+    content += `- Total QRIS: ${formatCurrency(totalQris)}\n`;
     content += `- Doi Ta Lebe: ${formatCurrency(tips)}\n\n`;
     
     content += `DETAIL PER JADWAL:\n`;
@@ -156,6 +158,8 @@ export function Summary({ jadwalList }: SummaryProps) {
           targetCod: 0,
           doiMaso: 0,
           doiTaLebe: 0,
+          totalCashSetoran: 0,
+          totalQris: 0,
         };
 
         lines.forEach(line => {
@@ -166,19 +170,20 @@ export function Summary({ jadwalList }: SummaryProps) {
           if (line.includes('- Sisa:')) data.sisa = parseInt(line.split(':')[1]) || 0;
           if (line.includes('- Target COD:')) data.targetCod = parseInt(line.replace(/\D/g, '')) || 0;
           if (line.includes('- Doi Maso:')) data.doiMaso = parseInt(line.replace(/\D/g, '')) || 0;
+          if (line.includes('- Setoran Tunai:')) data.totalCashSetoran = parseInt(line.replace(/\D/g, '')) || 0;
+          if (line.includes('- Total QRIS:')) data.totalQris = parseInt(line.replace(/\D/g, '')) || 0;
           if (line.includes('- Doi Ta Lebe:')) data.doiTaLebe = parseInt(line.replace(/\D/g, '')) || 0;
         });
 
         if (!data.date && !data.totalBuyer) throw new Error("Format file salah");
 
         setReaderData(data);
-        toast({ title: "Reader Aktif!", description: "Data lama su berhasil dibaca. Mantap!" });
+        toast({ title: "Reader Aktif!", description: "Data lampau su berhasil dibaca. Mantap!" });
       } catch (err) {
         toast({ title: "Gagal Baca!", description: "Format file tra terbaca, pastikan itu file .txt dari Bung'Kurir.", variant: "destructive" });
       }
     };
     reader.readAsText(file);
-    // Reset file input agar bisa upload file yang sama lagi jika perlu
     e.target.value = '';
   };
 
@@ -189,6 +194,8 @@ export function Summary({ jadwalList }: SummaryProps) {
     targetCod: readerData.targetCod,
     received: readerData.doiMaso,
     tips: readerData.doiTaLebe,
+    cashSetoran: readerData.totalCashSetoran,
+    qris: readerData.totalQris,
     displayDate: formatShortDate(readerData.date),
     originalDate: readerData.date,
     isImported: true
@@ -199,6 +206,8 @@ export function Summary({ jadwalList }: SummaryProps) {
     targetCod: targetCOD,
     received: totalReceived,
     tips: tips,
+    cashSetoran: totalCashSetoran,
+    qris: totalQris,
     displayDate: "HARI INI",
     originalDate: "HARI INI",
     isImported: false
@@ -282,18 +291,16 @@ export function Summary({ jadwalList }: SummaryProps) {
               <span className={`font-black text-sm ${activeStats.isImported ? 'text-accent' : 'text-primary'}`}>{formatCurrency(activeStats.received)}</span>
             </div>
             
-            {!activeStats.isImported && (
-              <div className="grid grid-cols-2 gap-2">
-                <div className="bg-green-400/10 p-2 rounded-xl border border-green-500/10">
-                  <span className="text-[8px] font-black text-green-400 uppercase flex items-center gap-1"><Banknote className="w-2 h-2" /> SETORAN TUNAI:</span>
-                  <p className="font-black text-xs text-green-400 mt-1">{formatCurrency(totalCashSetoran)}</p>
-                </div>
-                <div className="bg-blue-400/10 p-2 rounded-xl border border-blue-500/10">
-                  <span className="text-[8px] font-black text-blue-400 uppercase flex items-center gap-1"><Smartphone className="w-2 h-2" /> TOTAL QRIS:</span>
-                  <p className="font-black text-xs text-blue-400 mt-1">{formatCurrency(totalQris)}</p>
-                </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-green-400/10 p-2 rounded-xl border border-green-500/10">
+                <span className="text-[8px] font-black text-green-400 uppercase flex items-center gap-1"><Banknote className="w-2 h-2" /> SETORAN TUNAI:</span>
+                <p className="font-black text-xs text-green-400 mt-1">{formatCurrency(activeStats.cashSetoran)}</p>
               </div>
-            )}
+              <div className="bg-blue-400/10 p-2 rounded-xl border border-blue-500/10">
+                <span className="text-[8px] font-black text-blue-400 uppercase flex items-center gap-1"><Smartphone className="w-2 h-2" /> TOTAL QRIS:</span>
+                <p className="font-black text-xs text-blue-400 mt-1">{formatCurrency(activeStats.qris)}</p>
+              </div>
+            </div>
             
             <div className="flex justify-between items-center pt-2 border-t border-white/5">
               <span className="text-[11px] font-black text-accent flex items-center gap-1 uppercase">
