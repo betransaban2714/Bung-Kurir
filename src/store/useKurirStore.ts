@@ -1,11 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { Rencana, Buyer, DeliveryStatus, ActualPaymentMethod } from '@/types';
+import type { Jadwal, Buyer, DeliveryStatus, ActualPaymentMethod } from '@/types';
 
 const STORAGE_KEY = 'bungkurir_data_v2';
 
-// Fallback for crypto.randomUUID
 const generateId = () => {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return crypto.randomUUID();
@@ -14,8 +13,8 @@ const generateId = () => {
 };
 
 export function useKurirStore() {
-  const [rencanaList, setRencanaList] = useState<Rencana[]>([]);
-  const [activeRencanaId, setActiveRencanaId] = useState<string | null>(null);
+  const [jadwalList, setJadwalList] = useState<Jadwal[]>([]);
+  const [activeJadwalId, setActiveJadwalId] = useState<string | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
@@ -23,8 +22,8 @@ export function useKurirStore() {
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        if (parsed.rencanaList) setRencanaList(parsed.rencanaList);
-        if (parsed.activeRencanaId) setActiveRencanaId(parsed.activeRencanaId);
+        if (parsed.jadwalList) setJadwalList(parsed.jadwalList);
+        if (parsed.activeJadwalId) setActiveJadwalId(parsed.activeJadwalId);
       } catch (e) {
         console.error('Failed to parse storage', e);
       }
@@ -35,54 +34,54 @@ export function useKurirStore() {
   useEffect(() => {
     if (!isHydrated) return;
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ rencanaList, activeRencanaId }));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ jadwalList, activeJadwalId }));
     } catch (e) {
       console.error('Failed to save to storage', e);
     }
-  }, [rencanaList, activeRencanaId, isHydrated]);
+  }, [jadwalList, activeJadwalId, isHydrated]);
 
-  const activeRencana = rencanaList.find((r) => r.id === activeRencanaId) || null;
+  const activeJadwal = jadwalList.find((r) => r.id === activeJadwalId) || null;
 
-  const createRencana = (name: string, location?: { latitude: number; longitude: number; address: string }) => {
-    const newRencana: Rencana = {
+  const createJadwal = (name: string, location?: { latitude: number; longitude: number; address: string }) => {
+    const newJadwal: Jadwal = {
       id: generateId(),
       name,
       startLocation: location,
       buyers: [],
       createdAt: Date.now(),
     };
-    setRencanaList((prev) => [...prev, newRencana]);
-    setActiveRencanaId(newRencana.id);
-    return newRencana;
+    setJadwalList((prev) => [...prev, newJadwal]);
+    setActiveJadwalId(newJadwal.id);
+    return newJadwal;
   };
 
-  const deleteRencana = (id: string) => {
-    setRencanaList((prev) => prev.filter((r) => r.id !== id));
-    if (activeRencanaId === id) setActiveRencanaId(null);
+  const deleteJadwal = (id: string) => {
+    setJadwalList((prev) => prev.filter((r) => r.id !== id));
+    if (activeJadwalId === id) setActiveJadwalId(null);
   };
 
-  const addBuyer = (rencanaId: string, buyerData: Omit<Buyer, 'id' | 'status' | 'createdAt'>) => {
+  const addBuyer = (jadwalId: string, buyerData: Omit<Buyer, 'id' | 'status' | 'createdAt'>) => {
     const newBuyer: Buyer = {
       ...buyerData,
       id: generateId(),
       status: 'PENDING',
       createdAt: Date.now(),
     };
-    setRencanaList((prev) =>
-      prev.map((r) => (r.id === rencanaId ? { ...r, buyers: [...r.buyers, newBuyer] } : r))
+    setJadwalList((prev) =>
+      prev.map((r) => (r.id === jadwalId ? { ...r, buyers: [...r.buyers, newBuyer] } : r))
     );
   };
 
   const updateBuyerStatus = (
-    rencanaId: string, 
+    jadwalId: string, 
     buyerId: string, 
     status: DeliveryStatus, 
     paidAmount?: number,
     actualPaymentMethod?: ActualPaymentMethod
   ) => {
-    setRencanaList((prev) =>
+    setJadwalList((prev) =>
       prev.map((r) =>
-        r.id === rencanaId
+        r.id === jadwalId
           ? {
               ...r,
               buyers: r.buyers.map((b) =>
@@ -94,10 +93,10 @@ export function useKurirStore() {
     );
   };
 
-  const deleteBuyer = (rencanaId: string, buyerId: string) => {
-    setRencanaList((prev) =>
+  const deleteBuyer = (jadwalId: string, buyerId: string) => {
+    setJadwalList((prev) =>
       prev.map((r) =>
-        r.id === rencanaId
+        r.id === jadwalId
           ? { ...r, buyers: r.buyers.filter((b) => b.id !== buyerId) }
           : r
       )
@@ -105,12 +104,12 @@ export function useKurirStore() {
   };
 
   return {
-    rencanaList,
-    activeRencana,
-    activeRencanaId,
-    setActiveRencanaId,
-    createRencana,
-    deleteRencana,
+    jadwalList,
+    activeJadwal,
+    activeJadwalId,
+    setActiveJadwalId,
+    createJadwal,
+    deleteJadwal,
     addBuyer,
     updateBuyerStatus,
     deleteBuyer,

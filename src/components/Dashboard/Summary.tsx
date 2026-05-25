@@ -1,50 +1,43 @@
 'use client';
 
-import { Rencana, Buyer } from '@/types';
+import { Jadwal, Buyer } from '@/types';
 import { Card } from '@/components/ui/card';
 import { Package, Wallet, TrendingUp, Download, FileText, Banknote, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
 interface SummaryProps {
-  rencanaList: Rencana[];
+  jadwalList: Jadwal[];
 }
 
-export function Summary({ rencanaList }: SummaryProps) {
+export function Summary({ jadwalList }: SummaryProps) {
   const { toast } = useToast();
   
-  // Ambil semua buyer dari semua rencana
-  const allBuyers = rencanaList.flatMap(r => r.buyers);
+  const allBuyers = jadwalList.flatMap(r => r.buyers);
   
   const total = allBuyers.length;
   const done = allBuyers.filter((b) => b.status === 'DONE' || b.status === 'TIP').length;
   const pending = total - done;
 
-  // TARGET COD: Semua buyer yang paymentMethod-nya COD (berapa yang harus ditagih hari ini)
   const targetCOD = allBuyers
     .filter(b => b.paymentMethod === 'COD')
     .reduce((sum, b) => sum + b.price, 0);
 
-  // Filter buyer yang melakukan pembayaran saat pengantaran (Bukan yang "Su Bayar" dari awal)
   const paidAtDelivery = allBuyers.filter(b => 
     (b.status === 'DONE' || b.status === 'TIP') && 
     (b.actualPaymentMethod === 'CASH' || b.actualPaymentMethod === 'QRIS')
   );
 
-  // Total uang yang masuk ke tangan/rekening kurir hari ini (Doi Maso)
   const totalReceived = paidAtDelivery.reduce((sum, b) => sum + (b.paidAmount ?? b.price), 0);
 
-  // SETORAN TUNAI: Hanya yang dibayar CASH
   const totalCashSetoran = paidAtDelivery
     .filter((b) => b.actualPaymentMethod === 'CASH')
     .reduce((sum, b) => sum + (b.paidAmount ?? b.price), 0);
 
-  // TOTAL QRIS: Hanya yang dibayar QRIS
   const totalQris = paidAtDelivery
     .filter((b) => b.actualPaymentMethod === 'QRIS')
     .reduce((sum, b) => sum + (b.paidAmount ?? b.price), 0);
 
-  // Doi Ta Lebe (Tips) - Dihitung dari selisih bayar vs harga untuk pembayaran di tempat
   const tips = paidAtDelivery.reduce((sum, b) => {
     const paid = b.paidAmount ?? b.price;
     return sum + Math.max(0, paid - b.price);
@@ -54,8 +47,8 @@ export function Summary({ rencanaList }: SummaryProps) {
     new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
 
   const handleExport = () => {
-    if (rencanaList.length === 0) {
-      toast({ title: "Kosong Bung!", description: "Belum ada data rencana harian buat di-export.", variant: "destructive" });
+    if (jadwalList.length === 0) {
+      toast({ title: "Kosong Pace!", description: "Belum ada data jadwal harian buat di-export.", variant: "destructive" });
       return;
     }
 
@@ -73,7 +66,7 @@ export function Summary({ rencanaList }: SummaryProps) {
     content += `---------------------------------------------\n\n`;
     
     content += `RINGKASAN HARIAN:\n`;
-    content += `- Total Rencana: ${rencanaList.length}\n`;
+    content += `- Total Jadwal: ${jadwalList.length}\n`;
     content += `- Total Buyer: ${total}\n`;
     content += `- Selesai: ${done}\n`;
     content += `- Sisa: ${pending}\n\n`;
@@ -83,9 +76,9 @@ export function Summary({ rencanaList }: SummaryProps) {
     content += `- Doi Maso: ${formatCurrency(totalReceived)}\n`;
     content += `- Doi Ta Lebe: ${formatCurrency(tips)}\n\n`;
     
-    content += `DETAIL PER RENCANA:\n`;
-    rencanaList.forEach((r, idx) => {
-      content += `${idx + 1}. Rencana: ${r.name}\n`;
+    content += `DETAIL PER JADWAL:\n`;
+    jadwalList.forEach((r, idx) => {
+      content += `${idx + 1}. Jadwal: ${r.name}\n`;
       r.buyers.forEach(b => {
         const statusText = b.status === 'PENDING' ? 'BELUM' : (b.actualPaymentMethod || b.paymentMethod);
         content += `   [${b.packetType}] ${b.name} | ${statusText} | ${formatCurrency(b.paidAmount ?? b.price)}\n`;

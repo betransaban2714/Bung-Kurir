@@ -19,7 +19,7 @@ export interface Buyer {
   createdAt: number;
 }
 
-export interface Rencana {
+export interface Jadwal {
   id: string;
   name: string;
   startLocation?: {

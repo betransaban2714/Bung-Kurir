@@ -28,18 +28,18 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Plus, ChevronDown, Trash2, CalendarDays, Info, AlertTriangle, Copyright } from 'lucide-react';
-import { Rencana } from '@/types';
+import { Jadwal } from '@/types';
 import { CreateRencanaDialog } from './CreateRencanaDialog';
 
 interface RencanaHeaderProps {
-  rencanaList: Rencana[];
-  activeRencana: Rencana | null;
+  jadwalList: Jadwal[];
+  activeJadwal: Jadwal | null;
   onSelect: (id: string) => void;
   onCreate: (name: string, location?: any) => void;
   onDelete: (id: string) => void;
 }
 
-export function RencanaHeader({ rencanaList, activeRencana, onSelect, onCreate, onDelete }: RencanaHeaderProps) {
+export function RencanaHeader({ jadwalList, activeJadwal, onSelect, onCreate, onDelete }: RencanaHeaderProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
 
@@ -50,19 +50,19 @@ export function RencanaHeader({ rencanaList, activeRencana, onSelect, onCreate, 
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-auto p-0 hover:bg-transparent text-left block w-full group">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">RENCANA AKTIF</span>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">JADWAL AKTIF</span>
                 <ChevronDown className="w-3 h-3 text-muted-foreground group-hover:text-foreground" />
               </div>
               <h1 className="text-2xl font-black truncate max-w-[200px] text-primary">
-                {activeRencana ? activeRencana.name : 'PILIH RENCANA...'}
+                {activeJadwal ? activeJadwal.name : 'PILIH JADWAL...'}
               </h1>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="glass w-64 p-2 rounded-2xl border-none shadow-2xl">
-            {rencanaList.length === 0 && (
-              <p className="text-xs text-muted-foreground p-3 text-center italic">Belum ada rencana, buat dolo!</p>
+            {jadwalList.length === 0 && (
+              <p className="text-xs text-muted-foreground p-3 text-center italic">Belum ada jadwal, buat dolo!</p>
             )}
-            {rencanaList.map((r) => (
+            {jadwalList.map((r) => (
               <div key={r.id} className="flex items-center gap-1">
                 <DropdownMenuItem 
                   className="flex-1 cursor-pointer font-bold h-10 px-3 rounded-xl focus:bg-primary/20"
@@ -87,9 +87,9 @@ export function RencanaHeader({ rencanaList, activeRencana, onSelect, onCreate, 
                       <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mb-2">
                          <AlertTriangle className="w-8 h-8 text-red-500" />
                       </div>
-                      <AlertDialogTitle className="text-xl font-black text-white italic">HAPUS RENCANA?</AlertDialogTitle>
+                      <AlertDialogTitle className="text-xl font-black text-white italic">HAPUS JADWAL?</AlertDialogTitle>
                       <AlertDialogDescription className="text-xs font-medium text-muted-foreground">
-                        Yakin mo hapus rencana <span className="text-white font-bold">{r.name}</span>? Semua data buyer di dalam situ nanti hilang e.
+                        Yakin mo hapus jadwal <span className="text-white font-bold">{r.name}</span>? Semua data buyer di dalam situ nanti hilang e.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter className="flex-col sm:flex-col gap-2 mt-4">
@@ -115,7 +115,7 @@ export function RencanaHeader({ rencanaList, activeRencana, onSelect, onCreate, 
                 setIsDialogOpen(true);
               }}
             >
-              <Plus className="w-4 h-4 mr-2" /> BUAT RENCANA BARU
+              <Plus className="w-4 h-4 mr-2" /> BUAT JADWAL BARU
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -148,11 +148,9 @@ export function RencanaHeader({ rencanaList, activeRencana, onSelect, onCreate, 
         }}
       />
 
-      {/* DIALOG KREDIT */}
       <Dialog open={isInfoOpen} onOpenChange={setIsInfoOpen}>
         <DialogContent className="glass-dark border border-white/10 shadow-[0_0_50px_-12px_rgba(59,130,246,0.3)] rounded-[3rem] w-[92vw] sm:max-w-[420px] p-0 overflow-hidden">
           <div className="relative p-8 space-y-8">
-            {/* Background Glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-primary/20 blur-[80px] -z-10 rounded-full" />
             
             <DialogHeader className="space-y-4">

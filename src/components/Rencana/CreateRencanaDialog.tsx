@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -42,7 +41,6 @@ export function CreateRencanaDialog({ onCreate, trigger, open: controlledOpen, o
     };
     
     if ("geolocation" in navigator) {
-      // Tambahkan timeout agar tidak "stuck" jika GPS lambat
       const geoTimeout = setTimeout(() => {
         console.warn("GPS Timeout, melanjutkan tanpa lokasi awal.");
         proceed();
@@ -73,11 +71,11 @@ export function CreateRencanaDialog({ onCreate, trigger, open: controlledOpen, o
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent className="glass w-[92vw] mx-auto sm:max-w-[450px] rounded-[2.5rem] border-none shadow-2xl z-[100] p-6 md:p-8">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-black text-white italic">GAS RENCANA BARU! 📦</DialogTitle>
+          <DialogTitle className="text-2xl font-black text-white italic">GAS JADWAL BARU! 📦</DialogTitle>
         </DialogHeader>
         <div className="py-4 space-y-4">
           <div className="space-y-2">
-            <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">KASI NAMA RENCANA</label>
+            <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">KASI NAMA JADWAL</label>
             <Input 
               placeholder="Contoh: Gas Pagi, Keliling Kota..." 
               className="h-14 text-lg font-bold bg-secondary/50 border-white/5 focus:ring-primary rounded-2xl"
