@@ -77,7 +77,7 @@ export function CreateRencanaDialog({ onCreate, trigger, open: controlledOpen, o
           <div className="space-y-2">
             <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-1">KASI NAMA JADWAL</label>
             <Input 
-              placeholder="Contoh: Gas Pagi, Keliling Kota..." 
+              placeholder="Contoh: Gas Pagi..." 
               className="h-14 text-lg font-bold bg-secondary/50 border-white/5 focus:ring-primary rounded-2xl"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
