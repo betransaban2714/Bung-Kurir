@@ -79,8 +79,8 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
     mapRef.current = map;
 
-    // Persiapkan Layer-layer peta
-    streetLayerRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    // Peta Gelap Elegan (Dark Matter)
+    streetLayerRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
     });
@@ -89,12 +89,13 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
       maxZoom: 20,
     });
 
-    satelliteLabelsRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
+    // Label tipis buat satelit biar tra rame
+    satelliteLabelsRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
     });
 
-    // Default: Street Map (Ringan)
+    // Default: Street Map (Dark & Light-weight)
     streetLayerRef.current.addTo(map);
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
@@ -115,7 +116,6 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     };
   }, []);
 
-  // Effect untuk ganti layer peta
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !streetLayerRef.current || !satelliteLayerRef.current || !satelliteLabelsRef.current) return;

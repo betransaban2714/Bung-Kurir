@@ -47,8 +47,8 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
 
     mapRef.current = map;
 
-    // Persiapkan Layer-layer peta
-    streetLayerRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    // Mode Gelap buat Map Picker juga biar tra silau pas milih titik
+    streetLayerRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
     });
@@ -57,12 +57,12 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
       maxZoom: 20,
     });
 
-    satelliteLabelsRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
+    satelliteLabelsRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
     });
 
-    // Default: Street Map (Ringan)
+    // Default: Street Map (Dark)
     streetLayerRef.current.addTo(map);
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
@@ -122,7 +122,6 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
     };
   }, []);
 
-  // Effect untuk ganti layer peta
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !streetLayerRef.current || !satelliteLayerRef.current || !satelliteLabelsRef.current) return;
@@ -146,7 +145,6 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
     <div className="w-full h-full relative">
       <div ref={containerRef} className="w-full h-full z-0 bg-black" />
       
-      {/* Tombol Ganti Layer */}
       <div className="absolute top-4 right-4 z-30">
         <Button
           onClick={toggleMapType}
