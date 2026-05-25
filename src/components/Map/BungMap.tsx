@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
-import { Rencana, DeliveryStatus, ActualPaymentMethod } from '@/types';
+import { Jadwal, DeliveryStatus, ActualPaymentMethod } from '@/types';
 import { LocateFixed, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -18,7 +18,7 @@ if (typeof window !== 'undefined') {
 }
 
 interface BungMapProps {
-  rencana: Rencana;
+  rencana: Jadwal;
   onUpdateStatus: (buyerId: string, status: DeliveryStatus, paidAmount?: number, actualPaymentMethod?: ActualPaymentMethod) => void;
 }
 
@@ -204,6 +204,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
                   <p class="text-[8px] font-black text-accent uppercase text-center">Uang yang Diterima:</p>
                   <input 
                     type="text" 
+                    inputmode="numeric"
                     id="paid-input-${buyer.id}" 
                     class="w-full h-9 bg-black/60 border border-white/10 rounded-lg px-2 text-center text-base font-black text-white focus:ring-1 focus:ring-accent outline-none"
                     value="${formatNumber(buyer.price)}"

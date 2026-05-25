@@ -7,12 +7,14 @@ import { MapPin, Check } from 'lucide-react';
 
 // Fix for Leaflet default icon issues in production
 // @ts-ignore
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-});
+if (typeof window !== 'undefined') {
+  delete (L.Icon.Default.prototype as any)._getIconUrl;
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  });
+}
 
 interface MapPickerProps {
   onSelect: (coords: { lat: number; lng: number }) => void;
@@ -98,7 +100,7 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
       <div ref={containerRef} className="w-full h-full z-0 bg-black" />
       
       {!selectedCoords && (
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10 text-center space-y-2">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10 text-center space-y-2 animate-in fade-in duration-500">
           <div className="bg-black/60 backdrop-blur-md px-6 py-4 rounded-3xl border border-white/10 shadow-2xl">
             <MapPin className="w-10 h-10 text-primary mx-auto mb-2 animate-bounce" />
             <p className="font-black text-sm text-white uppercase tracking-widest">Klik di Peta Buat Tandai Lokasi</p>
@@ -107,7 +109,7 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
       )}
 
       {selectedCoords && (
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 w-[85%]">
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 w-[85%] animate-in slide-in-from-bottom-4 duration-300">
           <Button 
             onClick={() => onSelect(selectedCoords)}
             className="w-full h-16 bg-primary text-white font-black text-xl rounded-2xl shadow-2xl glow-blue active:scale-95 transition-all gap-2"

@@ -3,7 +3,7 @@
 import { Buyer } from '@/types';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
-import { CheckCircle2, Clock, Trash2, MapPin, AlertTriangle } from 'lucide-react';
+import { CheckCircle2, Clock, Trash2, MapPin, AlertTriangle, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -85,7 +85,13 @@ export function BuyerList({ buyers, onDelete }: BuyerListProps) {
                   <div className="space-y-1">
                     <p className="font-black text-base text-primary">Rp{buyer.price.toLocaleString()}</p>
                     {buyer.status === 'TIP' && buyer.paidAmount && (
-                      <p className="text-[9px] font-black text-accent uppercase">Doi Ta Lebe 🔥</p>
+                      <div className="flex flex-col items-end gap-0.5">
+                        <div className="flex items-center gap-1 text-accent animate-pulse">
+                          <TrendingUp className="w-3 h-3" />
+                          <p className="text-[9px] font-black uppercase">Doi Ta Lebe 🔥</p>
+                        </div>
+                        <p className="text-[10px] font-black text-accent">+Rp{(buyer.paidAmount - buyer.price).toLocaleString()}</p>
+                      </div>
                     )}
                   </div>
                   
