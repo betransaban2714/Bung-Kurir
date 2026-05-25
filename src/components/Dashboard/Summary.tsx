@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Jadwal } from '@/types';
 import { Card } from '@/components/ui/card';
-import { Package, Wallet, TrendingUp, Download, FileText, Banknote, Smartphone, Upload, X, History, ArrowLeft } from 'lucide-react';
+import { Package, Wallet, TrendingUp, FileText, Banknote, Smartphone, Upload, X, History, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
@@ -58,6 +58,28 @@ export function Summary({ jadwalList }: SummaryProps) {
 
   const formatCurrency = (val: number) => 
     new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
+
+  // Helper untuk konversi tanggal Indo panjang ke DD/MM/YY
+  const formatShortDate = (indoDate: string) => {
+    if (!indoDate) return "";
+    const months: Record<string, string> = {
+      'Januari': '01', 'Februari': '02', 'Maret': '03', 'April': '04', 'Mei': '05', 'Juni': '06',
+      'Juli': '07', 'Agustus': '08', 'September': '09', 'Oktober': '10', 'November': '11', 'Desember': '12'
+    };
+    
+    try {
+      // Contoh: "Senin, 25 Mei 2026" -> split jadi ["Senin", "25", "Mei", "2026"]
+      const parts = indoDate.split(/[ ,]+/);
+      const day = parts[1]?.padStart(2, '0');
+      const month = months[parts[2]];
+      const year = parts[3]?.slice(-2);
+
+      if (day && month && year) return `${day}/${month}/${year}`;
+      return indoDate;
+    } catch (e) {
+      return indoDate;
+    }
+  };
 
   const handleExport = () => {
     if (jadwalList.length === 0) {
@@ -156,6 +178,8 @@ export function Summary({ jadwalList }: SummaryProps) {
       }
     };
     reader.readAsText(file);
+    // Reset file input agar bisa upload file yang sama lagi jika perlu
+    e.target.value = '';
   };
 
   const activeStats = readerData ? {
@@ -165,7 +189,8 @@ export function Summary({ jadwalList }: SummaryProps) {
     targetCod: readerData.targetCod,
     received: readerData.doiMaso,
     tips: readerData.doiTaLebe,
-    date: readerData.date,
+    displayDate: formatShortDate(readerData.date),
+    originalDate: readerData.date,
     isImported: true
   } : {
     total: total,
@@ -174,7 +199,8 @@ export function Summary({ jadwalList }: SummaryProps) {
     targetCod: targetCOD,
     received: totalReceived,
     tips: tips,
-    date: "HARI INI",
+    displayDate: "HARI INI",
+    originalDate: "HARI INI",
     isImported: false
   };
 
@@ -185,17 +211,17 @@ export function Summary({ jadwalList }: SummaryProps) {
           <div className="flex items-center gap-2">
             <History className="w-5 h-5 text-accent" />
             <div>
-              <p className="text-[10px] font-black text-accent uppercase tracking-widest leading-none">Mode Reader Aktif</p>
-              <p className="text-xs font-bold text-white mt-1">{activeStats.date}</p>
+              <p className="text-[10px] font-black text-accent uppercase tracking-widest leading-none">Mode Reader Aktif (Mode Import Data)</p>
+              <p className="text-xs font-bold text-white mt-1">{activeStats.originalDate}</p>
             </div>
           </div>
           <Button 
             variant="ghost" 
             size="sm" 
-            className="h-8 font-black text-[10px] gap-1 hover:bg-accent/10 text-white rounded-xl"
+            className="h-8 font-black text-[10px] gap-1 hover:bg-accent/10 text-white rounded-xl bg-accent/20 border border-accent/20"
             onClick={() => setReaderData(null)}
           >
-            <ArrowLeft className="w-3 h-3" /> BALIK KE LIVE
+            <ArrowLeft className="w-3 h-3" /> KALUAR
           </Button>
         </div>
       )}
@@ -212,7 +238,7 @@ export function Summary({ jadwalList }: SummaryProps) {
             <span className={`text-[9px] font-black px-2 py-0.5 rounded-full border uppercase ${
               activeStats.isImported ? 'bg-accent/10 text-accent border-accent/20' : 'bg-primary/10 text-primary border-primary/20'
             }`}>
-              {activeStats.isImported ? 'Data Lampau' : 'Harian'}
+              {activeStats.isImported ? activeStats.displayDate : 'Harian'}
             </span>
           </div>
           <div className="grid grid-cols-3 gap-2 text-center">
@@ -240,7 +266,7 @@ export function Summary({ jadwalList }: SummaryProps) {
               <h3 className="font-bold text-lg">Info Doi</h3>
             </div>
             <span className="text-[9px] font-black bg-accent/10 text-accent px-2 py-0.5 rounded-full border border-accent/20 uppercase">
-              {activeStats.isImported ? 'Riwayat' : 'Harian'}
+              {activeStats.isImported ? activeStats.displayDate : 'Harian'}
             </span>
           </div>
           <div className="space-y-3">
