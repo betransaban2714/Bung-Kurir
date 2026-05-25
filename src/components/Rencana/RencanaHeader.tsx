@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -27,7 +27,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Plus, ChevronDown, Trash2, CalendarDays, Info, AlertTriangle, Copyright } from 'lucide-react';
+import { Plus, ChevronDown, Trash2, CalendarDays, Info, AlertTriangle, Copyright, Smartphone, Download } from 'lucide-react';
 import { Jadwal } from '@/types';
 import { CreateRencanaDialog } from './CreateRencanaDialog';
 
@@ -42,6 +42,29 @@ interface RencanaHeaderProps {
 export function RencanaHeader({ jadwalList, activeJadwal, onSelect, onCreate, onDelete }: RencanaHeaderProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+    }
+  };
 
   return (
     <div className="flex items-center justify-between gap-4">
@@ -169,7 +192,7 @@ export function RencanaHeader({ jadwalList, activeJadwal, onSelect, onCreate, on
               <DialogDescription className="sr-only">Informasi Pembuat Aplikasi</DialogDescription>
             </DialogHeader>
             
-            <div className="space-y-8">
+            <div className="space-y-6">
               <div className="text-center space-y-3">
                 <div className="flex items-center justify-center gap-2 text-muted-foreground">
                   <span className="h-px w-8 bg-white/10" />
@@ -184,7 +207,18 @@ export function RencanaHeader({ jadwalList, activeJadwal, onSelect, onCreate, on
                 </h2>
               </div>
 
-              <div className="glass-dark p-6 rounded-[2.5rem] border border-white/10 space-y-6 shadow-2xl">
+              {deferredPrompt && (
+                <div className="animate-in fade-in zoom-in-95 duration-500">
+                  <Button 
+                    onClick={handleInstallClick}
+                    className="w-full h-14 bg-primary hover:bg-primary/90 text-white font-black text-lg rounded-2xl glow-blue gap-2 shadow-2xl active:scale-95 transition-all"
+                  >
+                    <Download className="w-6 h-6" /> INSTAL BUNG'KURIR!
+                  </Button>
+                </div>
+              )}
+
+              <div className="glass-dark p-6 rounded-[2.5rem] border border-white/10 space-y-4 shadow-2xl">
                 <div className="flex items-center justify-center gap-2 px-2">
                   <span className="text-[11px] font-black text-primary uppercase tracking-widest text-center">Apa fungsi App ini? 🤔</span>
                 </div>
@@ -199,7 +233,7 @@ export function RencanaHeader({ jadwalList, activeJadwal, onSelect, onCreate, on
               </div>
             </div>
 
-            <div className="pt-4 flex items-center justify-center gap-2 opacity-30">
+            <div className="pt-2 flex items-center justify-center gap-2 opacity-30">
               <Copyright className="w-3 h-3" />
               <span className="text-[9px] font-black uppercase tracking-widest">2026 BetranSaban</span>
             </div>
