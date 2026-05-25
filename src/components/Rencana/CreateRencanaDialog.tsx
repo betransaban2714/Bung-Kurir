@@ -41,11 +41,10 @@ export function CreateRencanaDialog({ onCreate, trigger, open: controlledOpen, o
     };
     
     if ("geolocation" in navigator) {
-      // Perketat akurasi GPS untuk lokasi awal jadwal
       const geoTimeout = setTimeout(() => {
         console.warn("GPS Timeout, melanjutkan tanpa lokasi awal.");
         proceed();
-      }, 10000); // Tunggu sampai 10 detik biar akurat
+      }, 10000);
 
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -63,7 +62,7 @@ export function CreateRencanaDialog({ onCreate, trigger, open: controlledOpen, o
         { 
           enableHighAccuracy: true, 
           timeout: 9000, 
-          maximumAge: 0 // Pastikan lokasi fresh, bukan cache 
+          maximumAge: 0 
         }
       );
     } else {

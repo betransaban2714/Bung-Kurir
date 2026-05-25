@@ -1,7 +1,7 @@
 {
-  "name": "Bung'Kurir 📦",
+  "name": "Bung'Kurir",
   "short_name": "Bung'Kurir",
-  "description": "Alat Tempur Kurir Modern - Pemantau Rute & Laporan Harian",
+  "description": "Alat Tempur Kurir Modern berbasis Maps",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#050505",
@@ -11,12 +11,13 @@
       "src": "/bungkurir_icon.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/bungkurir_icon.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

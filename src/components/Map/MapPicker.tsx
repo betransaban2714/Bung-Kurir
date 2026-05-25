@@ -47,7 +47,7 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
 
     mapRef.current = map;
 
-    // Mode Gelap buat Map Picker juga biar tra silau pas milih titik
+    // Mode Gelap
     streetLayerRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
@@ -67,7 +67,6 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    // HILANGKAN PANDUAN SAAT INTERAKSI
     map.on('movestart', () => setHasInteracted(true));
     map.on('dragstart', () => setHasInteracted(true));
     map.on('zoomstart', () => setHasInteracted(true));
@@ -90,7 +89,6 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
       }
     });
 
-    // Otomatis hilangkan panduan setelah 5 detik jika tra ada interaksi
     const timer = setTimeout(() => {
       if (isMounted) setHasInteracted(true);
     }, 5000);
@@ -110,7 +108,7 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
         { 
           enableHighAccuracy: true, 
           timeout: 10000, 
-          maximumAge: 0 // Pastikan lokasi fresh
+          maximumAge: 0 
         }
       );
     }

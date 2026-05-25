@@ -75,7 +75,6 @@ export function RencanaHeader({ jadwalList, activeJadwal, onSelect, onCreate, on
     if (outcome === 'accepted') {
       setDeferredPrompt(null);
     }
-    // Jika ditolak atau gagal, deferredPrompt tetap bisa muncul lagi jika browser memicu eventnya kembali
   };
 
   return (
