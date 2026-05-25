@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import { Button } from '@/components/ui/button';
-import { MapPin, Check } from 'lucide-react';
+import { MapPin, Check, Layers, Map as MapIcon } from 'lucide-react';
 
 // Fix for Leaflet default icon issues in production
 // @ts-ignore
@@ -20,12 +20,20 @@ interface MapPickerProps {
   onSelect: (coords: { lat: number; lng: number }) => void;
 }
 
+type MapType = 'street' | 'satellite';
+
 export default function MapPicker({ onSelect }: MapPickerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
+  
+  const streetLayerRef = useRef<L.TileLayer | null>(null);
+  const satelliteLayerRef = useRef<L.TileLayer | null>(null);
+  const satelliteLabelsRef = useRef<L.TileLayer | null>(null);
+
   const [selectedCoords, setSelectedCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [mapType, setMapType] = useState<MapType>('street');
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -39,17 +47,23 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
 
     mapRef.current = map;
 
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      maxZoom: 20,
-      attribution: 'Tiles &copy; Esri',
-      zIndex: 1
-    }).addTo(map);
-
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
+    // Persiapkan Layer-layer peta
+    streetLayerRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
-      zIndex: 10
-    }).addTo(map);
+    });
+
+    satelliteLayerRef.current = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 20,
+    });
+
+    satelliteLabelsRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
+      subdomains: 'abcd',
+      maxZoom: 20,
+    });
+
+    // Default: Street Map (Ringan)
+    streetLayerRef.current.addTo(map);
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
@@ -108,10 +122,42 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
     };
   }, []);
 
+  // Effect untuk ganti layer peta
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !streetLayerRef.current || !satelliteLayerRef.current || !satelliteLabelsRef.current) return;
+
+    if (mapType === 'street') {
+      map.addLayer(streetLayerRef.current);
+      map.removeLayer(satelliteLayerRef.current);
+      map.removeLayer(satelliteLabelsRef.current);
+    } else {
+      map.addLayer(satelliteLayerRef.current);
+      map.addLayer(satelliteLabelsRef.current);
+      map.removeLayer(streetLayerRef.current);
+    }
+  }, [mapType]);
+
+  const toggleMapType = () => {
+    setMapType(prev => prev === 'street' ? 'satellite' : 'street');
+  };
+
   return (
     <div className="w-full h-full relative">
       <div ref={containerRef} className="w-full h-full z-0 bg-black" />
       
+      {/* Tombol Ganti Layer */}
+      <div className="absolute top-4 right-4 z-30">
+        <Button
+          onClick={toggleMapType}
+          className={`h-11 w-11 rounded-2xl backdrop-blur-md border-white/10 p-0 flex items-center justify-center active:scale-90 transition-all duration-200 shadow-2xl ${
+            mapType === 'satellite' ? 'bg-primary text-white' : 'bg-black/60 text-white'
+          }`}
+        >
+          {mapType === 'street' ? <Layers className="w-5 h-5" /> : <MapIcon className="w-5 h-5" />}
+        </Button>
+      </div>
+
       {!selectedCoords && !hasInteracted && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10 text-center space-y-2 animate-in fade-in fade-out duration-500">
           <div className="bg-black/60 backdrop-blur-md px-6 py-4 rounded-3xl border border-white/10 shadow-2xl">
