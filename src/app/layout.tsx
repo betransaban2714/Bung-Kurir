@@ -6,9 +6,9 @@ export const metadata: Metadata = {
   title: "Bung'Kurir 📦 - Alat Tempur Kurir Indonesia Timur",
   description: 'Aplikasi pembantu kurir modern berbasis maps.',
   icons: {
-    icon: '/icon-192x192.png',
-    shortcut: '/icon-192x192.png',
-    apple: '/icon-192x192.png',
+    icon: '/bungkurir_icon.png',
+    shortcut: '/bungkurir_icon.png',
+    apple: '/bungkurir_icon.png',
   },
 };
 

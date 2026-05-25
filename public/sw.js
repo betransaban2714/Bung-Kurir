@@ -1,21 +1,21 @@
+// Service Worker sederhana untuk PWA
 const CACHE_NAME = 'bungkurir-cache-v1';
 const urlsToCache = [
   '/',
   '/manifest.json',
-  '/icon-192x192.png',
-  '/icon-512x512.png'
+  '/bungkurir_icon.png'
 ];
 
-self.addEventListener('install', (event) => {
+self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(urlsToCache))
+      .then(cache => cache.addAll(urlsToCache))
   );
 });
 
-self.addEventListener('fetch', (event) => {
+self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
-      .then((response) => response || fetch(event.request))
+      .then(response => response || fetch(event.request))
   );
 });
