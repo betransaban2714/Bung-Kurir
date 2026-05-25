@@ -25,6 +25,7 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
   const mapRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
   const [selectedCoords, setSelectedCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [hasInteracted, setHasInteracted] = useState(false);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -52,7 +53,13 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
+    // HILANGKAN PANDUAN SAAT INTERAKSI
+    map.on('movestart', () => setHasInteracted(true));
+    map.on('dragstart', () => setHasInteracted(true));
+    map.on('zoomstart', () => setHasInteracted(true));
+
     map.on('click', (e) => {
+      setHasInteracted(true);
       const { lat, lng } = e.latlng;
       setSelectedCoords({ lat, lng });
 
@@ -68,6 +75,11 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
         markerRef.current = L.marker([lat, lng], { icon, zIndexOffset: 1000 }).addTo(map);
       }
     });
+
+    // Otomatis hilangkan panduan setelah 5 detik jika tra ada interaksi
+    const timer = setTimeout(() => {
+      if (isMounted) setHasInteracted(true);
+    }, 5000);
 
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
@@ -87,6 +99,7 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
 
     return () => {
       isMounted = false;
+      clearTimeout(timer);
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
@@ -99,8 +112,8 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
     <div className="w-full h-full relative">
       <div ref={containerRef} className="w-full h-full z-0 bg-black" />
       
-      {!selectedCoords && (
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10 text-center space-y-2 animate-in fade-in duration-500">
+      {!selectedCoords && !hasInteracted && (
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10 text-center space-y-2 animate-in fade-in fade-out duration-500">
           <div className="bg-black/60 backdrop-blur-md px-6 py-4 rounded-3xl border border-white/10 shadow-2xl">
             <MapPin className="w-10 h-10 text-primary mx-auto mb-2 animate-bounce" />
             <p className="font-black text-sm text-white uppercase tracking-widest">Klik di Peta Buat Tandai Lokasi</p>
