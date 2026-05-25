@@ -178,7 +178,7 @@ export function Summary({ jadwalList }: SummaryProps) {
         if (!data.date && !data.totalBuyer) throw new Error("Format file salah");
 
         setReaderData(data);
-        toast({ title: "Reader Aktif!", description: "Data lampau su berhasil dibaca. Mantap!" });
+        toast({ title: "Reader Aktif!", description: "Data lama su berhasil dibaca. Mantap!" });
       } catch (err) {
         toast({ title: "Gagal Baca!", description: "Format file tra terbaca, pastikan itu file .txt dari Bung'Kurir.", variant: "destructive" });
       }

@@ -3,7 +3,7 @@ import './globals.css';
 import {Toaster} from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: "Bung'Kurir 📦 - Alat Tempur Kurir Indonesia Timur",
+  title: "Bung'Kurir📦 - Alat Tempur Kurir Pemula",
   description: 'Aplikasi pembantu kurir modern berbasis maps.',
   icons: {
     icon: '/bungkurir_icon.png',
