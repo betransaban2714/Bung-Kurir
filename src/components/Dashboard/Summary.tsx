@@ -220,7 +220,7 @@ export function Summary({ jadwalList }: SummaryProps) {
           <div className="flex items-center gap-2">
             <History className="w-5 h-5 text-accent" />
             <div>
-              <p className="text-[10px] font-black text-accent uppercase tracking-widest leading-none">Mode Reader Aktif (Mode Import Data)</p>
+              <p className="text-[10px] font-black text-accent uppercase tracking-widest leading-none">Mode Import Data</p>
               <p className="text-xs font-bold text-white mt-1">{activeStats.originalDate}</p>
             </div>
           </div>
