@@ -5,6 +5,11 @@ import {Toaster} from '@/components/ui/toaster';
 export const metadata: Metadata = {
   title: "Bung'Kurir 📦 - Alat Tempur Kurir Indonesia Timur",
   description: 'Aplikasi pembantu kurir modern berbasis maps.',
+  icons: {
+    icon: '/icon-192x192.png',
+    shortcut: '/icon-192x192.png',
+    apple: '/icon-192x192.png',
+  },
 };
 
 export default function RootLayout({
