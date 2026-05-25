@@ -391,7 +391,11 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
         setTimeout(() => setLocating(false), 200);
       },
       () => setLocating(false),
-      { enableHighAccuracy: true, timeout: 5000 }
+      { 
+        enableHighAccuracy: true, 
+        timeout: 10000, // Tambah waktu supaya GPS kancing satelit
+        maximumAge: 0   // Jangan pake cache lokasi lama
+      }
     );
   };
 

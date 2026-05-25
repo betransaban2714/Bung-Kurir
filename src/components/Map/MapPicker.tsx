@@ -107,7 +107,11 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
           }
         },
         null,
-        { enableHighAccuracy: true, timeout: 5000 }
+        { 
+          enableHighAccuracy: true, 
+          timeout: 10000, 
+          maximumAge: 0 // Pastikan lokasi fresh
+        }
       );
     }
 
