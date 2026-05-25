@@ -43,8 +43,19 @@ export function RencanaHeader({ jadwalList, activeJadwal, onSelect, onCreate, on
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
+    // Cek apakah aplikasi dibuka dalam mode PWA (Standalone)
+    const checkStandalone = () => {
+      const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches 
+        || (navigator as any).standalone 
+        || document.referrer.includes('android-app://');
+      setIsStandalone(isStandaloneMode);
+    };
+
+    checkStandalone();
+
     const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
@@ -64,6 +75,7 @@ export function RencanaHeader({ jadwalList, activeJadwal, onSelect, onCreate, on
     if (outcome === 'accepted') {
       setDeferredPrompt(null);
     }
+    // Jika ditolak atau gagal, deferredPrompt tetap bisa muncul lagi jika browser memicu eventnya kembali
   };
 
   return (
@@ -221,7 +233,7 @@ export function RencanaHeader({ jadwalList, activeJadwal, onSelect, onCreate, on
                 </div>
               </div>
 
-              {deferredPrompt && (
+              {deferredPrompt && !isStandalone && (
                 <div className="animate-in fade-in zoom-in-95 duration-500 pt-2">
                   <Button 
                     onClick={handleInstallClick}
