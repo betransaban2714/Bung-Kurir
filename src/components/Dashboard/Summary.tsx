@@ -125,7 +125,7 @@ export function Summary({ jadwalList }: SummaryProps) {
 
     content += `------------------------------------------\n`;
     content += `ALAT TEMPUR KURIR INDONESIA TIMUR\n`;
-    content += `BetranSaban\n`;
+    content += `© 2026 BetranSaban\n`;
 
     const element = document.createElement("a");
     const file = new Blob([content], { type: 'text/plain;charset=utf-8' });

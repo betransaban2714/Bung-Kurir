@@ -201,7 +201,7 @@ export function RencanaHeader({ jadwalList, activeJadwal, onSelect, onCreate, on
 
             <div className="pt-4 flex items-center justify-center gap-2 opacity-30">
               <Copyright className="w-3 h-3" />
-              <span className="text-[9px] font-black uppercase tracking-widest">2024 BetranSaban</span>
+              <span className="text-[9px] font-black uppercase tracking-widest">2026 BetranSaban</span>
             </div>
           </div>
         </DialogContent>
