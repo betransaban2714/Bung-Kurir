@@ -27,7 +27,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Plus, ChevronDown, Trash2, CalendarDays, Info, AlertTriangle, Copyright, Smartphone, Download } from 'lucide-react';
+import { Plus, ChevronDown, Trash2, CalendarDays, Info, AlertTriangle, Copyright, Download } from 'lucide-react';
 import { Jadwal } from '@/types';
 import { CreateRencanaDialog } from './CreateRencanaDialog';
 
@@ -207,17 +207,6 @@ export function RencanaHeader({ jadwalList, activeJadwal, onSelect, onCreate, on
                 </h2>
               </div>
 
-              {deferredPrompt && (
-                <div className="animate-in fade-in zoom-in-95 duration-500">
-                  <Button 
-                    onClick={handleInstallClick}
-                    className="w-full h-14 bg-primary hover:bg-primary/90 text-white font-black text-lg rounded-2xl glow-blue gap-2 shadow-2xl active:scale-95 transition-all"
-                  >
-                    <Download className="w-6 h-6" /> INSTAL BUNG'KURIR!
-                  </Button>
-                </div>
-              )}
-
               <div className="glass-dark p-6 rounded-[2.5rem] border border-white/10 space-y-4 shadow-2xl">
                 <div className="flex items-center justify-center gap-2 px-2">
                   <span className="text-[11px] font-black text-primary uppercase tracking-widest text-center">Apa fungsi App ini? 🤔</span>
@@ -227,10 +216,21 @@ export function RencanaHeader({ jadwalList, activeJadwal, onSelect, onCreate, on
                 
                 <div className="px-2">
                   <p className="text-[10px] text-center text-muted-foreground/80 font-medium italic leading-relaxed">
-                    Aplikasi ini dibuat hanya untuk mempermudah rute pengantaran, agar Kurir dapat menentukan lokasi pengantaran mana yang harus dituju duluan agar tidak bolak balik keliling kota, dan juga memantau kinerja harian, karena keterbatasan layanan "Maps" rute pengantaran dapat dibuka melalui Google Maps
+                    Aplikasi ini dibuat hanya untuk mempermudah rute pengantaran, agar Kurir dapat menentukan lokasi pengantaran mana yang harus dituju duluan agar tidak bolak balik keliling kota, dan juga memantau kinerja harian.
                   </p>
                 </div>
               </div>
+
+              {deferredPrompt && (
+                <div className="animate-in fade-in zoom-in-95 duration-500 pt-2">
+                  <Button 
+                    onClick={handleInstallClick}
+                    className="w-full h-11 bg-primary/20 hover:bg-primary/30 text-primary font-black text-sm rounded-xl border border-primary/30 gap-2 active:scale-95 transition-all"
+                  >
+                    <Download className="w-4 h-4" /> INSTAL APLIKASI
+                  </Button>
+                </div>
+              )}
             </div>
 
             <div className="pt-2 flex items-center justify-center gap-2 opacity-30">

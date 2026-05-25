@@ -8,14 +8,16 @@
   "theme_color": "#3b82f6",
   "icons": [
     {
-      "src": "https://picsum.photos/seed/kurir192/192/192",
+      "src": "https://picsum.photos/seed/kurir/192/192",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "https://picsum.photos/seed/kurir512/512/512",
+      "src": "https://picsum.photos/seed/kurir/512/512",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
