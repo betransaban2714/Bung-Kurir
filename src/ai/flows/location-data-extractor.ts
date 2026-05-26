@@ -79,7 +79,11 @@ const extractionFlow = ai.defineFlow(
       return output;
     } catch (error: any) {
       console.error('Genkit Extraction Error:', error);
-      throw new Error('Gagal proses lokasi. Pastikan kunci API Gemini su terpasang di Netlify!');
+      // More descriptive error for the user
+      if (error.message?.includes('API_KEY_INVALID') || error.message?.includes('403')) {
+        throw new Error('Gagal! Kunci API Gemini tra valid atau tra terpasang di Netlify.');
+      }
+      throw new Error('Gagal proses lokasi. Pastikan GPS nyala deng Kunci API su pas di Netlify!');
     }
   }
 );

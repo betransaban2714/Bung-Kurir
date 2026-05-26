@@ -46,7 +46,7 @@ export function RencanaHeader({ jadwalList, activeJadwal, onSelect, onCreate, on
   const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
-    // Cek apakah aplikasi dibuka dalam mode PWA (Standalone)
+    // Detect if app is running in standalone mode (installed)
     const checkStandalone = () => {
       const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches 
         || (navigator as any).standalone 
@@ -232,6 +232,7 @@ export function RencanaHeader({ jadwalList, activeJadwal, onSelect, onCreate, on
                 </div>
               </div>
 
+              {/* Install button only shows in browser mode, hidden in PWA mode */}
               {deferredPrompt && !isStandalone && (
                 <div className="animate-in fade-in zoom-in-95 duration-500 pt-2">
                   <Button 
