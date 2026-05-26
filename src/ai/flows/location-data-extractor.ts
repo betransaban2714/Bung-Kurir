@@ -31,6 +31,18 @@ const extractLocationPrompt = ai.definePrompt({
   name: 'extractLocationPrompt',
   input: {schema: LocationDataExtractorInputSchema},
   output: {schema: LocationDataExtractorOutputSchema},
+  config: {
+    safetySettings: [
+      {
+        category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
+        threshold: 'BLOCK_NONE',
+      },
+      {
+        category: 'HARM_CATEGORY_HARASSMENT',
+        threshold: 'BLOCK_NONE',
+      }
+    ],
+  },
   prompt: `You are an expert geographical data parser. Your primary mission is to extract decimal latitude and longitude from the user's input.
 
 CRITICAL INSTRUCTIONS:
@@ -52,10 +64,26 @@ Strictly return the response in JSON format according to the provided schema.
 locationInput: {{{locationInput}}}`
 });
 
-export async function extractLocationData(input: LocationDataExtractorInput): Promise<LocationDataExtractorOutput> {
-  const {output} = await extractLocationPrompt(input);
-  if (!output) {
-    throw new Error('Gagal mengekstrak data lokasi. Pastikan format koordinat benar.');
+const extractionFlow = ai.defineFlow(
+  {
+    name: 'locationDataExtractionFlow',
+    inputSchema: LocationDataExtractorInputSchema,
+    outputSchema: LocationDataExtractorOutputSchema,
+  },
+  async (input) => {
+    try {
+      const {output} = await extractLocationPrompt(input);
+      if (!output) {
+        throw new Error('AI tra kasi respon koordinat, coba ketik manual dolo Pace.');
+      }
+      return output;
+    } catch (error: any) {
+      console.error('Genkit Extraction Error:', error);
+      throw new Error('Gagal proses lokasi. Pastikan kunci API Gemini su terpasang di Netlify!');
+    }
   }
-  return output;
+);
+
+export async function extractLocationData(input: LocationDataExtractorInput): Promise<LocationDataExtractorOutput> {
+  return extractionFlow(input);
 }
