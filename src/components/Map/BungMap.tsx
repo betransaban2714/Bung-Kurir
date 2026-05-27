@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
-import { Buyer, DeliveryStatus, ActualPaymentMethod, PaymentStatus } from '@/types';
-import { LocateFixed, Loader2, Layers, Map as MapIcon } from 'lucide-react';
+import { Buyer, DeliveryStatus, ActualPaymentMethod } from '@/types';
+import { LocateFixed, Layers } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 if (typeof window !== 'undefined') {
@@ -68,20 +68,22 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
     mapRef.current = map;
 
-    // TEMA TERANG: CartoDB Voyager
+    // TEMA TERANG: Agar jalanan terlihat jelas
     streetLayerRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20
     });
 
-    satelliteLayerRef.current = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 20 });
+    satelliteLayerRef.current = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { 
+      maxZoom: 20 
+    });
 
     streetLayerRef.current.addTo(map);
     L.control.zoom({ position: 'bottomright' }).addTo(map);
     buyerLayerGroupRef.current = L.layerGroup().addTo(map);
     routeLayerGroupRef.current = L.layerGroup().addTo(map);
 
-    // Get current position for user marker immediately
+    // Langsung ambil lokasi user
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((pos) => {
         const { latitude, longitude } = pos.coords;
@@ -132,6 +134,11 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
         userMarkerRef.current.setLatLng([latitude, longitude]).addTo(map);
       }
       bounds.push([latitude, longitude]);
+    } else if (navigator.geolocation && !userMarkerRef.current) {
+       navigator.geolocation.getCurrentPosition((pos) => {
+         const { latitude, longitude } = pos.coords;
+         userMarkerRef.current = L.marker([latitude, longitude], { icon: createUserIcon(), zIndexOffset: 3000 }).addTo(map);
+       });
     }
 
     rencana.buyers.forEach((buyer) => {
@@ -149,15 +156,15 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
         .addTo(buyerGroup)
         .bindPopup(() => {
           const div = document.createElement('div');
-          div.className = 'p-3 min-w-[260px] text-foreground';
+          div.className = 'p-3 min-w-[260px] text-black';
           
           div.innerHTML = `
             <div class="space-y-1">
-              <h3 class="font-black text-base truncate">👤 ${buyer.name}</h3>
-              <p class="text-[10px] text-muted-foreground italic line-clamp-1">${buyer.address}</p>
+              <h3 class="font-black text-base truncate text-black">👤 ${buyer.name}</h3>
+              <p class="text-[10px] text-gray-500 italic line-clamp-1">${buyer.address}</p>
             </div>
             
-            <div id="route-info-${buyer.id}" class="hidden py-1.5 px-3 bg-secondary rounded-xl border border-border flex items-center justify-around my-2">
+            <div id="route-info-${buyer.id}" class="hidden py-1.5 px-3 bg-gray-100 rounded-xl border border-gray-200 flex items-center justify-around my-2">
                <div class="text-center">
                  <p class="text-[8px] font-black opacity-60">JARAK</p>
                  <span id="dist-${buyer.id}" class="text-[11px] font-black">...</span>
@@ -170,16 +177,16 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
             ${buyer.status === 'PENDING' ? `
               <div class="space-y-2 mt-2">
-                <button id="done-btn-${buyer.id}" class="w-full bg-primary text-white h-11 rounded-xl font-black text-sm glow-blue">✅ SELESAI</button>
+                <button id="done-btn-${buyer.id}" class="w-full bg-blue-600 text-white h-11 rounded-xl font-black text-sm shadow-lg">✅ SELESAI</button>
                 <div id="action-area-${buyer.id}" class="hidden space-y-2 animate-in fade-in slide-in-from-top-1">
                    ${!buyer.price || buyer.price === 0 ? `
                      <div class="space-y-2">
-                       <p class="text-[9px] font-black text-center text-accent uppercase">Harga Paket Belum Diisi!</p>
-                       <input id="price-input-${buyer.id}" type="number" placeholder="Isi Harga Paket" class="w-full bg-secondary h-10 rounded-lg text-center font-black text-sm border border-border" />
+                       <p class="text-[9px] font-black text-center text-orange-600 uppercase">Harga Paket Belum Diisi!</p>
+                       <input id="price-input-${buyer.id}" type="number" placeholder="Isi Harga Paket" class="w-full bg-white h-10 rounded-lg text-center font-black text-sm border border-gray-300" />
                      </div>
                    ` : ''}
                   <div class="grid grid-cols-2 gap-2">
-                    <button id="confirm-cash-${buyer.id}" class="bg-accent text-white h-10 rounded-lg font-black text-[10px]">💵 CASH</button>
+                    <button id="confirm-cash-${buyer.id}" class="bg-orange-500 text-white h-10 rounded-lg font-black text-[10px]">💵 CASH</button>
                     <button id="confirm-qris-${buyer.id}" class="bg-blue-600 text-white h-10 rounded-lg font-black text-[10px]">📱 QRIS</button>
                   </div>
                 </div>
@@ -192,8 +199,8 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
             `}
 
             <div class="grid grid-cols-2 gap-2 mt-3">
-              <button id="nav-btn-${buyer.id}" class="bg-secondary h-8 rounded-lg font-black text-[9px] border border-border">📍 MAPS</button>
-              <button id="chat-btn-${buyer.id}" class="bg-green-500/10 text-green-600 h-8 rounded-lg font-black text-[9px] border border-green-500/10">💬 WA</button>
+              <button id="nav-btn-${buyer.id}" class="bg-gray-200 h-8 rounded-lg font-black text-[9px] border border-gray-300 text-black">📍 MAPS</button>
+              <button id="chat-btn-${buyer.id}" class="bg-green-500 text-white h-8 rounded-lg font-black text-[9px]">💬 WA</button>
             </div>
           `;
 
@@ -257,7 +264,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     <div className="w-full h-full relative">
       <div ref={containerRef} className="w-full h-full z-0" />
       <div className="absolute bottom-36 right-4 z-30 flex flex-col gap-3">
-        <Button onClick={() => setMapType(prev => prev === 'street' ? 'satellite' : 'street')} className="h-11 w-11 rounded-2xl bg-white/80 text-foreground border border-border shadow-xl backdrop-blur-md"><Layers className="w-5 h-5" /></Button>
+        <Button onClick={() => setMapType(prev => prev === 'street' ? 'satellite' : 'street')} className="h-11 w-11 rounded-2xl bg-white text-black border border-gray-200 shadow-xl active:scale-95 transition-all"><Layers className="w-5 h-5" /></Button>
         <Button onClick={() => {
           if (navigator.geolocation && mapRef.current) {
             navigator.geolocation.getCurrentPosition((pos) => {
@@ -270,7 +277,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
               mapRef.current!.flyTo([latitude, longitude], 18);
             });
           }
-        }} className="h-11 w-11 rounded-2xl bg-white/80 text-primary border border-border shadow-xl backdrop-blur-md"><LocateFixed className="w-5 h-5" /></Button>
+        }} className="h-11 w-11 rounded-2xl bg-white text-blue-600 border border-gray-200 shadow-xl active:scale-95 transition-all"><LocateFixed className="w-5 h-5" /></Button>
       </div>
     </div>
   );
