@@ -117,7 +117,7 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
               <MapPin className="text-primary w-8 h-8" /> MO ANTAR KA MANA?
             </DialogTitle>
             <DialogDescription className="text-muted-foreground font-medium italic text-sm">
-              Cukup Nama deng Koordinat saja Pace! 🔥
+              Masukkan informasi buyer! 🔥
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-6 pt-4">
