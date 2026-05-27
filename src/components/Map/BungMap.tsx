@@ -6,8 +6,6 @@ import { Buyer, DeliveryStatus, ActualPaymentMethod, PaymentStatus } from '@/typ
 import { LocateFixed, Loader2, Layers, Map as MapIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-// Fix for Leaflet default icon issues in production
-// @ts-ignore
 if (typeof window !== 'undefined') {
   delete (L.Icon.Default.prototype as any)._getIconUrl;
   L.Icon.Default.mergeOptions({
@@ -180,7 +178,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
           div.innerHTML = `
             <div class="space-y-0.5">
               <h3 class="font-black text-base flex items-center gap-2">
-                <span class="text-primary text-xs">👤</span> ${buyer.name}
+                👤 ${buyer.name}
               </h3>
               <p class="text-[10px] leading-tight text-white/70 italic line-clamp-2">${buyer.address}</p>
             </div>
@@ -295,7 +293,6 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
               window.open(`https://www.google.com/maps/dir/?api=1&destination=${buyer.latitude},${buyer.longitude}`, '_blank');
             });
 
-            // LOGIKA PEMBAYARAN BARU
             const mainDoneBtn = document.getElementById(`main-done-btn-${buyer.id}`);
             const methodChoice = document.getElementById(`method-choice-${buyer.id}`);
             const codArea = document.getElementById(`cod-input-area-${buyer.id}`);
@@ -309,7 +306,6 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
             const confirmCash = document.getElementById(`confirm-cod-cash-${buyer.id}`);
             const confirmQris = document.getElementById(`confirm-cod-qris-${buyer.id}`);
 
-            // Format angka otomatis
             const setupMask = (input: HTMLInputElement) => {
               input?.addEventListener('input', (e) => {
                 const target = e.target as HTMLInputElement;

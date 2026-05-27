@@ -66,7 +66,7 @@ export function useKurirStore() {
       id: generateId(),
       status: 'PENDING',
       createdAt: Date.now(),
-      paymentMethod: 'COD', // Default awal
+      paymentMethod: 'COD',
       price: 0
     };
     setJadwalList((prev) =>

@@ -112,7 +112,7 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
               <MapPin className="text-primary w-8 h-8" /> MO ANTAR KA MANA?
             </DialogTitle>
             <DialogDescription className="text-muted-foreground font-medium italic text-sm">
-              Input cepat, urusan harga nanti pas beres pengantaran e.
+              Cukup Nama deng Lokasi saja Pace, biar lincah! 🔥
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-6 pt-4">
@@ -147,9 +147,6 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
                 value={formData.locationInput}
                 onChange={(e) => setFormData({ ...formData, locationInput: e.target.value, manualCoords: null })}
               />
-              <p className="text-[10px] text-muted-foreground italic px-1">
-                {formData.manualCoords ? '🔥 Lokasi manual su aktif!' : "Pace bisa masukan koordinat desimal atau DMS 🔥"}
-              </p>
             </div>
 
             <DialogFooter className="pt-2">
@@ -177,9 +174,6 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
         <DialogContent className="w-[94vw] h-[85dvh] p-0 glass rounded-[2.5rem] border-none overflow-hidden flex flex-col z-[200]">
           <DialogHeader className="p-5 bg-background/60 backdrop-blur-md border-b border-white/5 shrink-0">
             <DialogTitle className="font-black text-2xl text-white">PILIH LOKASI ANTAR 📍</DialogTitle>
-            <DialogDescription className="text-[11px] text-muted-foreground uppercase font-black tracking-widest">
-              Klik atau tap di peta untuk pasang penanda antaran
-            </DialogDescription>
           </DialogHeader>
           <div className="flex-1 relative">
             <MapPicker onSelect={handleManualLocation} />

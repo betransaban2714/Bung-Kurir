@@ -10,7 +10,6 @@ export interface Buyer {
   address: string;
   status: DeliveryStatus;
   createdAt: number;
-  // Field opsional yang bisa diisi nanti (Cicil data)
   paymentMethod?: PaymentStatus;
   price?: number; 
   paidAmount?: number;
