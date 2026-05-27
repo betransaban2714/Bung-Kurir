@@ -64,8 +64,8 @@
 
   /* CUSTOM MAP THEME: GOOGLE DARK STYLE (DEEP BLUE + WHITE ROADS) */
   .google-dark-tiles {
-    /* Filter ini mengubah abu-abu CartoDB menjadi Biru Deep, Laut Hitam, dan Jalan Putih */
-    filter: brightness(1.1) contrast(1.4) saturate(2) hue-rotate(200deg) !important;
+    /* Filter ini memastikan Daratan Biru Navy, Laut Hitam, dan Jalanan Putih Menyala */
+    filter: brightness(1.2) contrast(1.1) saturate(1.8) hue-rotate(205deg) brightness(0.85) contrast(1.4) !important;
   }
 
   /* CUSTOM MARKER STYLES */

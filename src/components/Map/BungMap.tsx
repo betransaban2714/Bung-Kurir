@@ -275,13 +275,13 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
               
               if (routeData) {
                 routeGroup.clearLayers();
-                // Rute Putih Menyala dengan Glow
+                // Rute Putih Menyala dengan Glow Putih Terang
                 L.polyline(routeData.coordinates as L.LatLngExpression[], {
-                  color: '#ffffff', weight: 8, opacity: 0.9, lineJoin: 'round', lineCap: 'round'
+                  color: '#ffffff', weight: 8, opacity: 0.95, lineJoin: 'round', lineCap: 'round'
                 }).addTo(routeGroup);
                 
                 L.polyline(routeData.coordinates as L.LatLngExpression[], {
-                  color: '#ffffff', weight: 12, opacity: 0.2, lineJoin: 'round', lineCap: 'round'
+                  color: '#ffffff', weight: 14, opacity: 0.3, lineJoin: 'round', lineCap: 'round'
                 }).addTo(routeGroup);
 
                 const infoBox = document.getElementById(`route-info-${buyer.id}`);
