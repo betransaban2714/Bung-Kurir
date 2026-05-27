@@ -4,24 +4,24 @@
 
 @layer base {
   :root {
-    --background: 222 47% 4%;
-    --foreground: 0 0% 98%;
-    --card: 222 47% 8%;
-    --card-foreground: 0 0% 98%;
-    --popover: 222 47% 8%;
-    --popover-foreground: 0 0% 98%;
+    --background: 0 0% 100%;
+    --foreground: 222 47% 4%;
+    --card: 0 0% 98%;
+    --card-foreground: 222 47% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 4%;
     --primary: 212 100% 50%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 222 47% 12%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 222 47% 15%;
-    --muted-foreground: 215 20% 65%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
     --accent: 25 100% 50%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 218 30% 15%;
-    --input: 218 30% 15%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
     --ring: 212 100% 50%;
     --radius: 1.5rem;
     --chart-1: 212 100% 50%;
@@ -47,24 +47,19 @@
 
 @layer components {
   .glass {
-    @apply bg-card/80 backdrop-blur-2xl border border-white/10 shadow-2xl;
+    @apply bg-white/90 backdrop-blur-2xl border border-black/5 shadow-2xl;
   }
 
   .glass-dark {
-    @apply bg-black/90 backdrop-blur-xl border border-white/5 shadow-xl;
+    @apply bg-white/95 backdrop-blur-xl border border-black/5 shadow-xl;
   }
 
   .glow-blue {
-    box-shadow: 0 0 20px -5px hsl(var(--primary) / 0.6);
+    box-shadow: 0 10px 25px -5px hsl(var(--primary) / 0.3);
   }
 
   .glow-orange {
-    box-shadow: 0 0 20px -5px hsl(var(--accent) / 0.6);
-  }
-
-  /* RESET MAP THEME: Deep Blue Land, Black Sea, White Roads */
-  .google-dark-tiles {
-    filter: brightness(1.1) contrast(1.1) hue-rotate(200deg) saturate(0.8) !important;
+    box-shadow: 0 10px 25px -5px hsl(var(--accent) / 0.3);
   }
 
   /* CUSTOM MARKER STYLES */
@@ -86,14 +81,14 @@
     height: 18px !important;
     border-radius: 50% !important;
     border: 3px solid white !important;
-    box-shadow: 0 0 25px rgba(0, 128, 255, 1) !important;
+    box-shadow: 0 0 15px rgba(0, 128, 255, 0.6) !important;
   }
 
   .user-marker-pulse {
     position: absolute !important;
     width: 45px !important;
     height: 45px !important;
-    background-color: rgba(0, 128, 255, 0.4) !important;
+    background-color: rgba(0, 128, 255, 0.2) !important;
     border-radius: 50% !important;
     animation: ping-large 2s infinite !important;
   }
@@ -106,9 +101,13 @@
 .leaflet-container {
   width: 100%;
   height: 100%;
-  background: #050b18 !important;
+  background: #f8fafc !important;
 }
 
 .leaflet-popup-content-wrapper {
-  @apply bg-[#050b18]/95 backdrop-blur-2xl text-foreground rounded-[2rem] border border-white/10 shadow-2xl !important;
+  @apply bg-white/95 backdrop-blur-2xl text-foreground rounded-[2rem] border border-black/5 shadow-2xl !important;
+}
+
+.text-glow {
+  text-shadow: 0 0 20px hsl(var(--primary) / 0.2);
 }

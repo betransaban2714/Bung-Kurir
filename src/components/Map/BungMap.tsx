@@ -31,9 +31,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
   
   const streetLayerRef = useRef<L.TileLayer | null>(null);
   const satelliteLayerRef = useRef<L.TileLayer | null>(null);
-  const satelliteLabelsRef = useRef<L.TileLayer | null>(null);
 
-  const [locating, setLocating] = useState(false);
   const [mapType, setMapType] = useState<MapType>('street');
 
   const createUserIcon = () => L.divIcon({
@@ -70,19 +68,30 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
     mapRef.current = map;
 
-    streetLayerRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    // TEMA TERANG: CartoDB Voyager
+    streetLayerRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
-      maxZoom: 20,
-      className: 'google-dark-tiles' 
+      maxZoom: 20
     });
 
     satelliteLayerRef.current = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 20 });
-    satelliteLabelsRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', { subdomains: 'abcd', maxZoom: 20 });
 
     streetLayerRef.current.addTo(map);
     L.control.zoom({ position: 'bottomright' }).addTo(map);
     buyerLayerGroupRef.current = L.layerGroup().addTo(map);
     routeLayerGroupRef.current = L.layerGroup().addTo(map);
+
+    // Get current position for user marker immediately
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        const { latitude, longitude } = pos.coords;
+        if (userMarkerRef.current) {
+          userMarkerRef.current.setLatLng([latitude, longitude]);
+        } else {
+          userMarkerRef.current = L.marker([latitude, longitude], { icon: createUserIcon(), zIndexOffset: 3000 }).addTo(map);
+        }
+      });
+    }
 
     return () => { 
       if (mapRef.current) {
@@ -94,20 +103,14 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !streetLayerRef.current || !satelliteLayerRef.current || !satelliteLabelsRef.current) return;
+    if (!map || !streetLayerRef.current || !satelliteLayerRef.current) return;
 
-    try {
-      if (mapType === 'street') {
-        if (!map.hasLayer(streetLayerRef.current)) map.addLayer(streetLayerRef.current);
-        if (map.hasLayer(satelliteLayerRef.current)) map.removeLayer(satelliteLayerRef.current);
-        if (map.hasLayer(satelliteLabelsRef.current)) map.removeLayer(satelliteLabelsRef.current);
-      } else {
-        if (!map.hasLayer(satelliteLayerRef.current)) map.addLayer(satelliteLayerRef.current);
-        if (!map.hasLayer(satelliteLabelsRef.current)) map.addLayer(satelliteLabelsRef.current);
-        if (map.hasLayer(streetLayerRef.current)) map.removeLayer(streetLayerRef.current);
-      }
-    } catch (err) {
-      console.warn('Gagal ganti layer:', err);
+    if (mapType === 'street') {
+      if (!map.hasLayer(streetLayerRef.current)) map.addLayer(streetLayerRef.current);
+      if (map.hasLayer(satelliteLayerRef.current)) map.removeLayer(satelliteLayerRef.current);
+    } else {
+      if (!map.hasLayer(satelliteLayerRef.current)) map.addLayer(satelliteLayerRef.current);
+      if (map.hasLayer(streetLayerRef.current)) map.removeLayer(streetLayerRef.current);
     }
   }, [mapType]);
 
@@ -119,8 +122,10 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     buyerGroup.clearLayers();
     const bounds: L.LatLngTuple[] = [];
 
-    if (rencana.startLocation) {
-      const { latitude, longitude } = rencana.startLocation;
+    // Prioritaskan User Marker dari startLocation atau Geolocation
+    const startLoc = rencana.startLocation;
+    if (startLoc) {
+      const { latitude, longitude } = startLoc;
       if (!userMarkerRef.current) {
         userMarkerRef.current = L.marker([latitude, longitude], { icon: createUserIcon(), zIndexOffset: 3000 }).addTo(map);
       } else {
@@ -131,11 +136,11 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
     rencana.buyers.forEach((buyer) => {
       const isDone = buyer.status === 'DONE' || buyer.status === 'TIP';
-      const color = isDone ? '#22c55e' : '#ff3131';
+      const color = isDone ? '#22c55e' : '#ef4444';
       
       const icon = L.divIcon({
         className: 'custom-marker',
-        html: `<div style="background-color: ${color}; width: 22px; height: 22px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>`,
+        html: `<div style="background-color: ${color}; width: 22px; height: 22px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.2);"></div>`,
         iconSize: [22, 22],
         iconAnchor: [11, 11],
       });
@@ -144,51 +149,51 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
         .addTo(buyerGroup)
         .bindPopup(() => {
           const div = document.createElement('div');
-          div.className = 'p-3 min-w-[260px] text-white';
+          div.className = 'p-3 min-w-[260px] text-foreground';
           
           div.innerHTML = `
             <div class="space-y-1">
               <h3 class="font-black text-base truncate">👤 ${buyer.name}</h3>
-              <p class="text-[10px] text-white/60 italic line-clamp-1">${buyer.address}</p>
+              <p class="text-[10px] text-muted-foreground italic line-clamp-1">${buyer.address}</p>
             </div>
             
-            <div id="route-info-${buyer.id}" class="hidden py-1.5 px-3 bg-white/5 rounded-xl border border-white/5 flex items-center justify-around my-2">
+            <div id="route-info-${buyer.id}" class="hidden py-1.5 px-3 bg-secondary rounded-xl border border-border flex items-center justify-around my-2">
                <div class="text-center">
-                 <p class="text-[8px] font-black opacity-40">JARAK</p>
+                 <p class="text-[8px] font-black opacity-60">JARAK</p>
                  <span id="dist-${buyer.id}" class="text-[11px] font-black">...</span>
                </div>
                <div class="text-center">
-                 <p class="text-[8px] font-black opacity-40">WAKTU</p>
+                 <p class="text-[8px] font-black opacity-60">WAKTU</p>
                  <span id="time-${buyer.id}" class="text-[11px] font-black">...</span>
                </div>
             </div>
 
             ${buyer.status === 'PENDING' ? `
               <div class="space-y-2 mt-2">
-                <button id="done-btn-${buyer.id}" class="w-full bg-primary h-11 rounded-xl font-black text-sm glow-blue">✅ SELESAI</button>
+                <button id="done-btn-${buyer.id}" class="w-full bg-primary text-white h-11 rounded-xl font-black text-sm glow-blue">✅ SELESAI</button>
                 <div id="action-area-${buyer.id}" class="hidden space-y-2 animate-in fade-in slide-in-from-top-1">
                    ${!buyer.price || buyer.price === 0 ? `
                      <div class="space-y-2">
                        <p class="text-[9px] font-black text-center text-accent uppercase">Harga Paket Belum Diisi!</p>
-                       <input id="price-input-${buyer.id}" type="number" placeholder="Isi Harga Paket" class="w-full bg-white/10 h-10 rounded-lg text-center font-black text-sm border border-white/10" />
+                       <input id="price-input-${buyer.id}" type="number" placeholder="Isi Harga Paket" class="w-full bg-secondary h-10 rounded-lg text-center font-black text-sm border border-border" />
                      </div>
                    ` : ''}
                   <div class="grid grid-cols-2 gap-2">
-                    <button id="confirm-cash-${buyer.id}" class="bg-accent h-10 rounded-lg font-black text-[10px]">💵 CASH</button>
-                    <button id="confirm-qris-${buyer.id}" class="bg-blue-600 h-10 rounded-lg font-black text-[10px]">📱 QRIS</button>
+                    <button id="confirm-cash-${buyer.id}" class="bg-accent text-white h-10 rounded-lg font-black text-[10px]">💵 CASH</button>
+                    <button id="confirm-qris-${buyer.id}" class="bg-blue-600 text-white h-10 rounded-lg font-black text-[10px]">📱 QRIS</button>
                   </div>
                 </div>
               </div>
             ` : `
               <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-3 text-center mt-2">
-                <span class="text-[8px] font-black text-green-400 uppercase">BERHASIL 🔥</span>
-                <p class="text-sm font-black">Rp${(buyer.paidAmount || buyer.price || 0).toLocaleString()}</p>
+                <span class="text-[8px] font-black text-green-600 uppercase">BERHASIL 🔥</span>
+                <p class="text-sm font-black text-green-700">Rp${(buyer.paidAmount || buyer.price || 0).toLocaleString()}</p>
               </div>
             `}
 
             <div class="grid grid-cols-2 gap-2 mt-3">
-              <button id="nav-btn-${buyer.id}" class="bg-white/5 h-8 rounded-lg font-black text-[9px] border border-white/5">📍 MAPS</button>
-              <button id="chat-btn-${buyer.id}" class="bg-green-500/10 text-green-400 h-8 rounded-lg font-black text-[9px] border border-green-500/10">💬 WA</button>
+              <button id="nav-btn-${buyer.id}" class="bg-secondary h-8 rounded-lg font-black text-[9px] border border-border">📍 MAPS</button>
+              <button id="chat-btn-${buyer.id}" class="bg-green-500/10 text-green-600 h-8 rounded-lg font-black text-[9px] border border-green-500/10">💬 WA</button>
             </div>
           `;
 
@@ -198,7 +203,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
               const routeData = await fetchRoute([start.lat, start.lng], [buyer.latitude, buyer.longitude]);
               if (routeData && routeLayerGroupRef.current) {
                 routeLayerGroupRef.current.clearLayers();
-                L.polyline(routeData.coordinates as L.LatLngExpression[], { color: '#ffffff', weight: 4, opacity: 0.9 }).addTo(routeLayerGroupRef.current);
+                L.polyline(routeData.coordinates as L.LatLngExpression[], { color: '#3b82f6', weight: 5, opacity: 0.8 }).addTo(routeLayerGroupRef.current);
                 const distSpan = document.getElementById(`dist-${buyer.id}`);
                 const timeSpan = document.getElementById(`time-${buyer.id}`);
                 if (distSpan) distSpan.innerText = `${(routeData.distance / 1000).toFixed(1)} KM`;
@@ -252,16 +257,20 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     <div className="w-full h-full relative">
       <div ref={containerRef} className="w-full h-full z-0" />
       <div className="absolute bottom-36 right-4 z-30 flex flex-col gap-3">
-        <Button onClick={() => setMapType(prev => prev === 'street' ? 'satellite' : 'street')} className="h-11 w-11 rounded-2xl bg-black/60 text-white border border-white/10 shadow-2xl backdrop-blur-md"><Layers className="w-5 h-5" /></Button>
+        <Button onClick={() => setMapType(prev => prev === 'street' ? 'satellite' : 'street')} className="h-11 w-11 rounded-2xl bg-white/80 text-foreground border border-border shadow-xl backdrop-blur-md"><Layers className="w-5 h-5" /></Button>
         <Button onClick={() => {
           if (navigator.geolocation && mapRef.current) {
             navigator.geolocation.getCurrentPosition((pos) => {
               const { latitude, longitude } = pos.coords;
-              if (userMarkerRef.current) userMarkerRef.current.setLatLng([latitude, longitude]).addTo(mapRef.current!);
+              if (userMarkerRef.current) {
+                userMarkerRef.current.setLatLng([latitude, longitude]);
+              } else {
+                userMarkerRef.current = L.marker([latitude, longitude], { icon: createUserIcon(), zIndexOffset: 3000 }).addTo(mapRef.current!);
+              }
               mapRef.current!.flyTo([latitude, longitude], 18);
             });
           }
-        }} className="h-11 w-11 rounded-2xl bg-black/60 text-primary border border-white/10 shadow-2xl backdrop-blur-md"><LocateFixed className="w-5 h-5" /></Button>
+        }} className="h-11 w-11 rounded-2xl bg-white/80 text-primary border border-border shadow-xl backdrop-blur-md"><LocateFixed className="w-5 h-5" /></Button>
       </div>
     </div>
   );

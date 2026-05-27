@@ -5,8 +5,6 @@ import L from 'leaflet';
 import { Button } from '@/components/ui/button';
 import { MapPin, Check, Layers, Map as MapIcon } from 'lucide-react';
 
-// Fix for Leaflet default icon issues in production
-// @ts-ignore
 if (typeof window !== 'undefined') {
   delete (L.Icon.Default.prototype as any)._getIconUrl;
   L.Icon.Default.mergeOptions({
@@ -29,7 +27,6 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
   
   const streetLayerRef = useRef<L.TileLayer | null>(null);
   const satelliteLayerRef = useRef<L.TileLayer | null>(null);
-  const satelliteLabelsRef = useRef<L.TileLayer | null>(null);
 
   const [selectedCoords, setSelectedCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [hasInteracted, setHasInteracted] = useState(false);
@@ -37,8 +34,6 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
-
-    let isMounted = true;
 
     const map = L.map(containerRef.current, {
       zoomControl: false,
@@ -48,30 +43,20 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
 
     mapRef.current = map;
 
-    // Deep Blue Google Style Theme
-    streetLayerRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    // TEMA TERANG: CartoDB Voyager
+    streetLayerRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
-      maxZoom: 20,
-      className: 'google-dark-tiles'
+      maxZoom: 20
     });
 
     satelliteLayerRef.current = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 20,
     });
 
-    satelliteLabelsRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
-      subdomains: 'abcd',
-      maxZoom: 20,
-    });
-
     streetLayerRef.current.addTo(map);
-
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
     map.on('movestart', () => setHasInteracted(true));
-    map.on('dragstart', () => setHasInteracted(true));
-    map.on('zoomstart', () => setHasInteracted(true));
-
     map.on('click', (e) => {
       setHasInteracted(true);
       const { lat, lng } = e.latlng;
@@ -82,7 +67,7 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
       } else {
         const icon = L.divIcon({
           className: 'custom-marker',
-          html: `<div style="background-color: #ff3131; width: 26px; height: 26px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 25px rgba(255, 49, 49, 0.8), 0 0 10px rgba(255,255,255,0.4);"></div>`,
+          html: `<div style="background-color: #ef4444; width: 26px; height: 26px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 15px rgba(239, 44, 44, 0.4);"></div>`,
           iconSize: [26, 26],
           iconAnchor: [13, 13],
         });
@@ -90,80 +75,50 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
       }
     });
 
-    const timer = setTimeout(() => {
-      if (isMounted) setHasInteracted(true);
-    }, 5000);
-
     if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          if (isMounted && mapRef.current) {
-            try {
-              mapRef.current.flyTo([pos.coords.latitude, pos.coords.longitude], 16, { duration: 0.5 });
-            } catch (err) {
-              console.warn('Gagal flyTo:', err);
-            }
-          }
-        },
-        null,
-        { 
-          enableHighAccuracy: true, 
-          timeout: 10000, 
-          maximumAge: 0 
-        }
-      );
+      navigator.geolocation.getCurrentPosition((pos) => {
+        if (mapRef.current) mapRef.current.flyTo([pos.coords.latitude, pos.coords.longitude], 16);
+      });
     }
 
     return () => {
-      isMounted = false;
-      clearTimeout(timer);
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
-        markerRef.current = null;
       }
     };
   }, []);
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !streetLayerRef.current || !satelliteLayerRef.current || !satelliteLabelsRef.current) return;
+    if (!map || !streetLayerRef.current || !satelliteLayerRef.current) return;
 
     if (mapType === 'street') {
       map.addLayer(streetLayerRef.current);
-      map.removeLayer(satelliteLayerRef.current);
-      map.removeLayer(satelliteLabelsRef.current);
+      if (map.hasLayer(satelliteLayerRef.current)) map.removeLayer(satelliteLayerRef.current);
     } else {
       map.addLayer(satelliteLayerRef.current);
-      map.addLayer(satelliteLabelsRef.current);
-      map.removeLayer(streetLayerRef.current);
+      if (map.hasLayer(streetLayerRef.current)) map.removeLayer(streetLayerRef.current);
     }
   }, [mapType]);
 
-  const toggleMapType = () => {
-    setMapType(prev => prev === 'street' ? 'satellite' : 'street');
-  };
-
   return (
     <div className="w-full h-full relative">
-      <div ref={containerRef} className="w-full h-full z-0 bg-[#020408]" />
-      
+      <div ref={containerRef} className="w-full h-full z-0 bg-slate-50" />
       <div className="absolute top-4 right-4 z-30">
         <Button
-          onClick={toggleMapType}
-          className={`h-11 w-11 rounded-2xl backdrop-blur-md border-white/10 p-0 flex items-center justify-center active:scale-90 transition-all duration-200 shadow-2xl ${
-            mapType === 'satellite' ? 'bg-primary text-white' : 'bg-black/60 text-white'
-          }`}
+          onClick={() => setMapType(prev => prev === 'street' ? 'satellite' : 'street')}
+          className="h-11 w-11 rounded-2xl bg-white/80 border border-border shadow-lg backdrop-blur-md p-0 flex items-center justify-center active:scale-90 transition-all"
         >
-          {mapType === 'street' ? <Layers className="w-5 h-5" /> : <MapIcon className="w-5 h-5" />}
+          <Layers className="w-5 h-5 text-foreground" />
         </Button>
       </div>
 
       {!selectedCoords && !hasInteracted && (
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10 text-center space-y-2 animate-in fade-in fade-out duration-500">
-          <div className="bg-black/60 backdrop-blur-md px-6 py-4 rounded-3xl border border-white/10 shadow-2xl">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10 text-center space-y-2 animate-in fade-in duration-500">
+          <div className="bg-white/90 backdrop-blur-md px-6 py-4 rounded-3xl border border-border shadow-2xl">
             <MapPin className="w-10 h-10 text-primary mx-auto mb-2 animate-bounce" />
-            <p className="font-black text-sm text-white uppercase tracking-widest">Klik di Peta Buat Tandai Lokasi</p>
+            <p className="font-black text-sm text-foreground uppercase tracking-widest">Klik di Peta Buat Tandai Lokasi</p>
           </div>
         </div>
       )}

@@ -173,15 +173,15 @@ export function Summary({ jadwalList }: SummaryProps) {
   return (
     <div className="space-y-4">
       {readerData && (
-        <div className="flex items-center justify-between bg-primary/20 p-3 rounded-2xl border border-primary/30 animate-in fade-in slide-in-from-top-2">
+        <div className="flex items-center justify-between bg-primary/10 p-3 rounded-2xl border border-primary/20 animate-in fade-in slide-in-from-top-2">
           <div className="flex items-center gap-2">
             <History className="w-4 h-4 text-primary" />
-            <span className="text-[10px] font-black text-white uppercase tracking-widest">Melihat Laporan: {readerData.date}</span>
+            <span className="text-[10px] font-black text-foreground uppercase tracking-widest">Melihat Laporan: {readerData.date}</span>
           </div>
           <Button 
             size="sm" 
             variant="ghost" 
-            className="h-7 text-[10px] font-black text-primary hover:bg-primary/10 rounded-lg gap-1"
+            className="h-7 text-[10px] font-black text-primary hover:bg-primary/5 rounded-lg gap-1"
             onClick={() => setReaderData(null)}
           >
             <ArrowLeft className="w-3 h-3" /> KEMBALI
@@ -193,24 +193,24 @@ export function Summary({ jadwalList }: SummaryProps) {
         <Card className="glass p-4 border-none glow-blue">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="bg-primary/20 p-2 rounded-xl">
+              <div className="bg-primary/10 p-2 rounded-xl">
                 <Package className="text-primary w-5 h-5" />
               </div>
               <h3 className="font-bold text-lg">Info Pengantaran</h3>
             </div>
           </div>
           <div className="grid grid-cols-3 gap-2 text-center">
-            <div className="bg-white/5 rounded-xl py-2">
+            <div className="bg-secondary rounded-xl py-2">
               <p className="text-muted-foreground text-[10px] uppercase font-black">Total</p>
               <p className="text-xl font-black">{'totalBuyer' in activeStats ? activeStats.totalBuyer : activeStats.total}</p>
             </div>
             <div className="bg-green-500/10 rounded-xl py-2">
               <p className="text-muted-foreground text-[10px] uppercase font-black">Selesai</p>
-              <p className="text-xl font-black text-green-400">{'selesai' in activeStats ? activeStats.selesai : activeStats.done}</p>
+              <p className="text-xl font-black text-green-600">{'selesai' in activeStats ? activeStats.selesai : activeStats.done}</p>
             </div>
             <div className="bg-red-500/10 rounded-xl py-2">
               <p className="text-muted-foreground text-[10px] uppercase font-black">Sisa</p>
-              <p className="text-xl font-black text-red-400">{'sisa' in activeStats ? activeStats.sisa : activeStats.pending}</p>
+              <p className="text-xl font-black text-red-600">{'sisa' in activeStats ? activeStats.sisa : activeStats.pending}</p>
             </div>
           </div>
         </Card>
@@ -218,35 +218,35 @@ export function Summary({ jadwalList }: SummaryProps) {
         <Card className="glass p-4 border-none glow-orange">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="bg-accent/20 p-2 rounded-xl">
+              <div className="bg-accent/10 p-2 rounded-xl">
                 <Wallet className="text-accent w-5 h-5" />
               </div>
               <h3 className="font-bold text-lg">Info Doi</h3>
             </div>
           </div>
           <div className="space-y-3">
-            <div className="flex justify-between items-center bg-white/5 p-2 rounded-lg">
+            <div className="flex justify-between items-center bg-secondary p-2 rounded-lg">
               <span className="text-[11px] font-bold text-muted-foreground uppercase">Target COD:</span>
-              <span className="font-black text-sm text-white">{formatCurrency('targetCod' in activeStats ? activeStats.targetCod : activeStats.targetCod)}</span>
+              <span className="font-black text-sm text-foreground">{formatCurrency('targetCod' in activeStats ? activeStats.targetCod : activeStats.targetCod)}</span>
             </div>
 
-            <div className="flex justify-between items-center p-2 rounded-lg border bg-primary/10 border-primary/20">
+            <div className="flex justify-between items-center p-2 rounded-lg border bg-primary/5 border-primary/10">
               <span className="text-[11px] font-bold uppercase text-primary">Doi Maso (Total):</span>
               <span className="font-black text-sm text-primary">{formatCurrency('doiMaso' in activeStats ? activeStats.doiMaso : activeStats.received)}</span>
             </div>
             
             <div className="grid grid-cols-2 gap-2">
-              <div className="bg-green-400/10 p-2 rounded-xl border border-green-500/10">
-                <span className="text-[8px] font-black text-green-400 uppercase flex items-center gap-1"><Banknote className="w-2 h-2" /> BA STOR:</span>
-                <p className="font-black text-xs text-green-400 mt-1">{formatCurrency('totalCashSetoran' in activeStats ? activeStats.totalCashSetoran : activeStats.cashSetoran)}</p>
+              <div className="bg-green-500/5 p-2 rounded-xl border border-green-500/10">
+                <span className="text-[8px] font-black text-green-600 uppercase flex items-center gap-1"><Banknote className="w-2 h-2" /> BA STOR:</span>
+                <p className="font-black text-xs text-green-600 mt-1">{formatCurrency('totalCashSetoran' in activeStats ? activeStats.totalCashSetoran : activeStats.cashSetoran)}</p>
               </div>
-              <div className="bg-blue-400/10 p-2 rounded-xl border border-blue-500/10">
-                <span className="text-[8px] font-black text-blue-400 uppercase flex items-center gap-1"><Smartphone className="w-2 h-2" /> TOTAL QRIS:</span>
-                <p className="font-black text-xs text-blue-400 mt-1">{formatCurrency('totalQris' in activeStats ? activeStats.totalQris : activeStats.qris)}</p>
+              <div className="bg-blue-500/5 p-2 rounded-xl border border-blue-500/10">
+                <span className="text-[8px] font-black text-blue-600 uppercase flex items-center gap-1"><Smartphone className="w-2 h-2" /> TOTAL QRIS:</span>
+                <p className="font-black text-xs text-blue-600 mt-1">{formatCurrency('totalQris' in activeStats ? activeStats.totalQris : activeStats.qris)}</p>
               </div>
             </div>
             
-            <div className="flex justify-between items-center pt-2 border-t border-white/5">
+            <div className="flex justify-between items-center pt-2 border-t border-border">
               <span className="text-[11px] font-black text-accent flex items-center gap-1 uppercase">
                 <TrendingUp className="w-3 h-3" /> Doi Ta Lebe:
               </span>
@@ -262,7 +262,7 @@ export function Summary({ jadwalList }: SummaryProps) {
       <div className="grid grid-cols-2 gap-4">
         <Button 
           onClick={handleExport}
-          className="h-14 bg-white/5 hover:bg-white/10 text-white font-black rounded-2xl border border-white/10 gap-2 active:scale-95 transition-all shadow-xl"
+          className="h-14 bg-white hover:bg-slate-50 text-foreground font-black rounded-2xl border border-border shadow-md gap-2 active:scale-95 transition-all"
         >
           <FileText className="w-5 h-5 text-primary" /> EXPORT DATA
         </Button>
@@ -274,7 +274,7 @@ export function Summary({ jadwalList }: SummaryProps) {
             onChange={handleImport}
           />
           <Button 
-            className="w-full h-14 bg-white/5 hover:bg-white/10 text-white font-black rounded-2xl border border-white/10 gap-2 active:scale-95 transition-all shadow-xl"
+            className="w-full h-14 bg-white hover:bg-slate-50 text-foreground font-black rounded-2xl border border-border shadow-md gap-2 active:scale-95 transition-all"
           >
             <Upload className="w-5 h-5 text-accent" /> BACA DATA
           </Button>
