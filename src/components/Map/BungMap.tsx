@@ -77,7 +77,6 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
     mapRef.current = map;
 
-    // Dark Theme: Deep Blue ala Google Maps
     streetLayerRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
@@ -157,11 +156,10 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     rencana.buyers.forEach((buyer) => {
       const isDone = buyer.status === 'DONE' || buyer.status === 'TIP';
       const color = isDone ? '#22c55e' : '#ff3131';
-      const glowColor = isDone ? 'rgba(34, 197, 94, 0.8)' : 'rgba(255, 49, 49, 0.8)';
       
       const icon = L.divIcon({
         className: 'custom-marker',
-        html: `<div style="background-color: ${color}; width: 22px; height: 22px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 20px ${glowColor}, 0 0 10px rgba(255,255,255,0.4);"></div>`,
+        html: `<div style="background-color: ${color}; width: 22px; height: 22px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5);"></div>`,
         iconSize: [22, 22],
         iconAnchor: [11, 11],
       });
@@ -275,13 +273,8 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
               
               if (routeData) {
                 routeGroup.clearLayers();
-                // Rute Putih Menyala dengan Glow Putih Terang
                 L.polyline(routeData.coordinates as L.LatLngExpression[], {
-                  color: '#ffffff', weight: 8, opacity: 0.95, lineJoin: 'round', lineCap: 'round'
-                }).addTo(routeGroup);
-                
-                L.polyline(routeData.coordinates as L.LatLngExpression[], {
-                  color: '#ffffff', weight: 14, opacity: 0.3, lineJoin: 'round', lineCap: 'round'
+                  color: '#ffffff', weight: 6, opacity: 0.8
                 }).addTo(routeGroup);
 
                 const infoBox = document.getElementById(`route-info-${buyer.id}`);
@@ -325,7 +318,6 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
             mainDoneBtn?.addEventListener('click', () => {
               mainDoneBtn.classList.add('hidden');
-              
               if (buyer.paymentMethod === 'LUNAS') {
                  onUpdateStatus(buyer.id, 'DONE', { paymentMethod: 'LUNAS', price: 0, paidAmount: 0 });
                  map.closePopup();

@@ -62,10 +62,9 @@
     box-shadow: 0 0 20px -5px hsl(var(--accent) / 0.6);
   }
 
-  /* CUSTOM MAP THEME: GOOGLE DARK STYLE (DEEP BLUE + WHITE ROADS) */
+  /* RESET MAP THEME: Balik ke Standard Dark Matter yang stabil (Jalanan kelihatan) */
   .google-dark-tiles {
-    /* Filter ini memastikan Daratan Biru Navy, Laut Hitam, dan Jalanan Putih Menyala */
-    filter: brightness(1.2) contrast(1.1) saturate(1.8) hue-rotate(205deg) brightness(0.85) contrast(1.4) !important;
+    filter: brightness(0.9) contrast(1.1) !important;
   }
 
   /* CUSTOM MARKER STYLES */
@@ -79,7 +78,7 @@
     z-index: 1000 !important;
   }
 
-  /* USER MARKER (BIRU MENYALA TERANG) */
+  /* USER MARKER */
   .user-marker {
     display: flex !important;
     align-items: center;
@@ -120,7 +119,7 @@
 .leaflet-container {
   width: 100%;
   height: 100%;
-  background: #020408 !important; /* Laut Hitam Pekat */
+  background: #0b0e14 !important;
   border-radius: inherit;
 }
 
