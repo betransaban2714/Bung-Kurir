@@ -71,7 +71,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
     mapRef.current = map;
 
-    // Pakai CartoDB Dark Matter yang JELAS (Jalanan & Gedung kelihatan)
+    // CartoDB Dark Matter: Jelas, jalanan putih, gedung kelihatan
     streetLayerRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
@@ -86,18 +86,30 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     buyerLayerGroupRef.current = L.layerGroup().addTo(map);
     routeLayerGroupRef.current = L.layerGroup().addTo(map);
 
-    return () => { if (mapRef.current) mapRef.current.remove(); };
+    return () => { 
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
   }, []);
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !streetLayerRef.current || !satelliteLayerRef.current) return;
-    if (mapType === 'street') {
-      map.addLayer(streetLayerRef.current);
-      map.removeLayer(satelliteLayerRef.current);
-    } else {
-      map.addLayer(satelliteLayerRef.current);
-      map.removeLayer(streetLayerRef.current);
+    if (!map || !streetLayerRef.current || !satelliteLayerRef.current || !satelliteLabelsRef.current) return;
+
+    try {
+      if (mapType === 'street') {
+        if (!map.hasLayer(streetLayerRef.current)) map.addLayer(streetLayerRef.current);
+        if (map.hasLayer(satelliteLayerRef.current)) map.removeLayer(satelliteLayerRef.current);
+        if (map.hasLayer(satelliteLabelsRef.current)) map.removeLayer(satelliteLabelsRef.current);
+      } else {
+        if (!map.hasLayer(satelliteLayerRef.current)) map.addLayer(satelliteLayerRef.current);
+        if (!map.hasLayer(satelliteLabelsRef.current)) map.addLayer(satelliteLabelsRef.current);
+        if (map.hasLayer(streetLayerRef.current)) map.removeLayer(streetLayerRef.current);
+      }
+    } catch (err) {
+      console.warn('Gagal ganti layer:', err);
     }
   }, [mapType]);
 
@@ -136,8 +148,6 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
           const div = document.createElement('div');
           div.className = 'p-3 min-w-[260px] text-white';
           
-          const formatNumber = (val: number) => val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-
           div.innerHTML = `
             <div class="space-y-1">
               <h3 class="font-black text-base truncate">👤 ${buyer.name}</h3>
@@ -159,6 +169,12 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
               <div class="space-y-2 mt-2">
                 <button id="done-btn-${buyer.id}" class="w-full bg-primary h-11 rounded-xl font-black text-sm glow-blue">✅ SELESAI</button>
                 <div id="action-area-${buyer.id}" class="hidden space-y-2 animate-in fade-in slide-in-from-top-1">
+                   ${!buyer.price || buyer.price === 0 ? `
+                     <div class="space-y-2">
+                       <p class="text-[9px] font-black text-center text-accent uppercase">Harga Paket Belum Diisi!</p>
+                       <input id="price-input-${buyer.id}" type="number" placeholder="Isi Harga Paket" class="w-full bg-white/10 h-10 rounded-lg text-center font-black text-sm border border-white/10" />
+                     </div>
+                   ` : ''}
                   <div class="grid grid-cols-2 gap-2">
                     <button id="confirm-cash-${buyer.id}" class="bg-accent h-10 rounded-lg font-black text-[10px]">💵 CASH</button>
                     <button id="confirm-qris-${buyer.id}" class="bg-blue-600 h-10 rounded-lg font-black text-[10px]">📱 QRIS</button>
@@ -184,7 +200,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
               const routeData = await fetchRoute([start.lat, start.lng], [buyer.latitude, buyer.longitude]);
               if (routeData) {
                 routeLayerGroupRef.current?.clearLayers();
-                L.polyline(routeData.coordinates as L.LatLngExpression[], { color: '#ffffff', weight: 4, opacity: 0.8 }).addTo(routeLayerGroupRef.current!);
+                L.polyline(routeData.coordinates as L.LatLngExpression[], { color: '#ffffff', weight: 4, opacity: 0.9 }).addTo(routeLayerGroupRef.current!);
                 const distSpan = document.getElementById(`dist-${buyer.id}`);
                 const timeSpan = document.getElementById(`time-${buyer.id}`);
                 if (distSpan) distSpan.innerText = `${(routeData.distance / 1000).toFixed(1)} KM`;
@@ -210,7 +226,15 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
             });
 
             const submit = (method: ActualPaymentMethod) => {
-              onUpdateStatus(buyer.id, 'DONE', { paymentMethod: 'COD', actualPaymentMethod: method, paidAmount: buyer.price });
+              const priceInput = document.getElementById(`price-input-${buyer.id}`) as HTMLInputElement;
+              const finalPrice = priceInput ? (parseFloat(priceInput.value) || 0) : (buyer.price || 0);
+              
+              onUpdateStatus(buyer.id, 'DONE', { 
+                paymentMethod: 'COD', 
+                actualPaymentMethod: method, 
+                price: finalPrice,
+                paidAmount: finalPrice 
+              });
               map.closePopup();
             };
             document.getElementById(`confirm-cash-${buyer.id}`)?.addEventListener('click', () => submit('CASH'));
@@ -230,14 +254,16 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     <div className="w-full h-full relative">
       <div ref={containerRef} className="w-full h-full z-0" />
       <div className="absolute bottom-36 right-4 z-30 flex flex-col gap-3">
-        <Button onClick={() => setMapType(prev => prev === 'street' ? 'satellite' : 'street')} className="h-11 w-11 rounded-2xl bg-black/60 text-white"><Layers className="w-5 h-5" /></Button>
+        <Button onClick={() => setMapType(prev => prev === 'street' ? 'satellite' : 'street')} className="h-11 w-11 rounded-2xl bg-black/60 text-white border border-white/10 shadow-2xl backdrop-blur-md"><Layers className="w-5 h-5" /></Button>
         <Button onClick={() => {
-          navigator.geolocation.getCurrentPosition((pos) => {
-            const { latitude, longitude } = pos.coords;
-            if (userMarkerRef.current) userMarkerRef.current.setLatLng([latitude, longitude]).addTo(mapRef.current!);
-            mapRef.current!.flyTo([latitude, longitude], 18);
-          });
-        }} className="h-11 w-11 rounded-2xl bg-black/60 text-primary"><LocateFixed className="w-5 h-5" /></Button>
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((pos) => {
+              const { latitude, longitude } = pos.coords;
+              if (userMarkerRef.current) userMarkerRef.current.setLatLng([latitude, longitude]).addTo(mapRef.current!);
+              mapRef.current!.flyTo([latitude, longitude], 18);
+            });
+          }
+        }} className="h-11 w-11 rounded-2xl bg-black/60 text-primary border border-white/10 shadow-2xl backdrop-blur-md"><LocateFixed className="w-5 h-5" /></Button>
       </div>
     </div>
   );
