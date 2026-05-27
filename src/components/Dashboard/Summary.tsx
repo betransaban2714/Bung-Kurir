@@ -119,7 +119,47 @@ export function Summary({ jadwalList }: SummaryProps) {
     toast({ title: "Export Berhasil!", description: "File .txt su terdownload e. Mantap!" });
   };
 
-  const activeStats = {
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      try {
+        const lines = content.split('\n');
+        const data: Partial<ImportedData> = {};
+        
+        lines.forEach(line => {
+          if (line.includes('Tanggal:')) data.date = line.split(':')[1].trim();
+          if (line.includes('- Total Jadwal:')) data.totalJadwal = parseInt(line.split(':')[1]);
+          if (line.includes('- Total Buyer:')) data.totalBuyer = parseInt(line.split(':')[1]);
+          if (line.includes('- Selesai:')) data.selesai = parseInt(line.split(':')[1]);
+          if (line.includes('- Sisa:')) data.sisa = parseInt(line.split(':')[1]);
+          
+          const parseCurrency = (str: string) => {
+            const clean = str.replace(/[^\d]/g, '');
+            return parseInt(clean) || 0;
+          };
+
+          if (line.includes('- Target COD:')) data.targetCod = parseCurrency(line.split(':')[1]);
+          if (line.includes('- Doi Maso:')) data.doiMaso = parseCurrency(line.split(':')[1]);
+          if (line.includes('- Ba Stor:')) data.totalCashSetoran = parseCurrency(line.split(':')[1]);
+          if (line.includes('- Total QRIS:')) data.totalQris = parseCurrency(line.split(':')[1]);
+          if (line.includes('- Doi Ta Lebe:')) data.doiTaLebe = parseCurrency(line.split(':')[1]);
+        });
+
+        setReaderData(data as ImportedData);
+        toast({ title: "Laporan Terbaca!", description: "Ini data dari file laporan lama ko." });
+      } catch (err) {
+        toast({ variant: "destructive", title: "Gagal Baca!", description: "Format file tra pas, pastikan itu file .txt dari app ini." });
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const activeStats = readerData || {
+    date: 'Hari Ini',
     total: total,
     done: done,
     pending: pending,
@@ -132,6 +172,23 @@ export function Summary({ jadwalList }: SummaryProps) {
 
   return (
     <div className="space-y-4">
+      {readerData && (
+        <div className="flex items-center justify-between bg-primary/20 p-3 rounded-2xl border border-primary/30 animate-in fade-in slide-in-from-top-2">
+          <div className="flex items-center gap-2">
+            <History className="w-4 h-4 text-primary" />
+            <span className="text-[10px] font-black text-white uppercase tracking-widest">Melihat Laporan: {readerData.date}</span>
+          </div>
+          <Button 
+            size="sm" 
+            variant="ghost" 
+            className="h-7 text-[10px] font-black text-primary hover:bg-primary/10 rounded-lg gap-1"
+            onClick={() => setReaderData(null)}
+          >
+            <ArrowLeft className="w-3 h-3" /> KEMBALI
+          </Button>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="glass p-4 border-none glow-blue">
           <div className="flex items-center justify-between mb-4">
@@ -145,15 +202,15 @@ export function Summary({ jadwalList }: SummaryProps) {
           <div className="grid grid-cols-3 gap-2 text-center">
             <div className="bg-white/5 rounded-xl py-2">
               <p className="text-muted-foreground text-[10px] uppercase font-black">Total</p>
-              <p className="text-xl font-black">{activeStats.total}</p>
+              <p className="text-xl font-black">{'totalBuyer' in activeStats ? activeStats.totalBuyer : activeStats.total}</p>
             </div>
             <div className="bg-green-500/10 rounded-xl py-2">
               <p className="text-muted-foreground text-[10px] uppercase font-black">Selesai</p>
-              <p className="text-xl font-black text-green-400">{activeStats.done}</p>
+              <p className="text-xl font-black text-green-400">{'selesai' in activeStats ? activeStats.selesai : activeStats.done}</p>
             </div>
             <div className="bg-red-500/10 rounded-xl py-2">
               <p className="text-muted-foreground text-[10px] uppercase font-black">Sisa</p>
-              <p className="text-xl font-black text-red-400">{activeStats.pending}</p>
+              <p className="text-xl font-black text-red-400">{'sisa' in activeStats ? activeStats.sisa : activeStats.pending}</p>
             </div>
           </div>
         </Card>
@@ -170,22 +227,22 @@ export function Summary({ jadwalList }: SummaryProps) {
           <div className="space-y-3">
             <div className="flex justify-between items-center bg-white/5 p-2 rounded-lg">
               <span className="text-[11px] font-bold text-muted-foreground uppercase">Target COD:</span>
-              <span className="font-black text-sm text-white">{formatCurrency(activeStats.targetCod)}</span>
+              <span className="font-black text-sm text-white">{formatCurrency('targetCod' in activeStats ? activeStats.targetCod : activeStats.targetCod)}</span>
             </div>
 
             <div className="flex justify-between items-center p-2 rounded-lg border bg-primary/10 border-primary/20">
               <span className="text-[11px] font-bold uppercase text-primary">Doi Maso (Total):</span>
-              <span className="font-black text-sm text-primary">{formatCurrency(activeStats.received)}</span>
+              <span className="font-black text-sm text-primary">{formatCurrency('doiMaso' in activeStats ? activeStats.doiMaso : activeStats.received)}</span>
             </div>
             
             <div className="grid grid-cols-2 gap-2">
               <div className="bg-green-400/10 p-2 rounded-xl border border-green-500/10">
                 <span className="text-[8px] font-black text-green-400 uppercase flex items-center gap-1"><Banknote className="w-2 h-2" /> BA STOR:</span>
-                <p className="font-black text-xs text-green-400 mt-1">{formatCurrency(activeStats.cashSetoran)}</p>
+                <p className="font-black text-xs text-green-400 mt-1">{formatCurrency('totalCashSetoran' in activeStats ? activeStats.totalCashSetoran : activeStats.cashSetoran)}</p>
               </div>
               <div className="bg-blue-400/10 p-2 rounded-xl border border-blue-500/10">
                 <span className="text-[8px] font-black text-blue-400 uppercase flex items-center gap-1"><Smartphone className="w-2 h-2" /> TOTAL QRIS:</span>
-                <p className="font-black text-xs text-blue-400 mt-1">{formatCurrency(activeStats.qris)}</p>
+                <p className="font-black text-xs text-blue-400 mt-1">{formatCurrency('totalQris' in activeStats ? activeStats.totalQris : activeStats.qris)}</p>
               </div>
             </div>
             
@@ -194,20 +251,35 @@ export function Summary({ jadwalList }: SummaryProps) {
                 <TrendingUp className="w-3 h-3" /> Doi Ta Lebe:
               </span>
               <span className="font-black text-lg text-accent">
-                {activeStats.tips > 0 ? formatCurrency(activeStats.tips) : 'Rp0'}
-                {activeStats.tips > 0 && <span className="text-xs ml-1">🔥</span>}
+                {('doiTaLebe' in activeStats ? activeStats.doiTaLebe : activeStats.tips) > 0 ? formatCurrency('doiTaLebe' in activeStats ? activeStats.doiTaLebe : activeStats.tips) : 'Rp0'}
+                {('doiTaLebe' in activeStats ? activeStats.doiTaLebe : activeStats.tips) > 0 && <span className="text-xs ml-1">🔥</span>}
               </span>
             </div>
           </div>
         </Card>
       </div>
 
-      <Button 
-        onClick={handleExport}
-        className="w-full h-14 bg-white/5 hover:bg-white/10 text-white font-black rounded-2xl border border-white/10 gap-2 active:scale-95 transition-all shadow-xl"
-      >
-        <FileText className="w-5 h-5 text-primary" /> EXPORT LAPORAN (.TXT)
-      </Button>
+      <div className="grid grid-cols-2 gap-4">
+        <Button 
+          onClick={handleExport}
+          className="h-14 bg-white/5 hover:bg-white/10 text-white font-black rounded-2xl border border-white/10 gap-2 active:scale-95 transition-all shadow-xl"
+        >
+          <FileText className="w-5 h-5 text-primary" /> EXPORT (.TXT)
+        </Button>
+        <div className="relative">
+          <input 
+            type="file" 
+            accept=".txt" 
+            className="absolute inset-0 opacity-0 cursor-pointer z-10"
+            onChange={handleImport}
+          />
+          <Button 
+            className="w-full h-14 bg-white/5 hover:bg-white/10 text-white font-black rounded-2xl border border-white/10 gap-2 active:scale-95 transition-all shadow-xl"
+          >
+            <Upload className="w-5 h-5 text-accent" /> BACA DATA
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
