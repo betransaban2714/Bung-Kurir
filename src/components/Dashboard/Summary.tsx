@@ -264,7 +264,7 @@ export function Summary({ jadwalList }: SummaryProps) {
           onClick={handleExport}
           className="h-14 bg-white/5 hover:bg-white/10 text-white font-black rounded-2xl border border-white/10 gap-2 active:scale-95 transition-all shadow-xl"
         >
-          <FileText className="w-5 h-5 text-primary" /> EXPORT (.TXT)
+          <FileText className="w-5 h-5 text-primary" /> EXPORT DATA
         </Button>
         <div className="relative">
           <input 
