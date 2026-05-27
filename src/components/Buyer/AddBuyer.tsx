@@ -67,6 +67,7 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
         latitude = formData.manualCoords.lat;
         longitude = formData.manualCoords.lng;
       } else {
+        // DISINI FUNGSI AI NYA PACE: Baca teks lokasi kotor jadi koordinat bersih
         const location = await extractLocationData({ locationInput: formData.locationInput });
         latitude = location.latitude;
         longitude = location.longitude;
@@ -112,7 +113,7 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
               <MapPin className="text-primary w-8 h-8" /> MO ANTAR KA MANA?
             </DialogTitle>
             <DialogDescription className="text-muted-foreground font-medium italic text-sm">
-              Cukup Nama deng Lokasi saja Pace, biar lincah! 🔥
+              Tulis Nama deng Lokasi saja Pace, biar AI yang urus sisanya! 🔥
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-6 pt-4">
@@ -129,7 +130,7 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
 
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
-                <Label htmlFor="location" className="text-muted-foreground font-black uppercase tracking-widest text-[10px]">Lokasi Antar</Label>
+                <Label htmlFor="location" className="text-muted-foreground font-black uppercase tracking-widest text-[10px]">Lokasi Antar (Bisa Paste Link Maps)</Label>
                 <Button 
                   type="button" 
                   variant="ghost" 
@@ -142,7 +143,7 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
               </div>
               <Input
                 id="location"
-                placeholder="Masukan Koordinat atau pilih Manual"
+                placeholder="Paste Link Maps atau Koordinat"
                 className={`bg-secondary/40 h-14 text-xs rounded-2xl border-white/5 transition-all ${formData.manualCoords ? 'border-primary/50 ring-2 ring-primary/20 bg-primary/5' : ''}`}
                 value={formData.locationInput}
                 onChange={(e) => setFormData({ ...formData, locationInput: e.target.value, manualCoords: null })}
@@ -157,7 +158,7 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
               >
                 {loading ? (
                   <>
-                    <Loader2 className="mr-2 h-7 w-7 animate-spin" /> PROSES DOLO...
+                    <Loader2 className="mr-2 h-7 w-7 animate-spin" /> PROSES LOKASI...
                   </>
                 ) : (
                   <>
