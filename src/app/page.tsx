@@ -89,18 +89,11 @@ export default function Home() {
              <div className="w-full h-full rounded-[1.8rem] overflow-hidden border border-white/5 relative bg-black">
                 <BungMap 
                   rencana={activeJadwal} 
-                  onUpdateStatus={(bid, status, paid, method) => updateBuyerStatus(activeJadwal.id, bid, status, paid, method)}
+                  onUpdateStatus={(bid, status, data) => updateBuyerStatus(activeJadwal.id, bid, status, data)}
                 />
                 
                 <div className="absolute top-4 right-4 flex flex-col gap-3 z-30">
                   <div className="relative">
-                    {onboardingStep === 1 && (
-                      <div className="absolute right-full mr-4 top-1/2 -translate-y-1/2 whitespace-nowrap animate-in fade-in slide-in-from-right-4 duration-500">
-                        <div className="glass-dark text-white font-black text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 border border-white/10">
-                          Pantau daftar Buyer di sini 👉
-                        </div>
-                      </div>
-                    )}
                     <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
                       <SheetTrigger asChild>
                         <Button size="icon" className="w-14 h-14 rounded-2xl glass-dark shadow-2xl glow-blue active:scale-95 transition-all">
@@ -121,13 +114,6 @@ export default function Home() {
                   </div>
 
                   <div className="relative">
-                    {onboardingStep === 2 && (
-                      <div className="absolute right-full mr-4 top-1/2 -translate-y-1/2 whitespace-nowrap animate-in fade-in slide-in-from-right-4 duration-500">
-                        <div className="glass-dark text-white font-black text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 border border-white/10">
-                          Pantau pengantaran hari ini disini 👉
-                        </div>
-                      </div>
-                    )}
                     <Button 
                       size="icon" 
                       className={`w-14 h-14 rounded-2xl glass-dark shadow-2xl transition-all active:scale-95 ${showSummary ? 'bg-accent text-white scale-110' : 'glow-orange'}`}
@@ -166,23 +152,14 @@ export default function Home() {
                   </Button>
                 }
               />
-              <div className="relative">
-                {onboardingStep === 2 && (
-                  <div className="absolute right-full mr-4 top-1/2 -translate-y-1/2 whitespace-nowrap animate-in fade-in slide-in-from-right-4 duration-500 z-50">
-                    <div className="glass-dark text-white font-black text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 border border-white/10">
-                      Pantau pengantaran hari ini disini 👉
-                    </div>
-                  </div>
-                )}
-                <Button 
-                  variant="ghost"
-                  className={`h-12 w-full text-muted-foreground font-black text-xs tracking-widest uppercase hover:bg-white/5 rounded-xl ${onboardingStep === 2 ? 'bg-white/5 ring-1 ring-accent/30' : ''}`}
-                  onClick={() => setShowSummary(!showSummary)}
-                >
-                  {showSummary ? <X className="w-4 h-4 mr-2" /> : <LayoutDashboard className="w-4 h-4 mr-2" />}
-                  {showSummary ? "Tutup Laporan" : "Lihat Laporan Hari Ini"}
-                </Button>
-              </div>
+              <Button 
+                variant="ghost"
+                className="h-12 w-full text-muted-foreground font-black text-xs tracking-widest uppercase hover:bg-white/5 rounded-xl"
+                onClick={() => setShowSummary(!showSummary)}
+              >
+                {showSummary ? <X className="w-4 h-4 mr-2" /> : <LayoutDashboard className="w-4 h-4 mr-2" />}
+                {showSummary ? "Tutup Laporan" : "Lihat Laporan Hari Ini"}
+              </Button>
             </div>
           </div>
         )}

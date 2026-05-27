@@ -1,33 +1,26 @@
-export type PaymentStatus = 'COD' | 'Su Bayar';
-export type PacketType = 'STD' | 'ECO';
+export type PaymentStatus = 'COD' | 'LUNAS';
 export type DeliveryStatus = 'PENDING' | 'DONE' | 'TIP';
 export type ActualPaymentMethod = 'CASH' | 'QRIS';
 
 export interface Buyer {
   id: string;
   name: string;
-  waNumber: string;
-  packetType: PacketType;
-  paymentMethod: PaymentStatus;
-  actualPaymentMethod?: ActualPaymentMethod;
-  price: number;
-  paidAmount?: number;
   latitude: number;
   longitude: number;
   address: string;
   status: DeliveryStatus;
   createdAt: number;
+  // Field opsional yang bisa diisi nanti
+  paymentMethod?: PaymentStatus;
+  price?: number; 
+  paidAmount?: number;
+  actualPaymentMethod?: ActualPaymentMethod;
 }
 
 export interface Jadwal {
   id: string;
   name: string;
   startLocation?: {
-    latitude: number;
-    longitude: number;
-    address: string;
-  };
-  endLocation?: {
     latitude: number;
     longitude: number;
     address: string;

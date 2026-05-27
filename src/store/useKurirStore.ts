@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { Jadwal, Buyer, DeliveryStatus, ActualPaymentMethod } from '@/types';
+import type { Jadwal, Buyer, DeliveryStatus, ActualPaymentMethod, PaymentStatus } from '@/types';
 
 const STORAGE_KEY = 'bungkurir_data_v2';
 
@@ -60,15 +60,32 @@ export function useKurirStore() {
     if (activeJadwalId === id) setActiveJadwalId(null);
   };
 
-  const addBuyer = (jadwalId: string, buyerData: Omit<Buyer, 'id' | 'status' | 'createdAt'>) => {
+  const addBuyer = (jadwalId: string, buyerData: Pick<Buyer, 'name' | 'address' | 'latitude' | 'longitude'>) => {
     const newBuyer: Buyer = {
       ...buyerData,
       id: generateId(),
       status: 'PENDING',
       createdAt: Date.now(),
+      paymentMethod: 'COD', // Default
+      price: 0
     };
     setJadwalList((prev) =>
       prev.map((r) => (r.id === jadwalId ? { ...r, buyers: [...r.buyers, newBuyer] } : r))
+    );
+  };
+
+  const updateBuyerInfo = (jadwalId: string, buyerId: string, info: Partial<Buyer>) => {
+    setJadwalList((prev) =>
+      prev.map((r) =>
+        r.id === jadwalId
+          ? {
+              ...r,
+              buyers: r.buyers.map((b) =>
+                b.id === buyerId ? { ...b, ...info } : b
+              ),
+            }
+          : r
+      )
     );
   };
 
@@ -76,8 +93,7 @@ export function useKurirStore() {
     jadwalId: string, 
     buyerId: string, 
     status: DeliveryStatus, 
-    paidAmount?: number,
-    actualPaymentMethod?: ActualPaymentMethod
+    data: { paidAmount?: number, price?: number, actualPaymentMethod?: ActualPaymentMethod, paymentMethod?: PaymentStatus }
   ) => {
     setJadwalList((prev) =>
       prev.map((r) =>
@@ -85,7 +101,7 @@ export function useKurirStore() {
           ? {
               ...r,
               buyers: r.buyers.map((b) =>
-                b.id === buyerId ? { ...b, status, paidAmount, actualPaymentMethod } : b
+                b.id === buyerId ? { ...b, status, ...data } : b
               ),
             }
           : r
@@ -111,6 +127,7 @@ export function useKurirStore() {
     createJadwal,
     deleteJadwal,
     addBuyer,
+    updateBuyerInfo,
     updateBuyerStatus,
     deleteBuyer,
     isHydrated,

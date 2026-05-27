@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
-import { Jadwal, DeliveryStatus, ActualPaymentMethod } from '@/types';
+import { Buyer, DeliveryStatus, ActualPaymentMethod, PaymentStatus } from '@/types';
 import { LocateFixed, Loader2, Layers, Map as MapIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -18,8 +18,8 @@ if (typeof window !== 'undefined') {
 }
 
 interface BungMapProps {
-  rencana: Jadwal;
-  onUpdateStatus: (buyerId: string, status: DeliveryStatus, paidAmount?: number, actualPaymentMethod?: ActualPaymentMethod) => void;
+  rencana: { id: string, buyers: Buyer[], startLocation?: any };
+  onUpdateStatus: (buyerId: string, status: DeliveryStatus, data: { paidAmount?: number, price?: number, actualPaymentMethod?: ActualPaymentMethod, paymentMethod?: PaymentStatus }) => void;
 }
 
 type MapType = 'street' | 'satellite';
@@ -79,7 +79,6 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
     mapRef.current = map;
 
-    // Peta Gelap Elegan (Dark Matter)
     streetLayerRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
@@ -89,13 +88,11 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
       maxZoom: 20,
     });
 
-    // Label tipis buat satelit biar tra rame
     satelliteLabelsRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
     });
 
-    // Default: Street Map (Dark & Light-weight)
     streetLayerRef.current.addTo(map);
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
@@ -176,7 +173,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
         .addTo(buyerGroup)
         .bindPopup(() => {
           const div = document.createElement('div');
-          div.className = 'p-3 min-w-[250px] max-w-[80vw] space-y-3 bg-transparent text-white';
+          div.className = 'p-3 min-w-[260px] max-w-[80vw] space-y-3 bg-transparent text-white';
           
           const formatNumber = (val: number) => val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
@@ -200,65 +197,63 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
                </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-2 py-2 border-y border-white/5">
-              <div class="bg-white/5 p-1.5 rounded-lg text-center">
-                <p class="text-[8px] text-white/40 uppercase font-black">Paket</p>
-                <p class="text-[10px] font-black text-primary">📦 ${buyer.packetType}</p>
-              </div>
-              <div class="bg-white/5 p-1.5 rounded-lg text-center">
-                <p class="text-[8px] text-white/40 uppercase font-black">Bayar</p>
-                <p class="text-[10px] font-black text-accent">💰 ${buyer.paymentMethod}</p>
-              </div>
-            </div>
-
-            <div class="flex justify-between items-center px-1">
-               <span class="text-[10px] font-bold text-white/50">Harga:</span>
-               <span class="font-black text-base text-primary">Rp${buyer.price.toLocaleString()}</span>
-            </div>
-            
             ${buyer.status === 'PENDING' ? `
               <div id="action-area-${buyer.id}" class="space-y-2">
-                <button id="pre-done-btn-${buyer.id}" class="w-full bg-primary text-white h-11 rounded-xl font-black text-sm shadow-lg active:scale-95 transition-all glow-blue">
+                <button id="main-done-btn-${buyer.id}" class="w-full bg-primary text-white h-11 rounded-xl font-black text-sm shadow-lg active:scale-95 transition-all glow-blue">
                   ✅ SELESAI
                 </button>
                 
-                <div id="payment-choice-area-${buyer.id}" class="hidden grid grid-cols-2 gap-2 animate-in fade-in duration-200">
-                  <button id="choose-cash-${buyer.id}" class="bg-secondary text-white h-11 rounded-xl font-black text-[10px] border border-white/10 active:scale-95 transition-all">
-                    💵 CASH (COD)
+                <div id="method-choice-${buyer.id}" class="hidden grid grid-cols-2 gap-2 animate-in fade-in duration-200">
+                  <button id="choice-cod-${buyer.id}" class="bg-accent text-white h-12 rounded-xl font-black text-xs active:scale-95 transition-all shadow-xl">
+                    💵 COD
                   </button>
-                  <button id="choose-qris-${buyer.id}" class="bg-blue-600/30 text-blue-400 h-11 rounded-xl font-black text-[10px] border border-blue-500/20 active:scale-95 transition-all">
-                    📱 QRIS
-                  </button>
-                </div>
-
-                <div id="confirm-input-area-${buyer.id}" class="hidden space-y-2 animate-in fade-in slide-in-from-top-1 duration-200 bg-black/40 p-2 rounded-xl border border-white/5">
-                  <p class="text-[8px] font-black text-accent uppercase text-center">Uang yang Diterima:</p>
-                  <input 
-                    type="text" 
-                    inputmode="numeric"
-                    id="paid-input-${buyer.id}" 
-                    class="w-full h-9 bg-black/60 border border-white/10 rounded-lg px-2 text-center text-base font-black text-white focus:ring-1 focus:ring-accent outline-none"
-                    value="${formatNumber(buyer.price)}"
-                  />
-                  <button id="done-cash-btn-${buyer.id}" class="w-full bg-accent text-white h-10 rounded-lg font-black text-sm shadow-lg active:scale-95 transition-all glow-orange">
-                    KONFIRMASI ✅
+                  <button id="choice-lunas-${buyer.id}" class="bg-blue-600 text-white h-12 rounded-xl font-black text-xs active:scale-95 transition-all shadow-xl">
+                    ✅ LUNAS
                   </button>
                 </div>
 
-                <div id="confirm-qris-area-${buyer.id}" class="hidden space-y-2 animate-in fade-in slide-in-from-top-1 duration-200 bg-blue-900/20 p-2 rounded-xl border border-blue-500/10">
-                  <p class="text-[9px] font-black text-blue-400 uppercase text-center">Konfirmasi QRIS Berhasil?</p>
-                  <button id="done-qris-btn-${buyer.id}" class="w-full bg-blue-600 text-white h-10 rounded-lg font-black text-sm shadow-lg active:scale-95 transition-all">
-                    IYO, QRIS ✅
-                  </button>
+                <div id="cod-input-area-${buyer.id}" class="hidden space-y-3 animate-in fade-in slide-in-from-top-1 duration-200 bg-black/40 p-3 rounded-2xl border border-white/5">
+                  <div class="space-y-1">
+                    <p class="text-[8px] font-black text-white/40 uppercase px-1">Harga Paket (Rp):</p>
+                    <input 
+                      type="text" 
+                      inputmode="numeric"
+                      id="price-input-${buyer.id}" 
+                      placeholder="Harga Paket"
+                      class="w-full h-10 bg-black/60 border border-white/10 rounded-lg px-3 text-sm font-black text-white focus:ring-1 focus:ring-accent outline-none"
+                      value="${buyer.price ? formatNumber(buyer.price) : ''}"
+                    />
+                  </div>
+
+                  <div class="space-y-1">
+                    <p class="text-[8px] font-black text-white/40 uppercase px-1">Uang Diterima (Rp):</p>
+                    <input 
+                      type="text" 
+                      inputmode="numeric"
+                      id="paid-input-${buyer.id}" 
+                      placeholder="Uang Diterima"
+                      class="w-full h-10 bg-black/60 border border-white/10 rounded-lg px-3 text-sm font-black text-accent focus:ring-1 focus:ring-accent outline-none"
+                      value="${buyer.price ? formatNumber(buyer.price) : ''}"
+                    />
+                  </div>
+                  
+                  <div class="grid grid-cols-2 gap-2 pt-1">
+                    <button id="confirm-cod-cash-${buyer.id}" class="bg-accent text-white h-10 rounded-lg font-black text-[10px] shadow-lg active:scale-95 transition-all">
+                      💵 CASH
+                    </button>
+                    <button id="confirm-cod-qris-${buyer.id}" class="bg-blue-600 text-white h-10 rounded-lg font-black text-[10px] shadow-lg active:scale-95 transition-all">
+                      📱 QRIS
+                    </button>
+                  </div>
                 </div>
               </div>
             ` : `
-              <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-2 text-center">
+              <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-3 text-center">
                 <div class="flex items-center justify-center gap-2 mb-1">
                   <span class="text-[8px] font-black text-green-400 uppercase tracking-widest">BERHASIL 🔥</span>
-                  <span class="text-[7px] font-black bg-white/10 px-1.5 py-0.5 rounded text-white/60 uppercase">${buyer.actualPaymentMethod || 'CASH'}</span>
+                  <span class="text-[7px] font-black bg-white/10 px-1.5 py-0.5 rounded text-white/60 uppercase">${buyer.paymentMethod || 'LUNAS'}</span>
                 </div>
-                <p class="text-sm font-black">Rp${(buyer.paidAmount || buyer.price).toLocaleString()}</p>
+                ${buyer.paymentMethod === 'COD' ? `<p class="text-sm font-black">Rp${(buyer.paidAmount || buyer.price || 0).toLocaleString()}</p>` : ''}
               </div>
             `}
 
@@ -281,12 +276,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
               if (routeData) {
                 routeGroup.clearLayers();
                 L.polyline(routeData.coordinates as L.LatLngExpression[], {
-                  color: 'white',
-                  weight: 5,
-                  opacity: 0.9,
-                  lineJoin: 'round',
-                  lineCap: 'round',
-                  dashArray: '1, 8'
+                  color: 'white', weight: 5, opacity: 0.9, lineJoin: 'round', lineCap: 'round', dashArray: '1, 8'
                 }).addTo(routeGroup);
 
                 const infoBox = document.getElementById(`route-info-${buyer.id}`);
@@ -304,63 +294,71 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
             document.getElementById(`nav-btn-${buyer.id}`)?.addEventListener('click', () => {
               window.open(`https://www.google.com/maps/dir/?api=1&destination=${buyer.latitude},${buyer.longitude}`, '_blank');
             });
-            
-            document.getElementById(`chat-btn-${buyer.id}`)?.addEventListener('click', () => {
-              const phone = buyer.waNumber.replace(/[^0-9]/g, '');
-              window.open(`https://wa.me/${phone}`, '_blank');
-            });
 
-            // LOGIKA PEMBAYARAN
-            const preBtn = document.getElementById(`pre-done-btn-${buyer.id}`);
-            const paymentChoice = document.getElementById(`payment-choice-area-${buyer.id}`);
-            const cashArea = document.getElementById(`confirm-input-area-${buyer.id}`);
-            const qrisArea = document.getElementById(`confirm-qris-area-${buyer.id}`);
+            // LOGIKA PEMBAYARAN BARU
+            const mainDoneBtn = document.getElementById(`main-done-btn-${buyer.id}`);
+            const methodChoice = document.getElementById(`method-choice-${buyer.id}`);
+            const codArea = document.getElementById(`cod-input-area-${buyer.id}`);
             
-            const btnCash = document.getElementById(`choose-cash-${buyer.id}`);
-            const btnQris = document.getElementById(`choose-qris-${buyer.id}`);
+            const btnCod = document.getElementById(`choice-cod-${buyer.id}`);
+            const btnLunas = document.getElementById(`choice-lunas-${buyer.id}`);
             
-            const doneCashBtn = document.getElementById(`done-cash-btn-${buyer.id}`);
-            const doneQrisBtn = document.getElementById(`done-qris-btn-${buyer.id}`);
+            const priceInput = document.getElementById(`price-input-${buyer.id}`) as HTMLInputElement;
             const paidInput = document.getElementById(`paid-input-${buyer.id}`) as HTMLInputElement;
+            
+            const confirmCash = document.getElementById(`confirm-cod-cash-${buyer.id}`);
+            const confirmQris = document.getElementById(`confirm-cod-qris-${buyer.id}`);
 
-            paidInput?.addEventListener('input', (e) => {
-              const target = e.target as HTMLInputElement;
-              const raw = target.value.replace(/\D/g, '');
-              target.value = raw.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            // Format angka otomatis
+            const setupMask = (input: HTMLInputElement) => {
+              input?.addEventListener('input', (e) => {
+                const target = e.target as HTMLInputElement;
+                const raw = target.value.replace(/\D/g, '');
+                target.value = raw.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+              });
+            };
+            if(priceInput) setupMask(priceInput);
+            if(paidInput) setupMask(paidInput);
+
+            mainDoneBtn?.addEventListener('click', () => {
+              mainDoneBtn.classList.add('hidden');
+              methodChoice?.classList.remove('hidden');
             });
 
-            preBtn?.addEventListener('click', () => {
-              preBtn.classList.add('hidden');
-              paymentChoice?.classList.remove('hidden');
-            });
-
-            btnCash?.addEventListener('click', () => {
-              paymentChoice?.classList.add('hidden');
-              cashArea?.classList.remove('hidden');
-              paidInput?.focus();
-            });
-
-            btnQris?.addEventListener('click', () => {
-              paymentChoice?.classList.add('hidden');
-              qrisArea?.classList.remove('hidden');
-            });
-
-            doneCashBtn?.addEventListener('click', () => {
-              const rawValue = paidInput.value.replace(/\./g, '');
-              const paidAmount = parseFloat(rawValue) || buyer.price;
-              const status: DeliveryStatus = paidAmount > buyer.price ? 'TIP' : 'DONE';
-              onUpdateStatus(buyer.id, status, paidAmount, 'CASH');
+            btnLunas?.addEventListener('click', () => {
+              onUpdateStatus(buyer.id, 'DONE', { paymentMethod: 'LUNAS', price: 0, paidAmount: 0 });
               map.closePopup();
             });
 
-            doneQrisBtn?.addEventListener('click', () => {
-              onUpdateStatus(buyer.id, 'DONE', buyer.price, 'QRIS');
-              map.closePopup();
+            btnCod?.addEventListener('click', () => {
+              methodChoice?.classList.add('hidden');
+              codArea?.classList.remove('hidden');
+              if (priceInput) priceInput.focus();
             });
+
+            const submitCod = (method: ActualPaymentMethod) => {
+              const rawPrice = priceInput.value.replace(/\./g, '');
+              const rawPaid = paidInput.value.replace(/\./g, '');
+              const price = parseFloat(rawPrice) || 0;
+              const paidAmount = parseFloat(rawPaid) || price;
+              const status: DeliveryStatus = paidAmount > price ? 'TIP' : 'DONE';
+              
+              onUpdateStatus(buyer.id, status, { 
+                paymentMethod: 'COD', 
+                price, 
+                paidAmount, 
+                actualPaymentMethod: method 
+              });
+              map.closePopup();
+            };
+
+            confirmCash?.addEventListener('click', () => submitCod('CASH'));
+            confirmQris?.addEventListener('click', () => submitCod('QRIS'));
+
           }, 50);
 
           return div;
-        }, { maxWidth: 280, minWidth: 240, className: 'elegant-popup' });
+        }, { maxWidth: 280, minWidth: 260, className: 'elegant-popup' });
 
       bounds.push([buyer.latitude, buyer.longitude]);
     });
@@ -391,11 +389,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
         setTimeout(() => setLocating(false), 200);
       },
       () => setLocating(false),
-      { 
-        enableHighAccuracy: true, 
-        timeout: 10000,
-        maximumAge: 0 
-      }
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   };
 
@@ -412,11 +406,9 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
           className={`h-11 w-11 rounded-2xl backdrop-blur-md border-white/10 p-0 flex items-center justify-center active:scale-90 transition-all duration-200 shadow-2xl ${
             mapType === 'satellite' ? 'bg-primary text-white' : 'bg-black/60 text-white'
           }`}
-          title={mapType === 'street' ? 'Ganti ke Satelit' : 'Ganti ke Standar'}
         >
           {mapType === 'street' ? <Layers className="w-5 h-5" /> : <MapIcon className="w-5 h-5" />}
         </Button>
-        
         <Button
           onClick={handleLocateMe}
           disabled={locating}

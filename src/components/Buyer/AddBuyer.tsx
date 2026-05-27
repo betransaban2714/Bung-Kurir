@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   Dialog,
   DialogContent,
@@ -17,7 +16,6 @@ import {
 import { Plus, Loader2, MapPin, Send, Map as MapIcon } from 'lucide-react';
 import { extractLocationData } from '@/ai/flows/location-data-extractor';
 import { useToast } from '@/hooks/use-toast';
-import { PacketType, PaymentStatus } from '@/types';
 import dynamic from 'next/dynamic';
 
 const MapPicker = dynamic(() => import('@/components/Map/MapPicker'), { 
@@ -38,23 +36,9 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
 
   const [formData, setFormData] = useState({
     name: '',
-    waNumber: '',
     locationInput: '',
-    price: '', // Raw string number
-    packetType: 'STD' as PacketType,
-    paymentMethod: 'COD' as PaymentStatus,
     manualCoords: null as { lat: number; lng: number } | null,
   });
-
-  const formatPrice = (val: string) => {
-    const number = val.replace(/\D/g, '');
-    return number.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  };
-
-  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = e.target.value.replace(/\D/g, '');
-    setFormData({ ...formData, price: rawValue });
-  };
 
   const handleManualLocation = (coords: { lat: number; lng: number }) => {
     setFormData({ 
@@ -91,23 +75,15 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
       
       onAdd({
         name: formData.name,
-        waNumber: formData.waNumber,
         address: address,
         latitude: latitude,
         longitude: longitude,
-        price: parseFloat(formData.price) || 0,
-        packetType: formData.packetType,
-        paymentMethod: formData.paymentMethod,
       });
 
       setOpen(false);
       setFormData({
         name: '',
-        waNumber: '',
         locationInput: '',
-        price: '',
-        packetType: 'STD',
-        paymentMethod: 'COD',
         manualCoords: null,
       });
       toast({ title: 'Mantap!', description: 'Buyer su masuk daftar.' });
@@ -136,7 +112,7 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
               <MapPin className="text-primary w-8 h-8" /> MO ANTAR KA MANA?
             </DialogTitle>
             <DialogDescription className="text-muted-foreground font-medium italic text-sm">
-              Isi data buyer deng lokasi yang jelas e.
+              Input cepat, urusan harga nanti pas beres pengantaran e.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-6 pt-4">
@@ -174,70 +150,6 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
               <p className="text-[10px] text-muted-foreground italic px-1">
                 {formData.manualCoords ? '🔥 Lokasi manual su aktif!' : "Pace bisa masukan koordinat desimal atau DMS 🔥"}
               </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="wa" className="text-muted-foreground font-black uppercase tracking-widest text-[10px]">Nomor WA</Label>
-                <Input
-                  id="wa"
-                  type="tel"
-                  inputMode="tel"
-                  placeholder="0812..."
-                  className="bg-secondary/40 h-14 text-lg font-black rounded-2xl border-white/5"
-                  value={formData.waNumber}
-                  onChange={(e) => setFormData({ ...formData, waNumber: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="price" className="text-muted-foreground font-black uppercase tracking-widest text-[10px]">Harga Paket</Label>
-                <Input
-                  id="price"
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="150.000"
-                  className="bg-secondary/40 h-14 text-lg font-black rounded-2xl border-white/5"
-                  value={formatPrice(formData.price)}
-                  onChange={handlePriceChange}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 bg-white/5 p-4 rounded-3xl border border-white/5">
-              <div className="space-y-3">
-                <Label className="text-muted-foreground font-black uppercase tracking-widest text-[9px]">Jenis Paket</Label>
-                <RadioGroup 
-                  value={formData.packetType} 
-                  onValueChange={(v) => setFormData({ ...formData, packetType: v as PacketType })}
-                  className="flex gap-4"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="STD" id="std" className="w-5 h-5" />
-                    <Label htmlFor="std" className="text-sm font-black">STD</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="ECO" id="eco" className="w-5 h-5" />
-                    <Label htmlFor="eco" className="text-sm font-black">ECO</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-              <div className="space-y-3">
-                <Label className="text-muted-foreground font-black uppercase tracking-widest text-[9px]">Metode</Label>
-                <RadioGroup 
-                  value={formData.paymentMethod} 
-                  onValueChange={(v) => setFormData({ ...formData, paymentMethod: v as PaymentStatus })}
-                  className="flex gap-4"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="COD" id="cod" className="w-5 h-5" />
-                    <Label htmlFor="cod" className="text-sm font-black">COD</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Su Bayar" id="paid" className="w-5 h-5" />
-                    <Label htmlFor="paid" className="text-sm font-black text-blue-400">LUNAS</Label>
-                  </div>
-                </RadioGroup>
-              </div>
             </div>
 
             <DialogFooter className="pt-2">

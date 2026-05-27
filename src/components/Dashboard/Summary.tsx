@@ -36,50 +36,31 @@ export function Summary({ jadwalList }: SummaryProps) {
 
   const targetCOD = allBuyers
     .filter(b => b.paymentMethod === 'COD')
-    .reduce((sum, b) => sum + b.price, 0);
+    .reduce((sum, b) => sum + (b.price || 0), 0);
 
   const paidAtDelivery = allBuyers.filter(b => 
     (b.status === 'DONE' || b.status === 'TIP') && 
     (b.actualPaymentMethod === 'CASH' || b.actualPaymentMethod === 'QRIS')
   );
 
-  const totalReceived = paidAtDelivery.reduce((sum, b) => sum + (b.paidAmount ?? b.price), 0);
+  const totalReceived = paidAtDelivery.reduce((sum, b) => sum + (b.paidAmount || b.price || 0), 0);
 
   const totalCashSetoran = paidAtDelivery
     .filter((b) => b.actualPaymentMethod === 'CASH')
-    .reduce((sum, b) => sum + (b.paidAmount ?? b.price), 0);
+    .reduce((sum, b) => sum + (b.paidAmount || b.price || 0), 0);
 
   const totalQris = paidAtDelivery
     .filter((b) => b.actualPaymentMethod === 'QRIS')
-    .reduce((sum, b) => sum + (b.paidAmount ?? b.price), 0);
+    .reduce((sum, b) => sum + (b.paidAmount || b.price || 0), 0);
 
   const tips = paidAtDelivery.reduce((sum, b) => {
-    const paid = b.paidAmount ?? b.price;
-    return sum + Math.max(0, paid - b.price);
+    const paid = b.paidAmount || b.price || 0;
+    const price = b.price || 0;
+    return sum + Math.max(0, paid - price);
   }, 0);
 
   const formatCurrency = (val: number) => 
     new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
-
-  const formatShortDate = (indoDate: string) => {
-    if (!indoDate) return "";
-    const months: Record<string, string> = {
-      'Januari': '01', 'Februari': '02', 'Maret': '03', 'April': '04', 'Mei': '05', 'Juni': '06',
-      'Juli': '07', 'Agustus': '08', 'September': '09', 'Oktober': '10', 'November': '11', 'Desember': '12'
-    };
-    
-    try {
-      const parts = indoDate.split(/[ ,]+/);
-      const day = parts[1]?.padStart(2, '0');
-      const month = months[parts[2]];
-      const year = parts[3]?.slice(-2);
-
-      if (day && month && year) return `${day}/${month}/${year}`;
-      return indoDate;
-    } catch (e) {
-      return indoDate;
-    }
-  };
 
   const handleExport = () => {
     if (jadwalList.length === 0) {
@@ -118,7 +99,7 @@ export function Summary({ jadwalList }: SummaryProps) {
       content += `${idx + 1}. Jadwal: ${r.name}\n`;
       r.buyers.forEach(b => {
         const statusText = b.status === 'PENDING' ? 'BELUM' : (b.actualPaymentMethod || b.paymentMethod);
-        content += `   [${b.packetType}] ${b.name} | ${statusText} | ${formatCurrency(b.paidAmount ?? b.price)}\n`;
+        content += `   ${b.name} | ${statusText} | ${formatCurrency(b.paidAmount || b.price || 0)}\n`;
       });
       content += `\n`;
     });
@@ -138,68 +119,7 @@ export function Summary({ jadwalList }: SummaryProps) {
     toast({ title: "Export Berhasil!", description: "File .txt su terdownload e. Mantap!" });
   };
 
-  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const text = event.target?.result as string;
-      if (!text) return;
-
-      try {
-        const lines = text.split('\n');
-        const data: ImportedData = {
-          date: '',
-          totalJadwal: 0,
-          totalBuyer: 0,
-          selesai: 0,
-          sisa: 0,
-          targetCod: 0,
-          doiMaso: 0,
-          doiTaLebe: 0,
-          totalCashSetoran: 0,
-          totalQris: 0,
-        };
-
-        lines.forEach(line => {
-          if (line.includes('Tanggal:')) data.date = line.split('Tanggal:')[1].trim();
-          if (line.includes('- Total Jadwal:')) data.totalJadwal = parseInt(line.split(':')[1]) || 0;
-          if (line.includes('- Total Buyer:')) data.totalBuyer = parseInt(line.split(':')[1]) || 0;
-          if (line.includes('- Selesai:')) data.selesai = parseInt(line.split(':')[1]) || 0;
-          if (line.includes('- Sisa:')) data.sisa = parseInt(line.split(':')[1]) || 0;
-          if (line.includes('- Target COD:')) data.targetCod = parseInt(line.replace(/\D/g, '')) || 0;
-          if (line.includes('- Doi Maso:')) data.doiMaso = parseInt(line.replace(/\D/g, '')) || 0;
-          if (line.includes('- Ba Stor:')) data.totalCashSetoran = parseInt(line.replace(/\D/g, '')) || 0;
-          if (line.includes('- Total QRIS:')) data.totalQris = parseInt(line.replace(/\D/g, '')) || 0;
-          if (line.includes('- Doi Ta Lebe:')) data.doiTaLebe = parseInt(line.replace(/\D/g, '')) || 0;
-        });
-
-        if (!data.date && !data.totalBuyer) throw new Error("Format file salah");
-
-        setReaderData(data);
-        toast({ title: "Reader Aktif!", description: "Data lama su berhasil dibaca. Mantap!" });
-      } catch (err) {
-        toast({ title: "Gagal Baca!", description: "Format file tra terbaca, pastikan itu file .txt dari Bung'Kurir.", variant: "destructive" });
-      }
-    };
-    reader.readAsText(file);
-    e.target.value = '';
-  };
-
-  const activeStats = readerData ? {
-    total: readerData.totalBuyer,
-    done: readerData.selesai,
-    pending: readerData.sisa,
-    targetCod: readerData.targetCod,
-    received: readerData.doiMaso,
-    tips: readerData.doiTaLebe,
-    cashSetoran: readerData.totalCashSetoran,
-    qris: readerData.totalQris,
-    displayDate: formatShortDate(readerData.date),
-    originalDate: readerData.date,
-    isImported: true
-  } : {
+  const activeStats = {
     total: total,
     done: done,
     pending: pending,
@@ -208,47 +128,19 @@ export function Summary({ jadwalList }: SummaryProps) {
     tips: tips,
     cashSetoran: totalCashSetoran,
     qris: totalQris,
-    displayDate: "HARI INI",
-    originalDate: "HARI INI",
-    isImported: false
   };
 
   return (
     <div className="space-y-4">
-      {activeStats.isImported && (
-        <div className="flex items-center justify-between bg-accent/20 border border-accent/20 p-3 rounded-2xl animate-in fade-in slide-in-from-top-2 duration-300">
-          <div className="flex items-center gap-2">
-            <History className="w-5 h-5 text-accent" />
-            <div>
-              <p className="text-[10px] font-black text-accent uppercase tracking-widest leading-none">Mode Reader Aktif (Mode Import Data)</p>
-              <p className="text-xs font-bold text-white mt-1">{activeStats.originalDate}</p>
-            </div>
-          </div>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="h-8 font-black text-[10px] gap-1 hover:bg-accent/10 text-white rounded-xl bg-accent/20 border border-accent/20"
-            onClick={() => setReaderData(null)}
-          >
-            <ArrowLeft className="w-3 h-3" /> KALUAR
-          </Button>
-        </div>
-      )}
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className={`glass p-4 border-none transition-all duration-500 ${activeStats.isImported ? 'glow-orange border-accent/20' : 'glow-blue'}`}>
+        <Card className="glass p-4 border-none glow-blue">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-xl ${activeStats.isImported ? 'bg-accent/20' : 'bg-primary/20'}`}>
-                <Package className={`${activeStats.isImported ? 'text-accent' : 'text-primary'} w-5 h-5`} />
+              <div className="bg-primary/20 p-2 rounded-xl">
+                <Package className="text-primary w-5 h-5" />
               </div>
               <h3 className="font-bold text-lg">Info Pengantaran</h3>
             </div>
-            <span className={`text-[9px] font-black px-2 py-0.5 rounded-full border uppercase ${
-              activeStats.isImported ? 'bg-accent/10 text-accent border-accent/20' : 'bg-primary/10 text-primary border-primary/20'
-            }`}>
-              {activeStats.isImported ? activeStats.displayDate : 'Harian'}
-            </span>
           </div>
           <div className="grid grid-cols-3 gap-2 text-center">
             <div className="bg-white/5 rounded-xl py-2">
@@ -266,17 +158,14 @@ export function Summary({ jadwalList }: SummaryProps) {
           </div>
         </Card>
 
-        <Card className={`glass p-4 border-none transition-all duration-500 ${activeStats.isImported ? 'glow-orange' : 'glow-blue'}`}>
+        <Card className="glass p-4 border-none glow-orange">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-xl ${activeStats.isImported ? 'bg-accent/20' : 'bg-accent/20'}`}>
+              <div className="bg-accent/20 p-2 rounded-xl">
                 <Wallet className="text-accent w-5 h-5" />
               </div>
               <h3 className="font-bold text-lg">Info Doi</h3>
             </div>
-            <span className="text-[9px] font-black bg-accent/10 text-accent px-2 py-0.5 rounded-full border border-accent/20 uppercase">
-              {activeStats.isImported ? activeStats.displayDate : 'Harian'}
-            </span>
           </div>
           <div className="space-y-3">
             <div className="flex justify-between items-center bg-white/5 p-2 rounded-lg">
@@ -284,11 +173,9 @@ export function Summary({ jadwalList }: SummaryProps) {
               <span className="font-black text-sm text-white">{formatCurrency(activeStats.targetCod)}</span>
             </div>
 
-            <div className={`flex justify-between items-center p-2 rounded-lg border ${
-              activeStats.isImported ? 'bg-accent/10 border-accent/20' : 'bg-primary/10 border-primary/20'
-            }`}>
-              <span className={`text-[11px] font-bold uppercase ${activeStats.isImported ? 'text-accent' : 'text-primary'}`}>Doi Maso (Total):</span>
-              <span className={`font-black text-sm ${activeStats.isImported ? 'text-accent' : 'text-primary'}`}>{formatCurrency(activeStats.received)}</span>
+            <div className="flex justify-between items-center p-2 rounded-lg border bg-primary/10 border-primary/20">
+              <span className="text-[11px] font-bold uppercase text-primary">Doi Maso (Total):</span>
+              <span className="font-black text-sm text-primary">{formatCurrency(activeStats.received)}</span>
             </div>
             
             <div className="grid grid-cols-2 gap-2">
@@ -315,28 +202,12 @@ export function Summary({ jadwalList }: SummaryProps) {
         </Card>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <Button 
-          onClick={handleExport}
-          className="h-14 bg-white/5 hover:bg-white/10 text-white font-black rounded-2xl border border-white/10 gap-2 active:scale-95 transition-all shadow-xl"
-        >
-          <FileText className="w-5 h-5 text-primary" /> EXPORT
-        </Button>
-        
-        <div className="relative">
-          <input 
-            type="file" 
-            accept=".txt" 
-            onChange={handleImport}
-            className="absolute inset-0 opacity-0 cursor-pointer z-10"
-          />
-          <Button 
-            className="w-full h-14 bg-accent/10 hover:bg-accent/20 text-accent font-black rounded-2xl border border-accent/20 gap-2 active:scale-95 transition-all shadow-xl"
-          >
-            <Upload className="w-5 h-5" /> BACA DATA
-          </Button>
-        </div>
-      </div>
+      <Button 
+        onClick={handleExport}
+        className="w-full h-14 bg-white/5 hover:bg-white/10 text-white font-black rounded-2xl border border-white/10 gap-2 active:scale-95 transition-all shadow-xl"
+      >
+        <FileText className="w-5 h-5 text-primary" /> EXPORT LAPORAN (.TXT)
+      </Button>
     </div>
   );
 }
