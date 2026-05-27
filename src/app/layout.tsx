@@ -29,28 +29,33 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#3b82f6" />
         <link rel="icon" href="/bungkurir_icon.png" />
+        {/* SCRIPT PAKSA UPDATE: Supaya HP Pace tra simpan kodingan lama */}
         <script dangerouslySetInnerHTML={{ __html: `
           if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
               navigator.serviceWorker.register('/sw.js').then(function(registration) {
-                // Paksa update kalau ada kodingan baru
                 registration.onupdatefound = function() {
                   const installingWorker = registration.installing;
                   if (installingWorker) {
                     installingWorker.onstatechange = function() {
                       if (installingWorker.state === 'installed') {
                         if (navigator.serviceWorker.controller) {
-                          console.log('Kodingan baru tersedia, mohon refresh Pace!');
-                          window.location.reload();
+                          console.log('Kodingan baru ada! Paksa refresh...');
+                          window.location.reload(true);
                         }
                       }
                     };
                   }
                 };
               }).catch(function(err) {
-                console.log('ServiceWorker registration failed: ', err);
+                console.log('SW failed: ', err);
               });
             });
+          }
+          // Bersihkan cache manual kalau versi berubah
+          if (window.location.search.includes('reload=true')) {
+             const newUrl = window.location.href.replace(/[?&]reload=true/, "");
+             window.history.replaceState({}, document.title, newUrl);
           }
         ` }} />
       </head>
