@@ -62,9 +62,9 @@
     box-shadow: 0 0 20px -5px hsl(var(--accent) / 0.6);
   }
 
-  /* RESET MAP THEME: Balik ke Standard Dark Matter yang stabil (Jalanan kelihatan) */
+  /* RESET MAP THEME: Balik ke Standard Dark Matter yang stabil (Jalanan & Bangunan kelihatan) */
   .google-dark-tiles {
-    filter: brightness(0.9) contrast(1.1) !important;
+    filter: brightness(0.95) contrast(1.05) !important;
   }
 
   /* CUSTOM MARKER STYLES */

@@ -77,6 +77,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
     mapRef.current = map;
 
+    // Pakai CartoDB Dark Matter yang stabil & bersih (jalanan & gedung kelihatan)
     streetLayerRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
@@ -273,8 +274,9 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
               
               if (routeData) {
                 routeGroup.clearLayers();
+                // Rute Putih Menyala supaya kontras di peta gelap
                 L.polyline(routeData.coordinates as L.LatLngExpression[], {
-                  color: '#ffffff', weight: 6, opacity: 0.8
+                  color: '#ffffff', weight: 6, opacity: 0.9
                 }).addTo(routeGroup);
 
                 const infoBox = document.getElementById(`route-info-${buyer.id}`);
@@ -291,6 +293,10 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
             document.getElementById(`nav-btn-${buyer.id}`)?.addEventListener('click', () => {
               window.open(`https://www.google.com/maps/dir/?api=1&destination=${buyer.latitude},${buyer.longitude}`, '_blank');
+            });
+
+            document.getElementById(`chat-btn-${buyer.id}`)?.addEventListener('click', () => {
+              window.open(`https://wa.me/?text=Halo ${buyer.name}, saya Kurir sedang menuju ke lokasi pengantaran.`, '_blank');
             });
 
             const mainDoneBtn = document.getElementById(`main-done-btn-${buyer.id}`);
