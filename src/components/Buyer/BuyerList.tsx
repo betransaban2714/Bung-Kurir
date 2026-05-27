@@ -167,7 +167,16 @@ export function BuyerList({ buyers, onDelete }: BuyerListProps) {
             {editData.method === 'COD' && (
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Harga Paket (Rp)</Label>
-                <Input type="number" className="h-12 bg-secondary/50 font-black text-lg border-white/5 rounded-xl" value={editData.price} onChange={(e) => setEditData({ ...editData, price: e.target.value })} />
+                <Input 
+                  type="text" 
+                  inputMode="numeric"
+                  className="h-12 bg-secondary/50 font-black text-lg border-white/5 rounded-xl" 
+                  value={editData.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} 
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '');
+                    setEditData({ ...editData, price: val });
+                  }} 
+                />
               </div>
             )}
           </div>

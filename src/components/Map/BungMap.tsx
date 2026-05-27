@@ -318,7 +318,17 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
             mainDoneBtn?.addEventListener('click', () => {
               mainDoneBtn.classList.add('hidden');
-              methodChoice?.classList.remove('hidden');
+              
+              // LOGIKA PINTAR: Kalau su ada info metode/harga dari Settings, langsung lompat ke input akhir
+              if (buyer.paymentMethod === 'LUNAS') {
+                 onUpdateStatus(buyer.id, 'DONE', { paymentMethod: 'LUNAS', price: 0, paidAmount: 0 });
+                 map.closePopup();
+              } else if (buyer.paymentMethod === 'COD' && buyer.price && buyer.price > 0) {
+                 codArea?.classList.remove('hidden');
+                 if (paidInput) paidInput.focus();
+              } else {
+                 methodChoice?.classList.remove('hidden');
+              }
             });
 
             btnLunas?.addEventListener('click', () => {
