@@ -32,7 +32,22 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: `
           if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
-              navigator.serviceWorker.register('/sw.js').catch(function(err) {
+              navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                // Paksa update kalau ada kodingan baru
+                registration.onupdatefound = function() {
+                  const installingWorker = registration.installing;
+                  if (installingWorker) {
+                    installingWorker.onstatechange = function() {
+                      if (installingWorker.state === 'installed') {
+                        if (navigator.serviceWorker.controller) {
+                          console.log('Kodingan baru tersedia, mohon refresh Pace!');
+                          window.location.reload();
+                        }
+                      }
+                    };
+                  }
+                };
+              }).catch(function(err) {
                 console.log('ServiceWorker registration failed: ', err);
               });
             });
