@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -71,7 +70,6 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
     mapRef.current = map;
 
-    // CartoDB Dark Matter: Jelas, jalanan putih, gedung kelihatan
     streetLayerRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
@@ -195,12 +193,12 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
           `;
 
           setTimeout(async () => {
-            if (userMarkerRef.current) {
+            if (userMarkerRef.current && mapRef.current) {
               const start = userMarkerRef.current.getLatLng();
               const routeData = await fetchRoute([start.lat, start.lng], [buyer.latitude, buyer.longitude]);
-              if (routeData) {
-                routeLayerGroupRef.current?.clearLayers();
-                L.polyline(routeData.coordinates as L.LatLngExpression[], { color: '#ffffff', weight: 4, opacity: 0.9 }).addTo(routeLayerGroupRef.current!);
+              if (routeData && routeLayerGroupRef.current) {
+                routeLayerGroupRef.current.clearLayers();
+                L.polyline(routeData.coordinates as L.LatLngExpression[], { color: '#ffffff', weight: 4, opacity: 0.9 }).addTo(routeLayerGroupRef.current);
                 const distSpan = document.getElementById(`dist-${buyer.id}`);
                 const timeSpan = document.getElementById(`time-${buyer.id}`);
                 if (distSpan) distSpan.innerText = `${(routeData.distance / 1000).toFixed(1)} KM`;
@@ -218,7 +216,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
             doneBtn?.addEventListener('click', () => {
               if (buyer.paymentMethod === 'LUNAS') {
                 onUpdateStatus(buyer.id, 'DONE', { paymentMethod: 'LUNAS', price: 0, paidAmount: 0 });
-                map.closePopup();
+                if (mapRef.current) mapRef.current.closePopup();
               } else {
                 doneBtn.classList.add('hidden');
                 actionArea?.classList.remove('hidden');
@@ -235,7 +233,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
                 price: finalPrice,
                 paidAmount: finalPrice 
               });
-              map.closePopup();
+              if (mapRef.current) mapRef.current.closePopup();
             };
             document.getElementById(`confirm-cash-${buyer.id}`)?.addEventListener('click', () => submit('CASH'));
             document.getElementById(`confirm-qris-${buyer.id}`)?.addEventListener('click', () => submit('QRIS'));
@@ -247,7 +245,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
       bounds.push([buyer.latitude, buyer.longitude]);
     });
 
-    if (bounds.length > 0) map.fitBounds(L.latLngBounds(bounds), { padding: [50, 50], maxZoom: 18 });
+    if (bounds.length > 0 && mapRef.current) mapRef.current.fitBounds(L.latLngBounds(bounds), { padding: [50, 50], maxZoom: 18 });
   }, [rencana, onUpdateStatus]);
 
   return (
@@ -256,7 +254,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
       <div className="absolute bottom-36 right-4 z-30 flex flex-col gap-3">
         <Button onClick={() => setMapType(prev => prev === 'street' ? 'satellite' : 'street')} className="h-11 w-11 rounded-2xl bg-black/60 text-white border border-white/10 shadow-2xl backdrop-blur-md"><Layers className="w-5 h-5" /></Button>
         <Button onClick={() => {
-          if (navigator.geolocation) {
+          if (navigator.geolocation && mapRef.current) {
             navigator.geolocation.getCurrentPosition((pos) => {
               const { latitude, longitude } = pos.coords;
               if (userMarkerRef.current) userMarkerRef.current.setLatLng([latitude, longitude]).addTo(mapRef.current!);
