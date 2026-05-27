@@ -81,7 +81,7 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
     streetLayerRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
-      className: 'google-dark-tiles' // Kelas CSS untuk filter warna biru
+      className: 'google-dark-tiles' 
     });
 
     satelliteLayerRef.current = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -156,7 +156,6 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
     rencana.buyers.forEach((buyer) => {
       const isDone = buyer.status === 'DONE' || buyer.status === 'TIP';
-      // Warna Marker Google Style
       const color = isDone ? '#22c55e' : '#ff3131';
       const glowColor = isDone ? 'rgba(34, 197, 94, 0.8)' : 'rgba(255, 49, 49, 0.8)';
       
@@ -276,9 +275,13 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
               
               if (routeData) {
                 routeGroup.clearLayers();
-                // Rute Putih Menyala (Glow)
+                // Rute Putih Menyala dengan Glow
                 L.polyline(routeData.coordinates as L.LatLngExpression[], {
-                  color: '#ffffff', weight: 6, opacity: 0.8, lineJoin: 'round', lineCap: 'round', dashArray: '1, 10'
+                  color: '#ffffff', weight: 8, opacity: 0.9, lineJoin: 'round', lineCap: 'round'
+                }).addTo(routeGroup);
+                
+                L.polyline(routeData.coordinates as L.LatLngExpression[], {
+                  color: '#ffffff', weight: 12, opacity: 0.2, lineJoin: 'round', lineCap: 'round'
                 }).addTo(routeGroup);
 
                 const infoBox = document.getElementById(`route-info-${buyer.id}`);

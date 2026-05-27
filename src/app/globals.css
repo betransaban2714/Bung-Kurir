@@ -62,10 +62,10 @@
     box-shadow: 0 0 20px -5px hsl(var(--accent) / 0.6);
   }
 
-  /* CUSTOM MAP THEME: GOOGLE DARK STYLE (DEEP BLUE) */
+  /* CUSTOM MAP THEME: GOOGLE DARK STYLE (DEEP BLUE + WHITE ROADS) */
   .google-dark-tiles {
-    /* Filter ini mengubah abu-abu CartoDB menjadi Biru Deep ala Google Maps */
-    filter: brightness(0.6) contrast(1.3) saturate(1.8) hue-rotate(195deg) !important;
+    /* Filter ini mengubah abu-abu CartoDB menjadi Biru Deep, Laut Hitam, dan Jalan Putih */
+    filter: brightness(1.1) contrast(1.4) saturate(2) hue-rotate(200deg) !important;
   }
 
   /* CUSTOM MARKER STYLES */
