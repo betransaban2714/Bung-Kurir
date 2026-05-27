@@ -14,7 +14,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { Plus, Loader2, MapPin, Send, Map as MapIcon } from 'lucide-react';
-import { extractLocationData } from '@/ai/flows/location-data-extractor';
+import { parseCoordinates } from '@/lib/location-utils';
 import { useToast } from '@/hooks/use-toast';
 import dynamic from 'next/dynamic';
 
@@ -44,10 +44,10 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
     setFormData({ 
       ...formData, 
       manualCoords: coords, 
-      locationInput: `Lokasi Manual (${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)})` 
+      locationInput: `${coords.lat.toFixed(6)}, ${coords.lng.toFixed(6)}` 
     });
     setShowPicker(false);
-    toast({ title: 'Lokasi Terpasang!', description: 'Koordinat su tersimpan otomatis.' });
+    toast({ title: 'Lokasi Terpasang!', description: 'Koordinat su tersimpan.' });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -61,22 +61,23 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
     try {
       let latitude: number;
       let longitude: number;
-      let address: string = formData.locationInput;
 
       if (formData.manualCoords) {
         latitude = formData.manualCoords.lat;
         longitude = formData.manualCoords.lng;
       } else {
-        // DISINI FUNGSI AI NYA PACE: Baca teks lokasi kotor jadi koordinat bersih
-        const location = await extractLocationData({ locationInput: formData.locationInput });
-        latitude = location.latitude;
-        longitude = location.longitude;
-        address = location.parsedAddress || formData.locationInput;
+        // PARSING LOKAL PAKE REGEX (Tra perlu AI lagi)
+        const coords = parseCoordinates(formData.locationInput);
+        if (!coords) {
+          throw new Error('Format koordinat tra dikenal');
+        }
+        latitude = coords.lat;
+        longitude = coords.lng;
       }
       
       onAdd({
         name: formData.name,
-        address: address,
+        address: formData.locationInput,
         latitude: latitude,
         longitude: longitude,
       });
@@ -89,8 +90,11 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
       });
       toast({ title: 'Mantap!', description: 'Buyer su masuk daftar.' });
     } catch (error) {
-      console.error(error);
-      toast({ title: 'Gagal e!', description: 'Lokasi tra terbaca, coba cek link maps atau pilih manual dolo.', variant: 'destructive' });
+      toast({ 
+        title: 'Gagal e!', 
+        description: 'Pastikan format koordinat betul (Desimal atau DMS), atau pilih manual di peta.', 
+        variant: 'destructive' 
+      });
     } finally {
       setLoading(false);
     }
@@ -113,7 +117,7 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
               <MapPin className="text-primary w-8 h-8" /> MO ANTAR KA MANA?
             </DialogTitle>
             <DialogDescription className="text-muted-foreground font-medium italic text-sm">
-              Tulis Nama deng Lokasi saja Pace, biar AI yang urus sisanya! 🔥
+              Cukup Nama deng Koordinat saja Pace! 🔥
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-6 pt-4">
@@ -130,7 +134,7 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
 
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
-                <Label htmlFor="location" className="text-muted-foreground font-black uppercase tracking-widest text-[10px]">Lokasi Antar (Bisa Paste Link Maps)</Label>
+                <Label htmlFor="location" className="text-muted-foreground font-black uppercase tracking-widest text-[10px]">Koordinat (Desimal/DMS)</Label>
                 <Button 
                   type="button" 
                   variant="ghost" 
@@ -143,7 +147,7 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
               </div>
               <Input
                 id="location"
-                placeholder="Paste Link Maps atau Koordinat"
+                placeholder="-0.69809, 127.46512 atau DMS"
                 className={`bg-secondary/40 h-14 text-xs rounded-2xl border-white/5 transition-all ${formData.manualCoords ? 'border-primary/50 ring-2 ring-primary/20 bg-primary/5' : ''}`}
                 value={formData.locationInput}
                 onChange={(e) => setFormData({ ...formData, locationInput: e.target.value, manualCoords: null })}
@@ -157,9 +161,7 @@ export function AddBuyer({ onAdd, disabled }: AddBuyerProps) {
                 disabled={loading}
               >
                 {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-7 w-7 animate-spin" /> PROSES LOKASI...
-                  </>
+                  <Loader2 className="mr-2 h-7 w-7 animate-spin" />
                 ) : (
                   <>
                     GAS TAMBAH! <Send className="ml-2 w-7 h-7" />
