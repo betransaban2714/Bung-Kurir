@@ -43,14 +43,16 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
     const map = L.map(containerRef.current, {
       zoomControl: false,
       maxZoom: 20,
+      attributionControl: false,
     }).setView([-2.5489, 118.0149], 5);
 
     mapRef.current = map;
 
-    // Mode Gelap
+    // Deep Blue Google Style Theme
     streetLayerRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
+      className: 'google-dark-tiles'
     });
 
     satelliteLayerRef.current = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -62,7 +64,6 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
       maxZoom: 20,
     });
 
-    // Default: Street Map (Dark)
     streetLayerRef.current.addTo(map);
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
@@ -81,9 +82,9 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
       } else {
         const icon = L.divIcon({
           className: 'custom-marker',
-          html: `<div style="background-color: #ef4444; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 15px rgba(239, 68, 68, 0.8);"></div>`,
-          iconSize: [24, 24],
-          iconAnchor: [12, 12],
+          html: `<div style="background-color: #ff3131; width: 26px; height: 26px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 25px rgba(255, 49, 49, 0.8), 0 0 10px rgba(255,255,255,0.4);"></div>`,
+          iconSize: [26, 26],
+          iconAnchor: [13, 13],
         });
         markerRef.current = L.marker([lat, lng], { icon, zIndexOffset: 1000 }).addTo(map);
       }
@@ -145,7 +146,7 @@ export default function MapPicker({ onSelect }: MapPickerProps) {
 
   return (
     <div className="w-full h-full relative">
-      <div ref={containerRef} className="w-full h-full z-0 bg-black" />
+      <div ref={containerRef} className="w-full h-full z-0 bg-[#020408]" />
       
       <div className="absolute top-4 right-4 z-30">
         <Button

@@ -77,9 +77,11 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
     mapRef.current = map;
 
+    // Dark Theme: Deep Blue ala Google Maps
     streetLayerRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
       subdomains: 'abcd',
       maxZoom: 20,
+      className: 'google-dark-tiles' // Kelas CSS untuk filter warna biru
     });
 
     satelliteLayerRef.current = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -154,14 +156,15 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
 
     rencana.buyers.forEach((buyer) => {
       const isDone = buyer.status === 'DONE' || buyer.status === 'TIP';
-      const color = isDone ? '#22c55e' : '#ef4444';
-      const glowColor = isDone ? 'rgba(34, 197, 94, 0.8)' : 'rgba(239, 68, 68, 0.8)';
+      // Warna Marker Google Style
+      const color = isDone ? '#22c55e' : '#ff3131';
+      const glowColor = isDone ? 'rgba(34, 197, 94, 0.8)' : 'rgba(255, 49, 49, 0.8)';
       
       const icon = L.divIcon({
         className: 'custom-marker',
-        html: `<div style="background-color: ${color}; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 15px ${glowColor};"></div>`,
-        iconSize: [20, 20],
-        iconAnchor: [10, 10],
+        html: `<div style="background-color: ${color}; width: 22px; height: 22px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 20px ${glowColor}, 0 0 10px rgba(255,255,255,0.4);"></div>`,
+        iconSize: [22, 22],
+        iconAnchor: [11, 11],
       });
 
       L.marker([buyer.latitude, buyer.longitude], { 
@@ -273,8 +276,9 @@ export default function BungMap({ rencana, onUpdateStatus }: BungMapProps) {
               
               if (routeData) {
                 routeGroup.clearLayers();
+                // Rute Putih Menyala (Glow)
                 L.polyline(routeData.coordinates as L.LatLngExpression[], {
-                  color: 'white', weight: 5, opacity: 0.9, lineJoin: 'round', lineCap: 'round', dashArray: '1, 8'
+                  color: '#ffffff', weight: 6, opacity: 0.8, lineJoin: 'round', lineCap: 'round', dashArray: '1, 10'
                 }).addTo(routeGroup);
 
                 const infoBox = document.getElementById(`route-info-${buyer.id}`);
