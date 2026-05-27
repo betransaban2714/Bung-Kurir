@@ -1,6 +1,8 @@
+
 import type {Metadata} from 'next';
 import './globals.css';
 import {Toaster} from '@/components/ui/toaster';
+import {KurirProvider} from '@/store/useKurirStore';
 
 export const metadata: Metadata = {
   title: "Bung'Kurir📦 - Alat Tempur Kurir Pemula",
@@ -38,8 +40,10 @@ export default function RootLayout({
         ` }} />
       </head>
       <body className="font-body antialiased selection:bg-primary selection:text-primary-foreground">
-        {children}
-        <Toaster />
+        <KurirProvider>
+          {children}
+          <Toaster />
+        </KurirProvider>
       </body>
     </html>
   );

@@ -1,10 +1,11 @@
+
 'use client';
 
 import { useState } from 'react';
 import { Buyer, PaymentStatus } from '@/types';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
-import { CheckCircle2, Clock, Trash2, MapPin, AlertTriangle, TrendingUp, Settings2 } from 'lucide-react';
+import { CheckCircle2, Clock, Trash2, Settings2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,7 +15,6 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -25,7 +25,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogFooter,
 } from '@/components/ui/dialog';
 import { useKurirStore } from '@/store/useKurirStore';
@@ -156,11 +155,11 @@ export function BuyerList({ buyers, onDelete }: BuyerListProps) {
               <RadioGroup value={editData.method} onValueChange={(v) => setEditData({ ...editData, method: v as PaymentStatus })} className="flex gap-4">
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="COD" id="edit-cod" />
-                  <Label htmlFor="edit-cod" className="font-bold">COD</Label>
+                  <Label htmlFor="edit-cod" className="font-bold text-white">COD</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="LUNAS" id="edit-lunas" />
-                  <Label htmlFor="edit-lunas" className="font-bold">LUNAS</Label>
+                  <Label htmlFor="edit-lunas" className="font-bold text-white">LUNAS</Label>
                 </div>
               </RadioGroup>
             </div>
@@ -170,8 +169,8 @@ export function BuyerList({ buyers, onDelete }: BuyerListProps) {
                 <Input 
                   type="text" 
                   inputMode="numeric"
-                  className="h-12 bg-secondary/50 font-black text-lg border-white/5 rounded-xl" 
-                  value={editData.price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} 
+                  className="h-12 bg-secondary/50 font-black text-lg border-white/5 rounded-xl text-white" 
+                  value={editData.price.replace(/\B(?=(\d{3})+(?!\d))/g, ".")} 
                   onChange={(e) => {
                     const val = e.target.value.replace(/\D/g, '');
                     setEditData({ ...editData, price: val });
@@ -181,7 +180,7 @@ export function BuyerList({ buyers, onDelete }: BuyerListProps) {
             )}
           </div>
           <DialogFooter>
-            <Button onClick={handleSaveEdit} className="w-full h-12 bg-primary font-black rounded-xl">SIMPAN INFO</Button>
+            <Button onClick={handleSaveEdit} className="w-full h-12 bg-primary font-black rounded-xl text-white">SIMPAN INFO</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
